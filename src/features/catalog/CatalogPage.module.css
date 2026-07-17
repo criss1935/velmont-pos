@@ -1,0 +1,138 @@
+.empty {
+  padding: var(--vm-space-8);
+  text-align: center;
+  color: var(--vm-text-dim);
+}
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-6);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-2);
+  padding-bottom: var(--vm-space-2);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: var(--vm-text-lg);
+  font-weight: 600;
+}
+
+.emptyGroup {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--vm-space-4);
+}
+
+.inactive {
+  opacity: 0.6;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-2);
+  margin-bottom: var(--vm-space-2);
+}
+
+.name {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+}
+
+.description {
+  margin: 0 0 var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.price {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-2xl);
+  font-weight: 700;
+  color: var(--vm-text);
+}
+
+.days {
+  margin: var(--vm-space-1) 0 var(--vm-space-4);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Formularios (ServiceFormModal / CategoryFormModal / SettingsPage) */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-5);
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: var(--vm-space-2);
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-2);
+}
+
+.pill {
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-4);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.pillActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+.hint {
+  margin: var(--vm-space-2) 0 0;
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.error {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius);
+}

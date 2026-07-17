@@ -1,0 +1,13 @@
+.splash {
+  display: grid;
+  place-items: center;
+  height: 100dvh;
+  background-color: var(--vm-bg);
+  animation: fade var(--vm-duration-slow) var(--vm-ease);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}

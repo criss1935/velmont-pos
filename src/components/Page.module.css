@@ -1,0 +1,76 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--vm-space-6);
+  padding: var(--vm-space-6) var(--vm-space-8) var(--vm-space-5);
+  border-bottom: 1px solid var(--vm-border-subtle);
+  flex: none;
+}
+
+.heading {
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-3xl);
+  font-weight: 600;
+  line-height: var(--vm-leading-tight);
+  letter-spacing: 0.01em;
+}
+
+.subtitle {
+  margin-top: var(--vm-space-1);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+  flex: none;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--vm-space-6) var(--vm-space-8);
+}
+
+/* Cuerpo a sangre, sin padding: para pantallas que gestionan su propio layout
+ * (la de recibir parte la pantalla en dos columnas de alto completo). */
+.flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* --- Móvil: encabezado y cuerpo más compactos --------------------------- */
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--vm-space-3);
+    padding: var(--vm-space-4) var(--vm-space-4) var(--vm-space-3);
+  }
+
+  .title {
+    font-size: var(--vm-text-2xl);
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .body {
+    padding: var(--vm-space-4);
+  }
+}

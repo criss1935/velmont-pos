@@ -1,0 +1,56 @@
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+}
+
+.mark {
+  flex: none;
+  width: 40px;
+  height: 40px;
+}
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-xl);
+  font-weight: 600;
+  line-height: 1;
+  /* El tracking amplio en el wordmark es lo que separa una marca premium de un
+     título cualquiera. */
+  letter-spacing: var(--vm-tracking-wide);
+  color: var(--vm-text);
+}
+
+.tagline {
+  margin-top: 3px;
+  font-family: var(--vm-font-sans);
+  font-size: var(--vm-text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-gold-500);
+}
+
+.sm .mark {
+  width: 28px;
+  height: 28px;
+}
+
+.sm .wordmark {
+  font-size: var(--vm-text-base);
+}
+
+.sm .tagline {
+  display: none;
+}
+
+.lg .mark {
+  width: 64px;
+  height: 64px;
+}
+
+.lg .wordmark {
+  font-size: var(--vm-text-3xl);
+}

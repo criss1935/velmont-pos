@@ -1,0 +1,122 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vm-space-2);
+
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-5);
+
+  font-family: var(--vm-font-sans);
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  border: 1px solid transparent;
+  border-radius: var(--vm-radius);
+
+  transition:
+    background-color var(--vm-duration-fast) var(--vm-ease),
+    border-color var(--vm-duration-fast) var(--vm-ease),
+    transform var(--vm-duration-fast) var(--vm-ease),
+    opacity var(--vm-duration-fast) var(--vm-ease);
+}
+
+/* Sin hover: el objetivo es una tablet. El feedback vive en :active — un
+ * hundimiento de 1px que se lee como pulsación física. */
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.4;
+}
+
+/* --- Variantes ---------------------------------------------------------- */
+
+/* Sólido dorado. Reservado a LA acción de la pantalla: cobrar, recibir, cerrar
+ * caja. Si hay dos en una vista, una de las dos está mal. */
+.primary {
+  color: var(--vm-text-on-gold);
+  background: linear-gradient(to bottom, var(--vm-gold-400), var(--vm-gold-500));
+  border-color: var(--vm-gold-300);
+  box-shadow: var(--vm-shadow-sm);
+}
+
+.primary:active:not(:disabled) {
+  background: linear-gradient(to bottom, var(--vm-gold-500), var(--vm-gold-600));
+}
+
+/* Contorno dorado sobre superficie. La acción secundaria habitual. */
+.secondary {
+  color: var(--vm-gold-200);
+  background-color: var(--vm-surface-2);
+  border-color: var(--vm-border);
+}
+
+.secondary:active:not(:disabled) {
+  background-color: var(--vm-surface-pressed);
+  border-color: var(--vm-border-strong);
+}
+
+/* Sin caja hasta que se toca. Para acciones terciarias y barras de herramientas. */
+.ghost {
+  color: var(--vm-text-muted);
+  background-color: transparent;
+}
+
+.ghost:active:not(:disabled) {
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+}
+
+/* Destructivo. Contorno, no relleno: borrar nunca debe ser el botón más fácil
+ * de tocar de la pantalla. */
+.danger {
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-color: rgb(201 86 61 / 0.35);
+}
+
+.danger:active:not(:disabled) {
+  color: var(--vm-text);
+  background-color: var(--vm-danger);
+  border-color: var(--vm-danger);
+}
+
+/* --- Tamaños ------------------------------------------------------------ */
+
+.sm {
+  min-height: var(--vm-touch-min);
+  padding: 0 var(--vm-space-3);
+  font-size: var(--vm-text-2xs);
+}
+
+.lg {
+  min-height: var(--vm-touch-lg);
+  padding: 0 var(--vm-space-8);
+  font-size: var(--vm-text-base);
+}
+
+.block {
+  width: 100%;
+}
+
+/* --- Estado de carga ---------------------------------------------------- */
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 640ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

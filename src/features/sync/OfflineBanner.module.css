@@ -1,0 +1,20 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+  padding: var(--vm-space-2) var(--vm-space-5);
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  color: var(--vm-warning);
+  background-color: var(--vm-warning-bg);
+  border-bottom: 1px solid rgb(201 162 39 / 0.3);
+  flex: none;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background-color: var(--vm-warning);
+}

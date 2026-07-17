@@ -1,0 +1,68 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius-md);
+}
+
+/* Filete dorado en el canto superior. Es el detalle que hace que una tarjeta
+ * Velmont no se confunda con la tarjeta de cualquier otro POS. */
+.accent::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--vm-gold-500) 25%,
+    var(--vm-gold-400) 50%,
+    var(--vm-gold-500) 75%,
+    transparent
+  );
+  border-radius: var(--vm-radius-md) var(--vm-radius-md) 0 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-4);
+  padding: var(--vm-space-5) var(--vm-space-5) var(--vm-space-4);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.title {
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-xl);
+  font-weight: 600;
+  line-height: var(--vm-leading-tight);
+  color: var(--vm-text);
+}
+
+.subtitle {
+  margin-top: var(--vm-space-1);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-muted);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--vm-space-5);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-4) var(--vm-space-5);
+  border-top: 1px solid var(--vm-border-subtle);
+}
+
+.flush .body {
+  padding: 0;
+}

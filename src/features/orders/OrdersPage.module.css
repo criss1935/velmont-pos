@@ -1,0 +1,196 @@
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+  margin-bottom: var(--vm-space-5);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--vm-space-2);
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+  min-height: var(--vm-touch-min);
+  padding: 0 var(--vm-space-4);
+  flex: none;
+
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius-pill);
+}
+
+.tabActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+.count {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.search {
+  width: 260px;
+  flex: none;
+}
+
+/* --- Rejilla de órdenes ------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--vm-space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-4);
+  text-align: left;
+
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius-md);
+  transition:
+    border-color var(--vm-duration-fast) var(--vm-ease),
+    background-color var(--vm-duration-fast) var(--vm-ease);
+}
+
+.card:active {
+  background-color: var(--vm-surface-2);
+  border-color: var(--vm-border-strong);
+}
+
+/* Una orden vencida no puede parecerse a una normal. El borde rojo la separa a
+ * distancia, sin tener que leer la fecha. */
+.overdue {
+  border-color: rgb(201 86 61 / 0.5);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+}
+
+.cardBadges {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+}
+
+.folio {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-lg);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--vm-gold-300);
+}
+
+.customer {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.anon {
+  color: var(--vm-text-dim);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-muted);
+}
+
+.overdueLabel {
+  font-weight: 700;
+  color: var(--vm-danger);
+}
+
+.cardBottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  padding-top: var(--vm-space-3);
+  border-top: 1px solid var(--vm-border-subtle);
+}
+
+.amounts {
+  display: flex;
+  flex-direction: column;
+}
+
+.total {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-lg);
+  font-weight: 600;
+}
+
+/* Deber dinero es lo más importante que puede decir una tarjeta al entregar. */
+.balance {
+  font-size: var(--vm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-warning);
+}
+
+.paid {
+  font-size: var(--vm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-success);
+}
+
+.items {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-16);
+  text-align: center;
+  color: var(--vm-text-dim);
+}
+
+.emptyIcon {
+  font-size: var(--vm-text-5xl);
+  color: var(--vm-surface-4);
+}

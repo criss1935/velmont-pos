@@ -1,0 +1,12 @@
+.button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: var(--vm-space-3);
+  border-radius: var(--vm-radius);
+}
+
+.mobileButton {
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,52 @@
+.page {
+  display: grid;
+  place-items: center;
+  height: 100dvh;
+  padding: var(--vm-space-6);
+
+  /* Un halo dorado muy tenue detrás de la tarjeta. Es lo único de la app que se
+     permite ser decorativo: es la primera pantalla, y tiene que sentirse a la
+     altura de la marca antes de que empiece el trabajo. */
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgb(160 122 70 / 0.09), transparent 70%),
+    var(--vm-bg);
+}
+
+.card {
+  width: min(420px, 100%);
+  padding: var(--vm-space-10) var(--vm-space-8);
+
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius-lg);
+  box-shadow: var(--vm-shadow-lg);
+}
+
+.brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--vm-space-8);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-5);
+}
+
+.error {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border: 1px solid rgb(201 86 61 / 0.3);
+  border-radius: var(--vm-radius);
+}
+
+.footer {
+  margin-top: var(--vm-space-8);
+  text-align: center;
+  font-size: var(--vm-text-2xs);
+  letter-spacing: var(--vm-tracking-wide);
+  color: var(--vm-text-dim);
+}

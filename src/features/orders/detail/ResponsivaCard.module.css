@@ -1,0 +1,48 @@
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  margin-bottom: var(--vm-space-4);
+}
+
+.accepted {
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  color: var(--vm-success);
+}
+
+.pending {
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  color: var(--vm-text-dim);
+}
+
+.date {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.emptyText {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.loadError {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+}
+
+.signatureFrame {
+  display: flex;
+  justify-content: center;
+  padding: var(--vm-space-4);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius);
+}
+
+.signatureImg {
+  max-width: 100%;
+  max-height: 140px;
+}

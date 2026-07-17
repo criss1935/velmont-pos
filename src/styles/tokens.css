@@ -1,0 +1,178 @@
+/*
+ * Velmont — design tokens.
+ * Única fuente de verdad del look. Ningún componente hardcodea un color, un radio
+ * ni una sombra: todo sale de aquí. Cambiar la marca = cambiar este archivo.
+ */
+
+:root {
+  /* ---------------------------------------------------------------------
+   * Marca
+   * ------------------------------------------------------------------ */
+  --vm-black: #040606;
+  --vm-gold: #a07a46;
+
+  /* Escala derivada del dorado-bronce. El 500 es el color oficial de marca. */
+  --vm-gold-100: #efe2ce;
+  --vm-gold-200: #ddc5a1;
+  --vm-gold-300: #c9a978;
+  --vm-gold-400: #b4915b;
+  --vm-gold-500: #a07a46;
+  --vm-gold-600: #83633a;
+  --vm-gold-700: #654c2d;
+  --vm-gold-800: #46351f;
+  --vm-gold-900: #281e12;
+
+  /* ---------------------------------------------------------------------
+   * Superficies
+   * Escalera desde el negro de marca. Cada peldaño sube ~4% de luminancia y
+   * arrastra un punto de calidez, para que el negro nunca se vea azulado.
+   * ------------------------------------------------------------------ */
+  --vm-bg: var(--vm-black);
+  --vm-surface-1: #0a0d0d;
+  --vm-surface-2: #121615;
+  --vm-surface-3: #1b201e;
+  --vm-surface-4: #262b28;
+
+  /* Superficie que reacciona al toque (tablet: sin hover, todo es :active). */
+  --vm-surface-pressed: #2f3531;
+
+  /* ---------------------------------------------------------------------
+   * Bordes
+   * En un fondo casi negro las sombras no se ven: la jerarquía la crean los
+   * filos. Van teñidos de dorado, no de gris — es la firma visual del sistema.
+   * ------------------------------------------------------------------ */
+  --vm-border-subtle: rgb(160 122 70 / 0.12);
+  --vm-border: rgb(160 122 70 / 0.22);
+  --vm-border-strong: rgb(160 122 70 / 0.45);
+  --vm-border-neutral: rgb(255 255 255 / 0.07);
+
+  /* ---------------------------------------------------------------------
+   * Texto
+   * Blanco cálido, nunca #fff puro: sobre negro el blanco puro vibra.
+   * ------------------------------------------------------------------ */
+  --vm-text: #f4f1ea;
+  --vm-text-muted: #9d978c;
+  --vm-text-dim: #6b665e;
+  --vm-text-on-gold: #100c06;
+
+  /* ---------------------------------------------------------------------
+   * Semánticos
+   * Desaturados para convivir con el dorado sin pelearse con él.
+   * ------------------------------------------------------------------ */
+  --vm-success: #5aa17a;
+  --vm-success-bg: rgb(90 161 122 / 0.14);
+  --vm-warning: #c9a227;
+  --vm-warning-bg: rgb(201 162 39 / 0.14);
+  --vm-danger: #c9563d;
+  --vm-danger-bg: rgb(201 86 61 / 0.14);
+  --vm-info: #5b8ea6;
+  --vm-info-bg: rgb(91 142 166 / 0.14);
+
+  /* ---------------------------------------------------------------------
+   * Estados de la orden de servicio
+   * Un color por estado, usado igual en el tablero, el badge y el ticket.
+   * ------------------------------------------------------------------ */
+  --vm-status-received: #5b8ea6;
+  --vm-status-progress: #c9a227;
+  --vm-status-ready: #5aa17a;
+  --vm-status-delivered: #6b665e;
+  --vm-status-cancelled: #c9563d;
+
+  /* ---------------------------------------------------------------------
+   * Tipografía
+   * display = voz de marca (titulares, wordmark, totales grandes)
+   * sans    = voz de trabajo (toda la UI)
+   * mono    = cifras: precios, folios, totales. Tabular, para que las columnas
+   *           de números cuadren verticalmente.
+   * ------------------------------------------------------------------ */
+  --vm-font-display: 'Cormorant Garamond', 'Georgia', 'Times New Roman', serif;
+  --vm-font-sans: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
+  --vm-font-mono: 'Roboto Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+
+  /* Escala tipográfica — razón 1.2, anclada en 16px. */
+  --vm-text-2xs: 0.694rem;
+  --vm-text-xs: 0.833rem;
+  --vm-text-sm: 0.9rem;
+  --vm-text-base: 1rem;
+  --vm-text-lg: 1.2rem;
+  --vm-text-xl: 1.44rem;
+  --vm-text-2xl: 1.728rem;
+  --vm-text-3xl: 2.074rem;
+  --vm-text-4xl: 2.488rem;
+  --vm-text-5xl: 2.986rem;
+
+  --vm-leading-tight: 1.15;
+  --vm-leading-snug: 1.35;
+  --vm-leading-normal: 1.55;
+
+  /* El tracking amplio en mayúsculas es parte del lenguaje premium. */
+  --vm-tracking-wide: 0.08em;
+  --vm-tracking-wider: 0.16em;
+
+  /* ---------------------------------------------------------------------
+   * Espaciado — base 4px.
+   * ------------------------------------------------------------------ */
+  --vm-space-1: 0.25rem;
+  --vm-space-2: 0.5rem;
+  --vm-space-3: 0.75rem;
+  --vm-space-4: 1rem;
+  --vm-space-5: 1.25rem;
+  --vm-space-6: 1.5rem;
+  --vm-space-8: 2rem;
+  --vm-space-10: 2.5rem;
+  --vm-space-12: 3rem;
+  --vm-space-16: 4rem;
+
+  /* ---------------------------------------------------------------------
+   * Radios — contenidos a propósito. El radio grande abarata; lo premium es filo.
+   * ------------------------------------------------------------------ */
+  --vm-radius-sm: 3px;
+  --vm-radius: 6px;
+  --vm-radius-md: 10px;
+  --vm-radius-lg: 14px;
+  --vm-radius-pill: 999px;
+
+  /* ---------------------------------------------------------------------
+   * Elevación — sombra para profundidad + halo dorado para el foco.
+   * ------------------------------------------------------------------ */
+  --vm-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+  --vm-shadow: 0 4px 12px rgb(0 0 0 / 0.55);
+  --vm-shadow-lg: 0 12px 32px rgb(0 0 0 / 0.65);
+  --vm-shadow-xl: 0 24px 64px rgb(0 0 0 / 0.75);
+  --vm-glow-gold: 0 0 0 3px rgb(160 122 70 / 0.28);
+
+  /* ---------------------------------------------------------------------
+   * Superficie táctil
+   * 48px es el mínimo accesible; en un POS el operador va con prisa y a veces
+   * con las manos húmedas, así que la acción principal sube a 56/64.
+   * ------------------------------------------------------------------ */
+  --vm-touch-min: 48px;
+  --vm-touch: 56px;
+  --vm-touch-lg: 64px;
+
+  /* ---------------------------------------------------------------------
+   * Movimiento — corto y seco. Un POS no se luce, responde.
+   * ------------------------------------------------------------------ */
+  --vm-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --vm-duration-fast: 120ms;
+  --vm-duration: 180ms;
+  --vm-duration-slow: 280ms;
+
+  /* ---------------------------------------------------------------------
+   * Capas
+   * ------------------------------------------------------------------ */
+  --vm-z-sticky: 10;
+  --vm-z-drawer: 30;
+  --vm-z-overlay: 40;
+  --vm-z-modal: 50;
+  --vm-z-toast: 60;
+}
+
+/* El operador puede pedir menos animación desde Android; se respeta. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --vm-duration-fast: 0ms;
+    --vm-duration: 0ms;
+    --vm-duration-slow: 0ms;
+  }
+}

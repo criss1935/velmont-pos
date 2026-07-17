@@ -1,0 +1,207 @@
+.loading {
+  padding: var(--vm-space-8);
+  color: var(--vm-text-dim);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-6);
+  max-width: 560px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+}
+
+.label {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.prefix {
+  position: absolute;
+  left: var(--vm-space-4);
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-4) 0 var(--vm-space-8);
+
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-base);
+  color: var(--vm-text);
+  text-align: right;
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+
+  transition:
+    border-color var(--vm-duration-fast) var(--vm-ease),
+    box-shadow var(--vm-duration-fast) var(--vm-ease);
+}
+
+.input:focus {
+  border-color: var(--vm-gold-500);
+  box-shadow: var(--vm-glow-gold);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--vm-space-3) var(--vm-space-4);
+
+  font-size: var(--vm-text-sm);
+  line-height: 1.5;
+  color: var(--vm-text);
+  resize: vertical;
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+
+  transition:
+    border-color var(--vm-duration-fast) var(--vm-ease),
+    box-shadow var(--vm-duration-fast) var(--vm-ease);
+}
+
+.textarea:focus {
+  border-color: var(--vm-gold-500);
+  box-shadow: var(--vm-glow-gold);
+}
+
+.fieldError {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-danger);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.error {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius);
+}
+
+.saved {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-success);
+  background-color: var(--vm-success-bg);
+  border-radius: var(--vm-radius);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Listas de item_types / condition_options */
+
+.emptyList {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-3) var(--vm-space-4);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius);
+}
+
+.rowMain {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+}
+
+.rowName {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+}
+
+.rowBadges {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+}
+
+/* -------------------------------------------------------------------------- */
+/* ItemTypeFormModal / ConditionOptionFormModal */
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-5);
+}
+
+.pillLabel {
+  display: block;
+  margin-bottom: var(--vm-space-2);
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-2);
+}
+
+.pill {
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-4);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.pillActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}

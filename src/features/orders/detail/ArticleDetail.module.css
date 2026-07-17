@@ -1,0 +1,70 @@
+.card + .card {
+  margin-top: var(--vm-space-4);
+}
+
+.declaredValue {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: var(--vm-space-4);
+  margin-bottom: var(--vm-space-4);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.declaredValueLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.declaredValueAmount {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-lg);
+  font-weight: 700;
+}
+
+.section {
+  margin-top: var(--vm-space-5);
+}
+
+.section:first-of-type {
+  margin-top: 0;
+}
+
+.sectionTitle {
+  margin-bottom: var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.emptyText {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-2);
+}
+
+.tag {
+  padding: var(--vm-space-1) var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  color: var(--vm-text);
+  background-color: var(--vm-surface-3);
+  border-radius: var(--vm-radius-pill);
+}
+
+.notes {
+  margin-top: var(--vm-space-2);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}

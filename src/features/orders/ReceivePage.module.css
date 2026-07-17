@@ -1,0 +1,314 @@
+/* Dos columnas de alto completo: catálogo a la izquierda, orden a la derecha.
+ * Ninguna de las dos hace scroll de página — cada una desplaza lo suyo, para que
+ * el total y el botón de confirmar NUNCA se salgan de pantalla. */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  height: 100%;
+  min-height: 0;
+}
+
+.catalog {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--vm-space-6) var(--vm-space-8);
+  gap: var(--vm-space-5);
+}
+
+.categories {
+  display: flex;
+  gap: var(--vm-space-2);
+  flex: none;
+  overflow-x: auto;
+  padding-bottom: var(--vm-space-1);
+  scrollbar-width: none;
+}
+
+.categories::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  min-height: var(--vm-touch-min);
+  padding: 0 var(--vm-space-4);
+  flex: none;
+
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius-pill);
+  transition:
+    color var(--vm-duration-fast) var(--vm-ease),
+    background-color var(--vm-duration-fast) var(--vm-ease),
+    border-color var(--vm-duration-fast) var(--vm-ease);
+}
+
+.chipActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--vm-space-4);
+  align-content: start;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: var(--vm-space-4);
+}
+
+/* La tarjeta de servicio es el objetivo táctil más pulsado de toda la app:
+ * grande, con el precio dominante y el nombre debajo. */
+.service {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+  min-height: 116px;
+  padding: var(--vm-space-4);
+  text-align: left;
+
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius-md);
+  transition:
+    background-color var(--vm-duration-fast) var(--vm-ease),
+    border-color var(--vm-duration-fast) var(--vm-ease),
+    transform var(--vm-duration-fast) var(--vm-ease);
+}
+
+.service:active {
+  background-color: var(--vm-surface-3);
+  border-color: var(--vm-border-strong);
+  transform: scale(0.975);
+}
+
+.serviceName {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  line-height: var(--vm-leading-snug);
+  color: var(--vm-text);
+}
+
+.servicePrice {
+  margin-top: auto;
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-xl);
+  font-weight: 600;
+  color: var(--vm-gold-300);
+}
+
+.serviceDays {
+  font-size: var(--vm-text-2xs);
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+/* --- Panel de la orden -------------------------------------------------- */
+
+.order {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background-color: var(--vm-surface-1);
+  border-left: 1px solid var(--vm-border-subtle);
+}
+
+.orderHeader {
+  flex: none;
+  padding: var(--vm-space-5);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.orderLines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--vm-space-4) var(--vm-space-5);
+}
+
+.emptyCart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vm-space-2);
+  height: 100%;
+  padding: var(--vm-space-8);
+  text-align: center;
+  color: var(--vm-text-dim);
+}
+
+.emptyIcon {
+  font-size: var(--vm-text-4xl);
+  color: var(--vm-surface-4);
+}
+
+.line {
+  padding: var(--vm-space-3) 0;
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.lineTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+}
+
+.lineName {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+}
+
+.lineAmount {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lineFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+  margin-top: var(--vm-space-2);
+}
+
+.lineActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--vm-space-2);
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-1);
+}
+
+.qtyButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  font-size: var(--vm-text-base);
+  font-weight: 600;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-3);
+  border-radius: var(--vm-radius-sm);
+}
+
+.qtyButton:active {
+  background-color: var(--vm-surface-pressed);
+  color: var(--vm-text);
+}
+
+.qtyValue {
+  min-width: 32px;
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  text-align: center;
+}
+
+.remove {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+  padding: var(--vm-space-2);
+}
+
+.remove:active {
+  color: var(--vm-danger);
+}
+
+/* --- Pie: totales y confirmación ---------------------------------------- */
+
+.orderFooter {
+  flex: none;
+  padding: var(--vm-space-5);
+  border-top: 1px solid var(--vm-border-subtle);
+  background-color: var(--vm-surface-2);
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+  margin-bottom: var(--vm-space-4);
+}
+
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.totalValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El total es el número más grande de la pantalla. Es el que el operador lee en
+ * voz alta y el que el cliente comprueba. */
+.grandTotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: var(--vm-space-3);
+  border-top: 1px solid var(--vm-border);
+}
+
+.grandLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.grandValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-3xl);
+  font-weight: 700;
+  color: var(--vm-gold-300);
+  letter-spacing: -0.02em;
+}
+
+.promise {
+  margin-top: var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-muted);
+  text-align: center;
+}
+
+.error {
+  margin-bottom: var(--vm-space-3);
+  padding: var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius);
+}

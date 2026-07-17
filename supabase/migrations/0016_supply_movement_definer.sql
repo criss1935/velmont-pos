@@ -1,0 +1,25 @@
+-- =============================================================================
+-- Corrige apply_supply_movement(): faltaba SECURITY DEFINER
+--
+-- El trigger escribe en dos tablas (supplies.stock y su propio snapshot en
+-- supply_movements) pero corría con los permisos del rol que llama, no del
+-- dueño de la función. Sin SECURITY DEFINER, bajo RLS, dos escrituras fallaban
+-- en silencio (un UPDATE sin filas que cumplan la política no es un error,
+-- simplemente no actualiza nada):
+--
+--   1. Un operador (no admin) registra consumo/merma — permitido por
+--      `supply_movements_write` — pero el UPDATE a `supplies.stock` lo
+--      bloqueaba `supplies_admin` (exige is_admin()), así que el stock nunca
+--      se movía para nadie que no fuera admin.
+--   2. NADIE tiene una política UPDATE sobre `supply_movements` (a propósito:
+--      la bitácora no se edita a mano), así que el propio snapshot
+--      stock_before/stock_after que el trigger intenta grabar (ver 0015)
+--      tampoco se guardaba nunca, sin importar quién hiciera el movimiento.
+--
+-- SECURITY DEFINER hace que ambas escrituras corran con los permisos del
+-- dueño de la función — el mismo patrón que ya usan handle_new_user() y
+-- log_order_status_change() para lo mismo. No se toca ninguna política RLS:
+-- `supply_movements` sigue sin ser editable a mano por nadie vía la API, el
+-- único camino que escribe stock_before/stock_after sigue siendo este trigger
+-- de confianza.
+alter function apply_supply_movement() security definer;

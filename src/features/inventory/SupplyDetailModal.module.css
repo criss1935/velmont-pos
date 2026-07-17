@@ -1,0 +1,123 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-6);
+}
+
+.description {
+  margin: 0 0 var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--vm-space-4);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-1);
+}
+
+.factLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.factValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-lg);
+  font-weight: 600;
+  color: var(--vm-text);
+}
+
+.lowBadge {
+  margin-left: var(--vm-space-2);
+}
+
+.historyTitle {
+  margin: 0 0 var(--vm-space-3);
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  color: var(--vm-text-dim);
+}
+
+.empty {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.row {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius);
+}
+
+.rowHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-2);
+}
+
+.rowType {
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+}
+
+.rowQuantity {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  color: var(--vm-danger);
+}
+
+.rowEntry {
+  color: var(--vm-success);
+}
+
+.rowMeta {
+  margin-top: var(--vm-space-1);
+  font-size: var(--vm-text-2xs);
+  color: var(--vm-text-dim);
+}
+
+.rowStock {
+  margin-top: var(--vm-space-2);
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.rowNote {
+  margin: var(--vm-space-2) 0 0;
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text);
+}
+
+.rowReference {
+  margin: var(--vm-space-1) 0 0;
+  font-size: var(--vm-text-2xs);
+  color: var(--vm-text-dim);
+}

@@ -1,0 +1,55 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+  padding: var(--vm-space-1) var(--vm-space-3);
+
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  border: 1px solid currentColor;
+  border-radius: var(--vm-radius-pill);
+}
+
+/* Punto de color a la izquierda: hace el estado legible de un vistazo desde
+ * el otro lado del mostrador, sin tener que leer la palabra. */
+.dot {
+  width: 6px;
+  height: 6px;
+  background-color: currentColor;
+  border-radius: 50%;
+  flex: none;
+}
+
+.neutral {
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-3);
+}
+
+.gold {
+  color: var(--vm-gold-300);
+  background-color: rgb(160 122 70 / 0.14);
+}
+
+.success {
+  color: var(--vm-success);
+  background-color: var(--vm-success-bg);
+}
+
+.warning {
+  color: var(--vm-warning);
+  background-color: var(--vm-warning-bg);
+}
+
+.danger {
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+}
+
+.info {
+  color: var(--vm-info);
+  background-color: var(--vm-info-bg);
+}

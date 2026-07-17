@@ -1,0 +1,118 @@
+.dialog {
+  width: min(560px, calc(100vw - 2 * var(--vm-space-6)));
+  max-height: calc(100dvh - 2 * var(--vm-space-8));
+  padding: 0;
+
+  /* Columna: el cuerpo scrollea entre un encabezado y un pie fijos. Sin esto,
+   * un modal alto (el editor de artículo) se recorta en pantallas chicas. */
+  display: flex;
+  flex-direction: column;
+
+  color: var(--vm-text);
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius-lg);
+  box-shadow: var(--vm-shadow-xl);
+
+  /* Se abre hacia arriba y hacia el frente, no aparece de golpe. */
+  animation: enter var(--vm-duration-slow) var(--vm-ease);
+}
+
+.dialog::backdrop {
+  background-color: rgb(4 6 6 / 0.78);
+  backdrop-filter: blur(3px);
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+.wide {
+  width: min(860px, calc(100vw - 2 * var(--vm-space-6)));
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vm-space-4);
+  padding: var(--vm-space-6) var(--vm-space-6) var(--vm-space-4);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.title {
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-2xl);
+  font-weight: 600;
+  line-height: var(--vm-leading-tight);
+}
+
+.description {
+  margin-top: var(--vm-space-1);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--vm-touch-min);
+  height: var(--vm-touch-min);
+  margin: calc(-1 * var(--vm-space-2)) calc(-1 * var(--vm-space-2)) 0 0;
+  font-size: var(--vm-text-xl);
+  color: var(--vm-text-dim);
+  border-radius: var(--vm-radius);
+  flex: none;
+}
+
+.close:active {
+  color: var(--vm-text);
+  background-color: var(--vm-surface-3);
+}
+
+.header,
+.footer {
+  flex: none;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--vm-space-6);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-4) var(--vm-space-6) var(--vm-space-6);
+}
+
+/* --- Móvil: el modal ocupa casi toda la pantalla ------------------------ */
+@media (max-width: 768px) {
+  .dialog,
+  .wide {
+    width: calc(100vw - 2 * var(--vm-space-3));
+    max-height: calc(100dvh - 2 * var(--vm-space-4));
+  }
+
+  .header {
+    padding: var(--vm-space-4) var(--vm-space-4) var(--vm-space-3);
+  }
+
+  .body {
+    padding: var(--vm-space-4);
+  }
+
+  .footer {
+    padding: var(--vm-space-3) var(--vm-space-4) var(--vm-space-4);
+  }
+}

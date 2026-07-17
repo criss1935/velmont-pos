@@ -1,0 +1,198 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--vm-space-4);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-2);
+  margin-bottom: var(--vm-space-3);
+}
+
+.name {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  color: var(--vm-text);
+  text-align: left;
+  text-underline-offset: 3px;
+}
+
+.name:hover,
+.name:focus-visible {
+  text-decoration: underline;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vm-space-3);
+  margin-bottom: var(--vm-space-4);
+}
+
+.search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-2);
+}
+
+.filterChip {
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-4);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.filterChipActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+.empty {
+  padding: var(--vm-space-8);
+  text-align: center;
+  color: var(--vm-text-dim);
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+}
+
+.inactive {
+  opacity: 0.6;
+}
+
+.description {
+  margin: 0 0 var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.cardActions {
+  display: flex;
+  gap: var(--vm-space-2);
+}
+
+.statusLabel {
+  display: block;
+  margin-bottom: var(--vm-space-2);
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.stock {
+  display: flex;
+  align-items: baseline;
+  gap: var(--vm-space-2);
+}
+
+.stockValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-3xl);
+  font-weight: 700;
+  color: var(--vm-text);
+  letter-spacing: -0.02em;
+}
+
+.stockLow {
+  color: var(--vm-danger);
+}
+
+.unit {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.min {
+  margin: var(--vm-space-1) 0 var(--vm-space-4);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-5);
+}
+
+.types {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--vm-space-2);
+}
+
+.type {
+  min-height: var(--vm-touch);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.typeActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+.adminNote {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+/* Ver el stock resultante antes de guardar es lo que evita registrar una merma
+ * de 1000 ml creyendo que se estaba capturando una compra. */
+.preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--vm-space-4);
+
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-lg);
+  font-weight: 600;
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius);
+}
+
+.previewNegative {
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-color: rgb(201 86 61 / 0.35);
+}
+
+.error {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius);
+}

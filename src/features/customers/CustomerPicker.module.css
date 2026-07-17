@@ -1,0 +1,138 @@
+.picker {
+  position: relative;
+}
+
+/* Cliente ya elegido: se muestra como una ficha, no como un campo de texto. El
+ * operador no debe poder "editarlo" sin querer al rozar la pantalla. */
+.selected {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+  min-height: var(--vm-touch);
+  padding: var(--vm-space-2) var(--vm-space-3);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  font-size: var(--vm-text-xs);
+  font-weight: 700;
+  color: var(--vm-gold-200);
+  background-color: var(--vm-surface-3);
+  border-radius: 50%;
+}
+
+.selectedInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.selectedName {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selectedPhone {
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-muted);
+}
+
+.clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--vm-touch-min);
+  height: var(--vm-touch-min);
+  flex: none;
+  color: var(--vm-text-dim);
+  border-radius: var(--vm-radius);
+}
+
+.clear:active {
+  color: var(--vm-danger);
+  background-color: var(--vm-surface-3);
+}
+
+/* --- Resultados --------------------------------------------------------- */
+
+.results {
+  position: absolute;
+  z-index: var(--vm-z-drawer);
+  top: calc(100% + var(--vm-space-2));
+  left: 0;
+  right: 0;
+
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius);
+  box-shadow: var(--vm-shadow-lg);
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+  width: 100%;
+  min-height: var(--vm-touch);
+  padding: var(--vm-space-2) var(--vm-space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.result:last-child {
+  border-bottom: none;
+}
+
+.result:active {
+  background-color: var(--vm-surface-pressed);
+}
+
+.resultName {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--vm-text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultPhone {
+  flex: none;
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-muted);
+}
+
+.empty {
+  padding: var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+  text-align: center;
+}
+
+.createRow {
+  padding: var(--vm-space-3);
+  border-top: 1px solid var(--vm-border-subtle);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+}

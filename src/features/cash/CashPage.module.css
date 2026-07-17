@@ -1,0 +1,250 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--vm-space-6);
+  align-items: start;
+}
+
+/* --- Caja cerrada ------------------------------------------------------- */
+
+.closed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vm-space-5);
+  padding: var(--vm-space-12) var(--vm-space-8);
+  text-align: center;
+}
+
+.closedIcon {
+  font-size: var(--vm-text-5xl);
+  color: var(--vm-surface-4);
+}
+
+.closedText {
+  max-width: 46ch;
+  color: var(--vm-text-muted);
+}
+
+.openForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+  width: min(340px, 100%);
+}
+
+/* --- Panel del efectivo esperado ---------------------------------------- */
+
+/* Es el número que el operador compara con el dinero que tiene en la mano. Se
+ * le da el mismo peso visual que al total de una venta. */
+.expected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vm-space-2);
+  padding: var(--vm-space-6);
+
+  background: linear-gradient(to bottom, var(--vm-surface-2), var(--vm-surface-1));
+  border: 1px solid var(--vm-gold-800);
+  border-radius: var(--vm-radius-md);
+}
+
+.expectedLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.expectedValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-5xl);
+  font-weight: 700;
+  color: var(--vm-gold-300);
+  letter-spacing: -0.03em;
+}
+
+.expectedHint {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+  text-align: center;
+}
+
+.estimatedTag {
+  font-family: var(--vm-font-sans);
+  font-size: var(--vm-text-lg);
+  font-weight: 500;
+  color: var(--vm-warning);
+}
+
+.syncBlocked {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-warning);
+  background-color: var(--vm-warning-bg);
+  padding: var(--vm-space-3) var(--vm-space-4);
+  border-radius: var(--vm-radius-md);
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.breakdownValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Movimientos -------------------------------------------------------- */
+
+.movement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-3) 0;
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.movement:last-child {
+  border-bottom: none;
+}
+
+.movementReason {
+  font-size: var(--vm-text-sm);
+  font-weight: 500;
+}
+
+.movementDate {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.movementAmount {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.in {
+  color: var(--vm-success);
+}
+
+.out {
+  color: var(--vm-danger);
+}
+
+.emptyMovements {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+/* --- Formularios en modal ----------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-5);
+}
+
+.types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vm-space-2);
+}
+
+.type {
+  min-height: var(--vm-touch);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.typeActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+/* La diferencia del corte: el número que dice si falta o sobra dinero. */
+.difference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--vm-space-4) var(--vm-space-5);
+  border-radius: var(--vm-radius-md);
+  border: 1px solid;
+}
+
+.diffZero {
+  color: var(--vm-success);
+  background-color: var(--vm-success-bg);
+  border-color: rgb(90 161 122 / 0.3);
+}
+
+.diffShort {
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-color: rgb(201 86 61 / 0.3);
+}
+
+.diffOver {
+  color: var(--vm-warning);
+  background-color: var(--vm-warning-bg);
+  border-color: rgb(201 162 39 / 0.3);
+}
+
+.diffLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+}
+
+.diffValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-2xl);
+  font-weight: 700;
+}
+
+.error {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius);
+}
+
+.adminOnly {
+  padding: var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .expectedValue {
+    font-size: var(--vm-text-4xl);
+  }
+}

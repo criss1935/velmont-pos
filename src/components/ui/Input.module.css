@@ -1,0 +1,105 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+}
+
+.label {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-4);
+
+  font-size: var(--vm-text-base);
+  color: var(--vm-text);
+
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+
+  transition:
+    border-color var(--vm-duration-fast) var(--vm-ease),
+    box-shadow var(--vm-duration-fast) var(--vm-ease);
+}
+
+.input::placeholder {
+  color: var(--vm-text-dim);
+}
+
+/* El foco enciende el borde dorado + halo. Es la única vez que el dorado
+ * aparece en un control de entrada, y por eso se lee de inmediato. */
+.input:focus {
+  border-color: var(--vm-gold-500);
+  box-shadow: var(--vm-glow-gold);
+}
+
+.input:disabled {
+  opacity: 0.5;
+}
+
+/* Prefijo/sufijo (ej. el "$" de un importe). */
+.affix {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+  pointer-events: none;
+}
+
+.prefix {
+  left: var(--vm-space-4);
+}
+
+.suffix {
+  right: var(--vm-space-4);
+}
+
+.hasPrefix {
+  padding-left: var(--vm-space-8);
+}
+
+.hasSuffix {
+  padding-right: var(--vm-space-8);
+}
+
+/* Variante para cifras: mono, tabular y alineada a la derecha, como una caja
+ * registradora. */
+.numeric {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.invalid {
+  border-color: var(--vm-danger);
+}
+
+.invalid:focus {
+  border-color: var(--vm-danger);
+  box-shadow: 0 0 0 3px rgb(201 86 61 / 0.25);
+}
+
+.error {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-danger);
+}
+
+.hint {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}

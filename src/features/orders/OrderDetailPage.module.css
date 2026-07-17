@@ -1,0 +1,277 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--vm-space-6);
+  align-items: start;
+}
+
+.folio {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+}
+
+/* --- Líneas de la orden ------------------------------------------------- */
+
+.item {
+  display: flex;
+  gap: var(--vm-space-4);
+  padding: var(--vm-space-4) var(--vm-space-5);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.qty {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  color: var(--vm-gold-200);
+
+  background-color: var(--vm-surface-3);
+  border-radius: var(--vm-radius-sm);
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: var(--vm-text-base);
+  font-weight: 600;
+}
+
+.itemLabel {
+  margin-top: var(--vm-space-1);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+/* El estado de llegada se destaca: es la constancia de que el daño ya venía.
+ * Va con fondo ámbar para que nadie lo pase por alto al entregar. */
+.itemNotes {
+  display: inline-block;
+  margin-top: var(--vm-space-2);
+  padding: var(--vm-space-1) var(--vm-space-3);
+
+  font-size: var(--vm-text-xs);
+  color: var(--vm-warning);
+
+  background-color: var(--vm-warning-bg);
+  border-radius: var(--vm-radius-sm);
+}
+
+.itemAmount {
+  flex: none;
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-base);
+  font-weight: 600;
+}
+
+/* --- Totales ------------------------------------------------------------ */
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.totalValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.grand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: var(--vm-space-3);
+  margin-top: var(--vm-space-1);
+  border-top: 1px solid var(--vm-border);
+}
+
+.grandLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.grandValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-2xl);
+  font-weight: 700;
+  color: var(--vm-text);
+}
+
+/* El saldo pendiente es LA cifra que decide si se entrega o no. */
+.balance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--vm-space-4);
+  padding: var(--vm-space-4);
+
+  background-color: var(--vm-warning-bg);
+  border: 1px solid rgb(201 162 39 / 0.3);
+  border-radius: var(--vm-radius);
+}
+
+.balanceLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-warning);
+}
+
+.balanceValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-2xl);
+  font-weight: 700;
+  color: var(--vm-warning);
+}
+
+.settled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vm-space-2);
+  margin-top: var(--vm-space-4);
+  padding: var(--vm-space-4);
+
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-success);
+
+  background-color: var(--vm-success-bg);
+  border: 1px solid rgb(90 161 122 / 0.3);
+  border-radius: var(--vm-radius);
+}
+
+/* --- Barra lateral ------------------------------------------------------ */
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  font-size: var(--vm-text-sm);
+}
+
+.infoLabel {
+  color: var(--vm-text-dim);
+  flex: none;
+}
+
+.infoValue {
+  text-align: right;
+  min-width: 0;
+}
+
+.late {
+  color: var(--vm-danger);
+  font-weight: 700;
+}
+
+.payment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-3) 0;
+  border-bottom: 1px solid var(--vm-border-subtle);
+  font-size: var(--vm-text-sm);
+}
+
+.payment:last-child {
+  border-bottom: none;
+}
+
+.paymentMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.paymentMethod {
+  font-weight: 600;
+}
+
+.paymentDate {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.paymentAmount {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.printError {
+  padding: var(--vm-space-3);
+  font-size: var(--vm-text-xs);
+  color: var(--vm-warning);
+  background-color: var(--vm-warning-bg);
+  border-radius: var(--vm-radius);
+}
+
+.loading,
+.notFound {
+  padding: var(--vm-space-16);
+  text-align: center;
+  color: var(--vm-text-dim);
+}
+
+/* Móvil: la barra lateral de acciones/datos/pagos baja debajo del contenido. */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

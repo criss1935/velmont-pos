@@ -1,0 +1,326 @@
+.shell {
+  display: grid;
+  /* Tablet apaisada / escritorio: navegación fija a la izquierda, siempre visible. */
+  grid-template-columns: 232px 1fr;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--vm-space-5) var(--vm-space-4);
+  padding-top: max(var(--vm-space-5), env(safe-area-inset-top));
+  background-color: var(--vm-surface-1);
+  border-right: 1px solid var(--vm-border-subtle);
+}
+
+.brand {
+  padding: 0 var(--vm-space-2) var(--vm-space-5);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-1);
+  margin-top: var(--vm-space-4);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-3);
+
+  font-size: var(--vm-text-sm);
+  font-weight: 500;
+  color: var(--vm-text-muted);
+
+  border-radius: var(--vm-radius);
+  transition:
+    background-color var(--vm-duration-fast) var(--vm-ease),
+    color var(--vm-duration-fast) var(--vm-ease);
+}
+
+.link:active {
+  background-color: var(--vm-surface-2);
+}
+
+/* La ruta activa se marca con una barra dorada a la izquierda, no con un fondo
+ * de color: el fondo compite con las tarjetas, la barra no. */
+.active {
+  position: relative;
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+}
+
+.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 22px;
+  background-color: var(--vm-gold-500);
+  border-radius: 0 2px 2px 0;
+  transform: translateY(-50%);
+}
+
+.icon {
+  flex: none;
+  width: 20px;
+  font-size: var(--vm-text-base);
+  text-align: center;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* --- Estado de la caja -------------------------------------------------- */
+
+.cash {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-1);
+  padding: var(--vm-space-3);
+  margin-bottom: var(--vm-space-3);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius);
+  background-color: var(--vm-surface-2);
+}
+
+.cashClosed {
+  border-color: rgb(201 86 61 / 0.4);
+  background-color: var(--vm-danger-bg);
+}
+
+.cashLabel {
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+}
+
+.cashValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-lg);
+  font-weight: 600;
+  color: var(--vm-text);
+}
+
+.cashWarning {
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  color: var(--vm-danger);
+}
+
+/* --- Usuario ------------------------------------------------------------ */
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-3);
+  padding-top: var(--vm-space-4);
+  border-top: 1px solid var(--vm-border-subtle);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  color: var(--vm-gold-200);
+
+  background-color: var(--vm-surface-3);
+  border: 1px solid var(--vm-border);
+  border-radius: 50%;
+}
+
+.userInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.userName {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  font-size: var(--vm-text-2xs);
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-gold-500);
+}
+
+.signOut {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--vm-touch-min);
+  height: var(--vm-touch-min);
+  flex: none;
+  color: var(--vm-text-dim);
+  border-radius: var(--vm-radius);
+}
+
+.signOut:active {
+  color: var(--vm-danger);
+  background-color: var(--vm-surface-3);
+}
+
+/* --- Contenido ---------------------------------------------------------- */
+
+.main {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* --- Chrome móvil (oculto en escritorio) -------------------------------- */
+
+.mobileBar {
+  display: none;
+}
+
+.bottomNav {
+  display: none;
+}
+
+/* =========================================================================
+ * Móvil / tablet vertical: el sidebar de 232px no cabe. Se sustituye por una
+ * barra superior compacta + una barra de navegación inferior (patrón nativo de
+ * iOS/Android), respetando las safe-areas del notch y del home indicator.
+ * ====================================================================== */
+
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .mobileBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vm-space-3);
+    flex: none;
+    padding: var(--vm-space-2) var(--vm-space-4);
+    padding-top: max(var(--vm-space-2), env(safe-area-inset-top));
+    background-color: var(--vm-surface-1);
+    border-bottom: 1px solid var(--vm-border-subtle);
+  }
+
+  .mobileBarRight {
+    display: flex;
+    align-items: center;
+    gap: var(--vm-space-3);
+  }
+
+  .mobileCash {
+    display: flex;
+    align-items: center;
+    gap: var(--vm-space-2);
+    padding: var(--vm-space-1) var(--vm-space-3);
+    font-family: var(--vm-font-mono);
+    font-size: var(--vm-text-sm);
+    font-weight: 600;
+    color: var(--vm-text);
+    background-color: var(--vm-surface-2);
+    border: 1px solid var(--vm-border-subtle);
+    border-radius: var(--vm-radius-pill);
+  }
+
+  .mobileCashClosed {
+    color: var(--vm-danger);
+    background-color: var(--vm-danger-bg);
+    border-color: rgb(201 86 61 / 0.4);
+  }
+
+  .mobileCashLabel {
+    font-family: var(--vm-font-sans);
+    font-size: var(--vm-text-2xs);
+    font-weight: 600;
+    letter-spacing: var(--vm-tracking-wide);
+    text-transform: uppercase;
+    color: var(--vm-text-dim);
+  }
+
+  .mobileSignOut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vm-touch-min);
+    height: var(--vm-touch-min);
+    flex: none;
+    color: var(--vm-text-dim);
+    border-radius: var(--vm-radius);
+  }
+
+  .bottomNav {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    flex: none;
+    background-color: var(--vm-surface-1);
+    border-top: 1px solid var(--vm-border-subtle);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: var(--vm-touch);
+    padding: var(--vm-space-2) 0;
+    color: var(--vm-text-dim);
+  }
+
+  .tab:active {
+    background-color: var(--vm-surface-2);
+  }
+
+  .tabActive {
+    color: var(--vm-gold-300);
+  }
+
+  .tabIcon {
+    font-size: var(--vm-text-lg);
+    line-height: 1;
+  }
+
+  .tabLabel {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+}

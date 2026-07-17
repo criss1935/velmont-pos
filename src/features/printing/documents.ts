@@ -1,25 +1,28 @@
 import { formatCents, formatCentsPlain, type Cents } from '@/lib/money'
 import { formatDateTime, formatDate } from '@/lib/dates'
-import { PAYMENT_METHOD_LABEL, type Order, type Payment } from '@/data'
+import { PAYMENT_METHOD_LABEL, type BusinessSettings, type Order, type Payment } from '@/data'
 import type { Block, TicketDocument } from './types'
 
-const BUSINESS = {
-  name: import.meta.env.VITE_BUSINESS_NAME || 'Velmont',
-  phone: import.meta.env.VITE_BUSINESS_PHONE || '',
-  address: import.meta.env.VITE_BUSINESS_ADDRESS || '',
-}
-
-function header(): Block[] {
+/**
+ * Nombre/teléfono/dirección ya no viven en variables de entorno (fijas al
+ * compilar) — vienen de `business_settings`, editable por admin desde
+ * Configuración. Por eso cada función de documento recibe `business` como
+ * parámetro en vez de leer un valor de módulo: quien imprime (OrderDetailPage,
+ * CashPage) ya cargó la configuración una vez (cacheada offline, ver
+ * `getBusinessSettings`) y se la pasa aquí — así estas funciones siguen
+ * siendo síncronas y puras, sin tocar la firma de `tryPrint`.
+ */
+function header(business: BusinessSettings): Block[] {
   const blocks: Block[] = [
-    { kind: 'title', text: BUSINESS.name.toUpperCase() },
+    { kind: 'title', text: business.name.toUpperCase() },
     { kind: 'text', text: 'CUIDADO DE CALZADO', align: 'center', small: true },
   ]
 
-  if (BUSINESS.address) {
-    blocks.push({ kind: 'text', text: BUSINESS.address, align: 'center', small: true })
+  if (business.address) {
+    blocks.push({ kind: 'text', text: business.address, align: 'center', small: true })
   }
-  if (BUSINESS.phone) {
-    blocks.push({ kind: 'text', text: `Tel. ${BUSINESS.phone}`, align: 'center', small: true })
+  if (business.phone) {
+    blocks.push({ kind: 'text', text: `Tel. ${business.phone}`, align: 'center', small: true })
   }
 
   blocks.push({ kind: 'divider' })
@@ -102,9 +105,9 @@ function orderLines(order: Order): Block[] {
  * No es un recibo de pago: es la prueba de qué se entregó, en qué estado, y
  * cuándo se promete de vuelta. Por eso lleva firma y el estado de cada par.
  */
-export function receiptDocument(order: Order): TicketDocument {
+export function receiptDocument(order: Order, business: BusinessSettings): TicketDocument {
   const blocks: Block[] = [
-    ...header(),
+    ...header(business),
 
     { kind: 'text', text: 'COMPROBANTE DE RECEPCIÓN', align: 'center', emphasis: true },
     { kind: 'space' },
@@ -157,7 +160,7 @@ export function receiptDocument(order: Order): TicketDocument {
       align: 'center',
       small: true,
     },
-    { kind: 'text', text: `¡Gracias por confiar en ${BUSINESS.name}!`, align: 'center' },
+    { kind: 'text', text: `¡Gracias por confiar en ${business.name}!`, align: 'center' },
     { kind: 'space', lines: 2 },
   )
 
@@ -174,9 +177,9 @@ export function receiptDocument(order: Order): TicketDocument {
  * Refleja UN pago, no la orden entera: si el cliente dio anticipo y liquida
  * después, hay dos tickets, cada uno con lo que se cobró en ese momento.
  */
-export function paymentDocument(order: Order, payment: Payment): TicketDocument {
+export function paymentDocument(order: Order, payment: Payment, business: BusinessSettings): TicketDocument {
   const blocks: Block[] = [
-    ...header(),
+    ...header(business),
 
     { kind: 'text', text: 'TICKET DE PAGO', align: 'center', emphasis: true },
     { kind: 'space' },
@@ -229,7 +232,7 @@ export function paymentDocument(order: Order, payment: Payment): TicketDocument 
     { kind: 'space' },
     { kind: 'qr', data: order.folio },
     { kind: 'space' },
-    { kind: 'text', text: `¡Gracias por confiar en ${BUSINESS.name}!`, align: 'center' },
+    { kind: 'text', text: `¡Gracias por confiar en ${business.name}!`, align: 'center' },
     { kind: 'space', lines: 2 },
   )
 
@@ -241,17 +244,20 @@ export function paymentDocument(order: Order, payment: Payment): TicketDocument 
 }
 
 /** Corte de caja — lo que firma quien cierra el turno. */
-export function cashCloseDocument(input: {
-  openedAt: string
-  closedAt: string
-  opening: Cents
-  expected: Cents
-  counted: Cents
-  difference: Cents
-  operator: string
-}): TicketDocument {
+export function cashCloseDocument(
+  input: {
+    openedAt: string
+    closedAt: string
+    opening: Cents
+    expected: Cents
+    counted: Cents
+    difference: Cents
+    operator: string
+  },
+  business: BusinessSettings,
+): TicketDocument {
   const blocks: Block[] = [
-    ...header(),
+    ...header(business),
 
     { kind: 'text', text: 'CORTE DE CAJA', align: 'center', emphasis: true },
     { kind: 'space' },

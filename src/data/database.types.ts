@@ -36,20 +36,32 @@ export type Database = {
     Tables: {
       business_settings: {
         Row: {
+          address: string
           high_value_threshold_cents: number
           id: number
+          logo_url: string | null
+          name: string
+          phone: string
           reception_terms: string
           updated_at: string
         }
         Insert: {
+          address?: string
           high_value_threshold_cents?: number
           id?: number
+          logo_url?: string | null
+          name?: string
+          phone?: string
           reception_terms?: string
           updated_at?: string
         }
         Update: {
+          address?: string
           high_value_threshold_cents?: number
           id?: number
+          logo_url?: string | null
+          name?: string
+          phone?: string
           reception_terms?: string
           updated_at?: string
         }

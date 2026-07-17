@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Page } from '@/components/Page'
 import { Button, Card, Input, Modal } from '@/components/ui'
-import { cash as cashRepo, DataError, type CashMovementType } from '@/data'
+import { cash as cashRepo, DataError, settings as settingsRepo, type CashMovementType } from '@/data'
 import { useIsAdmin, useSession } from '@/app/session'
 import { cashCloseDocument, tryPrint } from '@/features/printing'
 import { cn } from '@/lib/cn'
@@ -403,16 +403,20 @@ function CloseCashModal({
 
       // El corte se imprime al cerrar: es el documento que se firma. Si la
       // impresión falla, el cierre ya quedó guardado igual — no se pierde.
+      const business = await settingsRepo.getBusinessSettings()
       await tryPrint(
-        cashCloseDocument({
-          openedAt: closed.openedAt,
-          closedAt: closed.closedAt!,
-          opening: closed.opening,
-          expected: closed.expected,
-          counted: closed.counted!,
-          difference: closed.difference!,
-          operator,
-        }),
+        cashCloseDocument(
+          {
+            openedAt: closed.openedAt,
+            closedAt: closed.closedAt!,
+            opening: closed.opening,
+            expected: closed.expected,
+            counted: closed.counted!,
+            difference: closed.difference!,
+            operator,
+          },
+          business,
+        ),
       )
 
       setText('')

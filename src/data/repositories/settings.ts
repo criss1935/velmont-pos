@@ -10,21 +10,32 @@ import type { BusinessSettings, ConditionOption, ItemType } from '../types'
  * la responsiva viven en la base, no hardcodeados: el admin los cambia sin tocar
  * código.
  */
+const BUSINESS_SETTINGS_COLUMNS = 'high_value_threshold_cents, reception_terms, name, phone, address, logo_url'
+
+function toBusinessSettings(row: {
+  high_value_threshold_cents: number
+  reception_terms: string
+  name: string
+  phone: string
+  address: string
+  logo_url: string | null
+}): BusinessSettings {
+  return {
+    highValueThreshold: cents(row.high_value_threshold_cents),
+    receptionTerms: row.reception_terms,
+    name: row.name,
+    phone: row.phone,
+    address: row.address,
+    logoUrl: row.logo_url,
+  }
+}
+
 export async function getBusinessSettings(): Promise<BusinessSettings> {
   const { value } = await readThrough('settings:business', async () => {
     const row = unwrap(
-      await supabase
-        .from('business_settings')
-        .select('high_value_threshold_cents, reception_terms')
-        .eq('id', 1)
-        .retry(false)
-        .single(),
+      await supabase.from('business_settings').select(BUSINESS_SETTINGS_COLUMNS).eq('id', 1).retry(false).single(),
     )
-
-    return {
-      highValueThreshold: cents(row.high_value_threshold_cents),
-      receptionTerms: row.reception_terms,
-    }
+    return toBusinessSettings(row)
   })
 
   return value
@@ -40,6 +51,9 @@ export async function getBusinessSettings(): Promise<BusinessSettings> {
 export async function updateBusinessSettings(input: {
   highValueThreshold: Cents
   receptionTerms: string
+  name: string
+  phone: string
+  address: string
 }): Promise<BusinessSettings> {
   try {
     const row = unwrap(
@@ -48,16 +62,15 @@ export async function updateBusinessSettings(input: {
         .update({
           high_value_threshold_cents: input.highValueThreshold,
           reception_terms: input.receptionTerms.trim(),
+          name: input.name.trim(),
+          phone: input.phone.trim(),
+          address: input.address.trim(),
         })
         .eq('id', 1)
-        .select('high_value_threshold_cents, reception_terms')
+        .select(BUSINESS_SETTINGS_COLUMNS)
         .single(),
     )
-
-    return {
-      highValueThreshold: cents(row.high_value_threshold_cents),
-      receptionTerms: row.reception_terms,
-    }
+    return toBusinessSettings(row)
   } catch (cause) {
     if (isNetworkError(cause)) {
       throw new DataError('No se pudo guardar la configuración: sin conexión. Intenta de nuevo con señal.')

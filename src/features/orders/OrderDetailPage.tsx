@@ -10,6 +10,7 @@ import {
   orders as ordersRepo,
   payments as paymentsRepo,
   PAYMENT_METHOD_LABEL,
+  settings as settingsRepo,
   statusForOrder,
   useSyncStatus,
   type Order,
@@ -71,7 +72,8 @@ export function OrderDetailPage() {
 
   async function printReceipt(target: Order) {
     setPrintError(null)
-    const failure = await tryPrint(receiptDocument(target))
+    const business = await settingsRepo.getBusinessSettings()
+    const failure = await tryPrint(receiptDocument(target, business))
     if (failure) setPrintError(failure.message)
   }
 
@@ -316,7 +318,8 @@ export function OrderDetailPage() {
           // impreso sea el de después del cobro y no el de antes.
           void ordersRepo.getOrder(order.id).then(async (fresh) => {
             if (!fresh) return
-            const failure = await tryPrint(paymentDocument(fresh, payment))
+            const business = await settingsRepo.getBusinessSettings()
+            const failure = await tryPrint(paymentDocument(fresh, payment, business))
             if (failure) setPrintError(failure.message)
           })
         }}

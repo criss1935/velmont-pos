@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Page } from '@/components/Page'
-import { Badge, Button, Card } from '@/components/ui'
+import { Badge, Button, Card, Input } from '@/components/ui'
 import { DataError, settings as settingsRepo, type ConditionOption, type ItemType } from '@/data'
 import { centsToPesos, parseAmount, type Cents } from '@/lib/money'
 import { ConditionOptionFormModal } from './ConditionOptionFormModal'
@@ -18,6 +18,9 @@ export function SettingsPage() {
   const queryClient = useQueryClient()
   const businessQuery = useQuery({ queryKey: ['businessSettings'], queryFn: settingsRepo.getBusinessSettings })
 
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
   const [thresholdText, setThresholdText] = useState('')
   const [terms, setTerms] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +29,9 @@ export function SettingsPage() {
 
   useEffect(() => {
     if (!businessQuery.data) return
+    setName(businessQuery.data.name)
+    setPhone(businessQuery.data.phone)
+    setAddress(businessQuery.data.address)
     setThresholdText(centsToPesos(businessQuery.data.highValueThreshold).toFixed(2))
     setTerms(businessQuery.data.receptionTerms)
   }, [businessQuery.data])
@@ -33,17 +39,28 @@ export function SettingsPage() {
   const threshold: Cents | null = parseAmount(thresholdText)
   const thresholdValid = threshold !== null
   const termsValid = terms.trim().length > 0
-  const valid = thresholdValid && termsValid
+  const nameValid = name.trim().length > 0
+  const valid = thresholdValid && termsValid && nameValid
+
+  function markDirty() {
+    setSaved(false)
+  }
 
   async function submit() {
-    if (!thresholdValid) return
+    if (!valid || threshold === null) return
 
     setBusy(true)
     setError(null)
     setSaved(false)
 
     try {
-      await settingsRepo.updateBusinessSettings({ highValueThreshold: threshold, receptionTerms: terms })
+      await settingsRepo.updateBusinessSettings({
+        highValueThreshold: threshold,
+        receptionTerms: terms,
+        name,
+        phone,
+        address,
+      })
       setSaved(true)
       void queryClient.invalidateQueries({ queryKey: ['businessSettings'] })
     } catch (cause) {
@@ -64,11 +81,44 @@ export function SettingsPage() {
   return (
     <Page title="Configuración" subtitle="Parámetros del negocio y catálogos de recepción.">
       <div className={styles.stack}>
+        {error && <div className={styles.error}>{error}</div>}
+        {saved && !error && <div className={styles.saved}>Guardado.</div>}
+
+        <Card title="Negocio" subtitle="Lo que imprime el ticket — nombre, teléfono y dirección.">
+          <div className={styles.form}>
+            <Input
+              label="Nombre"
+              placeholder="Velmont"
+              value={name}
+              {...(!nameValid ? { error: 'No puede quedar vacío.' } : {})}
+              onChange={(event) => {
+                setName(event.target.value)
+                markDirty()
+              }}
+            />
+            <Input
+              label="Teléfono"
+              placeholder="Opcional"
+              value={phone}
+              onChange={(event) => {
+                setPhone(event.target.value)
+                markDirty()
+              }}
+            />
+            <Input
+              label="Dirección"
+              placeholder="Opcional"
+              value={address}
+              onChange={(event) => {
+                setAddress(event.target.value)
+                markDirty()
+              }}
+            />
+          </div>
+        </Card>
+
         <Card title="Recepción">
           <div className={styles.form}>
-            {error && <div className={styles.error}>{error}</div>}
-            {saved && !error && <div className={styles.saved}>Guardado.</div>}
-
             <div className={styles.field}>
               <label className={styles.label} htmlFor="threshold">
                 Umbral de valor alto
@@ -82,7 +132,7 @@ export function SettingsPage() {
                   value={thresholdText}
                   onChange={(event) => {
                     setThresholdText(event.target.value)
-                    setSaved(false)
+                    markDirty()
                   }}
                 />
               </div>
@@ -104,7 +154,7 @@ export function SettingsPage() {
                 value={terms}
                 onChange={(event) => {
                   setTerms(event.target.value)
-                  setSaved(false)
+                  markDirty()
                 }}
               />
               {!termsValid && <span className={styles.fieldError}>No puede quedar vacío.</span>}
@@ -113,12 +163,12 @@ export function SettingsPage() {
                 se muestra en la pantalla de firma.
               </p>
             </div>
-
-            <Button variant="primary" disabled={!valid || busy} loading={busy} onClick={() => void submit()}>
-              Guardar
-            </Button>
           </div>
         </Card>
+
+        <Button variant="primary" disabled={!valid || busy} loading={busy} onClick={() => void submit()}>
+          Guardar
+        </Button>
 
         <ItemTypesCard />
         <ConditionOptionsCard />

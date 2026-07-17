@@ -125,6 +125,12 @@ export interface BusinessSettings {
   highValueThreshold: Cents
   /** Texto de la responsiva que firma el cliente. */
   receptionTerms: string
+  /** Lo que imprime el ticket — antes vivía fijo en variables de entorno. */
+  name: string
+  phone: string
+  address: string
+  /** Sin soporte de renderizado en el ticket todavía — ver 0018_business_identity. */
+  logoUrl: string | null
 }
 
 /** Tipos de observación que se marcan sobre el diagrama del sneaker. */

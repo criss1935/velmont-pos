@@ -87,14 +87,26 @@ sistema Android), que ya permite operar. Cuando se defina el modelo de impresora
 se agrega el driver (RawBT, ESC/POS Bluetooth o red) en `printers.ts` y ninguna
 pantalla cambia — todas llaman a `getPrinter().print()` / `tryPrint()`.
 
+## Configuración del negocio
+
+`business_settings` (fila única, editable desde `/configuracion`, solo admin):
+nombre, teléfono, dirección, términos de responsiva y umbral de alto valor. El
+ticket (`src/features/printing/documents.ts`) ya NO lee `VITE_BUSINESS_*` —
+esas variables se quitaron de los `.env*`. `receiptDocument`/`paymentDocument`/
+`cashCloseDocument` reciben el `BusinessSettings` ya cargado como parámetro
+(síncronas igual que antes); quien imprime (`OrderDetailPage`, `CashPage`) lo
+carga con `settings.getBusinessSettings()` justo antes de armar el documento.
+
 ## Pendientes conocidos
 
-- **Logo real**: `src/components/Brand.tsx` y `public/brand/` son PROVISIONALES.
-  Sustituir solo ahí cuando llegue el archivo.
+- **Logo real**: `src/components/Brand.tsx` y `public/brand/` son PROVISIONALES
+  (SVG dibujado a mano). `business_settings.logo_url` ya existe en el esquema,
+  pero el ticket (`TicketDocument`/`Block` en `printing/types.ts`) todavía no
+  tiene ningún tipo de bloque de imagen — hay que agregarlo cuando llegue el
+  archivo real, no antes.
 - **Precios del catálogo**: los de `seed.sql` son una propuesta. Confirmar con el
   cliente antes de operar.
 - **Driver de impresora**: por definir según el modelo que compre el cliente.
-- **Cola offline**: la arquitectura la permite (regla 2), no está implementada.
 
 ## Comandos
 

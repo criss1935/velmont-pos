@@ -23,3 +23,6 @@ supabase/.branches/
 supabase/.temp/
 
 .vercel
+
+# Locks temporales de sesión de Claude Code
+.Claude/*.lock

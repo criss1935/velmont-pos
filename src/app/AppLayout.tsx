@@ -45,7 +45,10 @@ export function AppLayout() {
   return (
     <div className={styles.shell}>
       {/* --- Sidebar (escritorio / tablet horizontal) --- */}
-      <aside className={styles.sidebar}>
+      {/* `vm-on-dark` remapea los tokens a su versión sobre negro: todo lo que
+          caiga dentro del sidebar (badges, botones, el estado de caja) se
+          adapta sin estilos propios. Ver styles/tokens.css. */}
+      <aside className={cn(styles.sidebar, 'vm-on-dark')}>
         <div className={styles.brand}>
           <Brand />
         </div>

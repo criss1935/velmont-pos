@@ -36,29 +36,34 @@
 
 /* --- Variantes ---------------------------------------------------------- */
 
-/* Sólido dorado. Reservado a LA acción de la pantalla: cobrar, recibir, cerrar
- * caja. Si hay dos en una vista, una de las dos está mal. */
+/* Sólido en el dorado de ACENTO (el naranja), no en el del logo. Reservado a LA
+ * acción de la pantalla: cobrar, recibir, cerrar caja. Si hay dos en una vista,
+ * una de las dos está mal.
+ *
+ * Plano, sin degradado: sobre fondo claro el degradado ensucia el color y lo
+ * hace parecer un botón deshabilitado. */
 .primary {
   color: var(--vm-text-on-gold);
-  background: linear-gradient(to bottom, var(--vm-gold-400), var(--vm-gold-500));
-  border-color: var(--vm-gold-300);
+  background-color: var(--vm-gold-accent);
+  border-color: var(--vm-gold-accent);
   box-shadow: var(--vm-shadow-sm);
 }
 
 .primary:active:not(:disabled) {
-  background: linear-gradient(to bottom, var(--vm-gold-500), var(--vm-gold-600));
+  background-color: var(--vm-accent-600);
+  border-color: var(--vm-accent-600);
 }
 
-/* Contorno dorado sobre superficie. La acción secundaria habitual. */
+/* Contorno sobre superficie clara. La acción secundaria habitual. */
 .secondary {
-  color: var(--vm-gold-200);
-  background-color: var(--vm-surface-2);
-  border-color: var(--vm-border);
+  color: var(--vm-text);
+  background-color: var(--vm-card);
+  border-color: var(--vm-border-strong);
 }
 
 .secondary:active:not(:disabled) {
-  background-color: var(--vm-surface-pressed);
-  border-color: var(--vm-border-strong);
+  background-color: var(--vm-surface-2);
+  border-color: var(--vm-text-dim);
 }
 
 /* Sin caja hasta que se toca. Para acciones terciarias y barras de herramientas. */
@@ -77,11 +82,11 @@
 .danger {
   color: var(--vm-danger);
   background-color: var(--vm-danger-bg);
-  border-color: rgb(201 86 61 / 0.35);
+  border-color: rgb(214 69 69 / 0.3);
 }
 
 .danger:active:not(:disabled) {
-  color: var(--vm-text);
+  color: #ffffff;
   background-color: var(--vm-danger);
   border-color: var(--vm-danger);
 }

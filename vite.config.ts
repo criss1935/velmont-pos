@@ -15,7 +15,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: false, // ya existe public/manifest.webmanifest, no generar otro
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // woff2 incluido: las tipografías de marca van auto-hospedadas (ver
+        // styles/global.css). Sin esto el service worker no las precachea y la
+        // tablet sin señal caería a la fuente del sistema.
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         navigateFallback: '/index.html',
         runtimeCaching: [],
       },

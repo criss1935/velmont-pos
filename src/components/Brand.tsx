@@ -2,12 +2,17 @@ import styles from './Brand.module.css'
 import { cn } from '@/lib/cn'
 
 /**
- * ⚠️ PROVISIONAL — este NO es el logo de Velmont.
+ * La marca Velmont. Única fuente del logo en toda la app.
  *
- * Es un marcador de posición construido con los colores de marca, para que la
- * app no se vea rota mientras llega el archivo real. Cuando esté el logo, se
- * sustituye SOLO este componente (y `public/brand/`): ninguna pantalla dibuja
- * la marca por su cuenta, todas pasan por aquí.
+ * El emblema (`public/brand/emblem.png`) se extrae del arte oficial con
+ * `node scripts/make-brand-assets.mjs`; no se dibuja aquí ni se retoca a mano.
+ * Ninguna pantalla pinta la marca por su cuenta: login, splash y sidebar pasan
+ * todas por este componente, así que cambiar el logo es cambiar el asset.
+ *
+ * PENDIENTE: el emblema es PNG porque el original es un PDF de Illustrator y
+ * ninguna herramienta de esta máquina convierte PDF a SVG. Con un SVG exportado
+ * desde Illustrator escalaría sin límite y pesaría una fracción — cuando exista,
+ * se sustituye el <img> por el <svg> y este componente no cambia más.
  */
 export function Brand({
   size = 'md',
@@ -20,41 +25,28 @@ export function Brand({
 }) {
   return (
     <div className={cn(styles.brand, styles[size], className)}>
-      <svg className={styles.mark} viewBox="0 0 40 40" role="img" aria-label="Velmont">
-        {/* Monograma: una V trazada como el filo de un corte, no como una letra
-            de fuente. El degradado va de bronce a dorado claro en la diagonal. */}
-        <defs>
-          <linearGradient id="vm-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--vm-gold-600)" />
-            <stop offset="50%" stopColor="var(--vm-gold-300)" />
-            <stop offset="100%" stopColor="var(--vm-gold-500)" />
-          </linearGradient>
-        </defs>
-
-        <rect
-          x="0.75"
-          y="0.75"
-          width="38.5"
-          height="38.5"
-          rx="7"
-          fill="var(--vm-surface-2)"
-          stroke="url(#vm-gold)"
-          strokeWidth="1.5"
-        />
-        <path
-          d="M11 12 L20 28 L29 12"
-          fill="none"
-          stroke="url(#vm-gold)"
-          strokeWidth="2.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <img
+        className={styles.mark}
+        src="/brand/emblem.png"
+        srcSet="/brand/emblem.png 1x, /brand/emblem@2x.png 2x"
+        alt="Velmont"
+        width={129}
+        height={128}
+        // Es lo primero que se ve al abrir; que no espere al resto del layout.
+        fetchPriority="high"
+      />
 
       {showWordmark && (
         <span className={styles.wordmark}>
-          Velmont
-          <span className={styles.tagline}>Cuidado de calzado</span>
+          <span className={styles.word}>
+            {/* La V va en el degradado dorado del arte oficial y el resto en el
+                color de texto del contexto. Se parte en dos <span> porque el
+                degradado necesita recortarse contra el glifo, y eso no se puede
+                aplicar a una sola letra sin envolverla. */}
+            <span className={styles.wordGold}>V</span>ELMONT
+          </span>
+          <span className={styles.tagline}>Luxury Shoe Care</span>
+          <span className={styles.claim}>El lujo también se cuida</span>
         </span>
       )}
     </div>

@@ -1,56 +1,128 @@
+/* Apilado y centrado, como en la referencia: marca arriba, wordmark debajo y
+   los dos taglines al pie. La versión horizontal se conserva en `.sm`, que es
+   la que usa la barra móvil donde no hay altura para apilar. */
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--vm-space-3);
+  gap: var(--vm-space-2);
+  text-align: center;
 }
 
 .mark {
   flex: none;
-  width: 40px;
-  height: 40px;
+  width: auto;
+  height: 56px;
 }
 
 .wordmark {
   display: flex;
   flex-direction: column;
-  font-family: var(--vm-font-display);
+  align-items: center;
+}
+
+/* El wordmark del arte oficial NO es serif: es una sans geométrica de trazo
+   fino con el tracking muy abierto. Usar aquí la display serif de los titulares
+   lo alejaría del logo real, que es justo lo que se está corrigiendo. */
+.word {
+  font-family: var(--vm-font-sans);
   font-size: var(--vm-text-xl);
   font-weight: 600;
   line-height: 1;
-  /* El tracking amplio en el wordmark es lo que separa una marca premium de un
-     título cualquiera. */
-  letter-spacing: var(--vm-tracking-wide);
+  letter-spacing: 0.12em;
+  /* El tracking abre por la derecha; sin esto el bloque se ve descentrado. */
+  text-indent: 0.12em;
   color: var(--vm-text);
 }
 
+/* La "V" lleva el degradado bronce->dorado del emblema, recortado contra el
+   glifo. `color: transparent` es lo que deja ver el fondo a través de la letra;
+   si el navegador no soportara background-clip, el fallback de la línea previa
+   la deja en dorado sólido en vez de invisible. */
+.wordGold {
+  color: var(--vm-gold);
+  background: linear-gradient(135deg, var(--vm-gold-700) 0%, var(--vm-gold-300) 45%, var(--vm-gold-600) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .wordGold {
+    color: transparent;
+  }
+}
+
+/* "LUXURY SHOE CARE" va flanqueado por dos filetes dorados, como en el arte
+   oficial. Las líneas se dibujan con pseudo-elementos y no con imágenes para
+   que sigan al ancho del texto en cualquier tamaño. */
 .tagline {
-  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: var(--vm-space-2);
+  margin-top: var(--vm-space-2);
   font-family: var(--vm-font-sans);
   font-size: var(--vm-text-2xs);
   font-weight: 500;
   letter-spacing: var(--vm-tracking-wider);
   text-transform: uppercase;
-  color: var(--vm-gold-500);
+  color: var(--vm-gold);
 }
 
+.tagline::before,
+.tagline::after {
+  content: '';
+  width: 14px;
+  height: 1px;
+  background-color: var(--vm-gold);
+  opacity: 0.8;
+}
+
+/* El claim cierra el bloque con un filete completo encima, que es lo que en el
+   arte separa la marca del icono del tenis. */
+.claim {
+  margin-top: var(--vm-space-2);
+  padding-top: var(--vm-space-2);
+  font-family: var(--vm-font-sans);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-gold);
+  border-top: 1px solid rgb(201 161 90 / 0.45);
+}
+
+/* Compacta y horizontal: la barra superior del móvil no tiene altura para el
+   bloque apilado. */
+.sm {
+  flex-direction: row;
+  gap: var(--vm-space-3);
+}
+
+/* Solo se fija el alto: el emblema no es exactamente cuadrado (el destello lo
+   desplaza a la derecha) y forzar ambos ejes lo deforma. */
 .sm .mark {
-  width: 28px;
-  height: 28px;
+  width: auto;
+  height: 30px;
 }
 
 .sm .wordmark {
+  align-items: flex-start;
+}
+
+.sm .word {
   font-size: var(--vm-text-base);
 }
 
-.sm .tagline {
+.sm .tagline,
+.sm .claim {
   display: none;
 }
 
 .lg .mark {
-  width: 64px;
-  height: 64px;
+  width: auto;
+  height: 104px;
 }
 
-.lg .wordmark {
+.lg .word {
   font-size: var(--vm-text-3xl);
 }

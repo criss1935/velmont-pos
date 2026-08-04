@@ -1,23 +1,29 @@
 .shell {
   display: grid;
   /* Tablet apaisada / escritorio: navegación fija a la izquierda, siempre visible. */
-  grid-template-columns: 232px 1fr;
+  grid-template-columns: var(--vm-sidebar-width) 1fr;
   height: 100dvh;
   overflow: hidden;
+  background-color: var(--vm-canvas);
 }
 
+/* El sidebar es la única zona oscura permanente del sistema. Lleva
+ * `.vm-on-dark` en el JSX, que remapea los tokens de texto y superficie a su
+ * versión sobre negro — por eso aquí no hace falta declarar colores de texto:
+ * los hereda ya invertidos. */
 .sidebar {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: var(--vm-space-5) var(--vm-space-4);
-  padding-top: max(var(--vm-space-5), env(safe-area-inset-top));
-  background-color: var(--vm-surface-1);
-  border-right: 1px solid var(--vm-border-subtle);
+  padding: var(--vm-space-5) var(--vm-space-3);
+  padding-top: max(var(--vm-space-6), env(safe-area-inset-top));
+  background-color: var(--vm-ink);
 }
 
 .brand {
-  padding: 0 var(--vm-space-2) var(--vm-space-5);
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--vm-space-2) var(--vm-space-6);
 }
 
 .nav {
@@ -32,47 +38,60 @@
   align-items: center;
   gap: var(--vm-space-3);
   min-height: var(--vm-touch);
-  padding: 0 var(--vm-space-3);
+  padding: 0 var(--vm-space-4);
 
   font-size: var(--vm-text-sm);
   font-weight: 500;
   color: var(--vm-text-muted);
 
-  border-radius: var(--vm-radius);
+  border-radius: var(--vm-radius-md);
   transition:
     background-color var(--vm-duration-fast) var(--vm-ease),
     color var(--vm-duration-fast) var(--vm-ease);
 }
 
-.link:active {
-  background-color: var(--vm-surface-2);
-}
-
-/* La ruta activa se marca con una barra dorada a la izquierda, no con un fondo
- * de color: el fondo compite con las tarjetas, la barra no. */
-.active {
-  position: relative;
+.link:hover {
   color: var(--vm-text);
-  background-color: var(--vm-surface-2);
+  background-color: rgb(255 255 255 / 0.05);
 }
 
-.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 3px;
-  height: 22px;
-  background-color: var(--vm-gold-500);
-  border-radius: 0 2px 2px 0;
-  transform: translateY(-50%);
+.link:active {
+  background-color: rgb(255 255 255 / 0.09);
+}
+
+/* La ruta activa se rellena con el dorado de acento y texto oscuro. Sobre un
+ * sidebar negro el relleno no compite con nada — no hay tarjetas al lado — y es
+ * lo único de la navegación que se ve de un vistazo desde el otro lado del
+ * mostrador. */
+.active,
+.active:hover {
+  color: var(--vm-ink);
+  font-weight: 600;
+  background-color: var(--vm-gold-accent);
+}
+
+.active:active {
+  background-color: var(--vm-accent-600);
 }
 
 .icon {
   flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 20px;
   font-size: var(--vm-text-base);
-  text-align: center;
+}
+
+/* Los iconos inactivos van en el dorado del logo, no en gris: es el detalle que
+ * mantiene la marca presente en toda la navegación. El activo hereda el negro
+ * del texto para no perderse sobre el relleno. */
+.link .icon {
+  color: var(--vm-gold);
+}
+
+.active .icon {
+  color: inherit;
 }
 
 .spacer {
@@ -85,16 +104,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--vm-space-1);
-  padding: var(--vm-space-3);
+  padding: var(--vm-space-3) var(--vm-space-4);
   margin-bottom: var(--vm-space-3);
-  border: 1px solid var(--vm-border-subtle);
-  border-radius: var(--vm-radius);
-  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius-md);
+  background-color: rgb(255 255 255 / 0.04);
 }
 
 .cashClosed {
-  border-color: rgb(201 86 61 / 0.4);
-  background-color: var(--vm-danger-bg);
+  border-color: rgb(214 69 69 / 0.45);
+  background-color: rgb(214 69 69 / 0.12);
 }
 
 .cashLabel {
@@ -125,24 +144,24 @@
   display: flex;
   align-items: center;
   gap: var(--vm-space-3);
-  padding-top: var(--vm-space-4);
-  border-top: 1px solid var(--vm-border-subtle);
+  padding: var(--vm-space-4) var(--vm-space-2) 0;
+  border-top: 1px solid var(--vm-border);
 }
 
 .avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   flex: none;
 
-  font-size: var(--vm-text-sm);
+  font-size: var(--vm-text-xs);
   font-weight: 700;
-  color: var(--vm-gold-200);
+  letter-spacing: 0.02em;
+  color: var(--vm-ink);
 
-  background-color: var(--vm-surface-3);
-  border: 1px solid var(--vm-border);
+  background-color: var(--vm-gold);
   border-radius: 50%;
 }
 

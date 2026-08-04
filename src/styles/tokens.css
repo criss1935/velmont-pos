@@ -2,81 +2,129 @@
  * Velmont — design tokens.
  * Única fuente de verdad del look. Ningún componente hardcodea un color, un radio
  * ni una sombra: todo sale de aquí. Cambiar la marca = cambiar este archivo.
- */
+ *
+ * ---------------------------------------------------------------------------
+ * NOTA SOBRE EL CAMBIO DE TEMA (oscuro -> claro)
+ *
+ * Este sistema nació dark-first: toda la app vivía sobre #040606. La referencia
+ * de diseño aprobada lo invierte — canvas blanco cálido, y el negro reservado
+ * para el sidebar y dos cards de acento.
+ *
+ * Los NOMBRES de los tokens se conservan (`--vm-surface-1`, `--vm-text`, ...)
+ * aunque su significado se haya invertido. Es deliberado: los 29 módulos CSS de
+ * la app ya los consumen, así que remapear aquí retematiza el sistema entero sin
+ * tocar cada archivo. Lo que antes era "un peldaño más claro que el fondo negro"
+ * ahora es "un peldaño más oscuro que el fondo blanco" — la jerarquía relativa
+ * se mantiene y las pantallas siguen leyéndose bien.
+ *
+ * Para las zonas que SIGUEN siendo oscuras (sidebar, card de "Órdenes
+ * recientes", banner) existe la clase `.vm-on-dark` al final de este archivo:
+ * remapea los mismos tokens a su versión sobre negro, de modo que un componente
+ * cualquiera colocado ahí dentro se adapta solo.
+ * ------------------------------------------------------------------------ */
 
 :root {
   /* ---------------------------------------------------------------------
    * Marca
+   *
+   * Son DOS dorados, no uno. El del logo es más frío y apagado; el de acento
+   * es más cálido y naranja, y es el que carga las acciones (botón principal,
+   * ítem activo del nav, badges "En proceso"). Usar el mismo para ambos apaga
+   * la interfaz: los botones dejan de pedir el clic.
    * ------------------------------------------------------------------ */
-  --vm-black: #040606;
-  --vm-gold: #a07a46;
+  --vm-gold: #c9a15a; /* dorado del logo: wordmark, iconos, detalles */
+  --vm-gold-accent: #d98a3d; /* naranja-dorado: acciones y estados activos */
 
-  /* Escala derivada del dorado-bronce. El 500 es el color oficial de marca. */
-  --vm-gold-100: #efe2ce;
-  --vm-gold-200: #ddc5a1;
-  --vm-gold-300: #c9a978;
-  --vm-gold-400: #b4915b;
-  --vm-gold-500: #a07a46;
-  --vm-gold-600: #83633a;
-  --vm-gold-700: #654c2d;
-  --vm-gold-800: #46351f;
-  --vm-gold-900: #281e12;
+  /* Escala del dorado de marca. El 500 es el color oficial. */
+  --vm-gold-100: #f7efdf;
+  --vm-gold-200: #ecdab6;
+  --vm-gold-300: #dfc38c;
+  --vm-gold-400: #d4b273;
+  --vm-gold-500: #c9a15a;
+  --vm-gold-600: #a98549;
+  --vm-gold-700: #866a3a;
+  --vm-gold-800: #5f4b29;
+  --vm-gold-900: #382c18;
+
+  /* Escala del acento. El 100 es el pastel de los círculos de icono. */
+  --vm-accent-100: #fbeadb;
+  --vm-accent-200: #f5d0b0;
+  --vm-accent-300: #edb280;
+  --vm-accent-400: #e59d5c;
+  --vm-accent-500: #d98a3d;
+  --vm-accent-600: #b87131;
+  --vm-accent-700: #915927;
 
   /* ---------------------------------------------------------------------
    * Superficies
-   * Escalera desde el negro de marca. Cada peldaño sube ~4% de luminancia y
-   * arrastra un punto de calidez, para que el negro nunca se vea azulado.
+   *
+   * El canvas es blanco CÁLIDO. El blanco puro sobre una tablet en un mostrador
+   * con luz de tienda resulta clínico y delata cualquier card blanca encima; el
+   * hueso deja que la card blanca destaque sin necesidad de borde.
    * ------------------------------------------------------------------ */
-  --vm-bg: var(--vm-black);
-  --vm-surface-1: #0a0d0d;
-  --vm-surface-2: #121615;
-  --vm-surface-3: #1b201e;
-  --vm-surface-4: #262b28;
+  --vm-canvas: #faf8f5;
+  --vm-bg: var(--vm-canvas);
+  --vm-card: #ffffff;
+
+  /* Negro de marca, para el sidebar y las cards de acento. */
+  --vm-ink: #0a0a0a;
+
+  /* Peldaños sobre el canvas. Cada uno se hunde un poco más. */
+  --vm-surface-1: #ffffff;
+  --vm-surface-2: #f5f2ed;
+  --vm-surface-3: #ece8e2;
+  --vm-surface-4: #ded8cf;
 
   /* Superficie que reacciona al toque (tablet: sin hover, todo es :active). */
-  --vm-surface-pressed: #2f3531;
+  --vm-surface-pressed: #e4ded4;
 
   /* ---------------------------------------------------------------------
    * Bordes
-   * En un fondo casi negro las sombras no se ven: la jerarquía la crean los
-   * filos. Van teñidos de dorado, no de gris — es la firma visual del sistema.
+   *
+   * Sobre fondo claro la jerarquía la crean la sombra y el cambio de fondo,
+   * no el filo. Por eso los bordes son mucho más discretos que en la versión
+   * oscura: separan cuando hace falta, no dibujan cajas.
    * ------------------------------------------------------------------ */
-  --vm-border-subtle: rgb(160 122 70 / 0.12);
-  --vm-border: rgb(160 122 70 / 0.22);
-  --vm-border-strong: rgb(160 122 70 / 0.45);
-  --vm-border-neutral: rgb(255 255 255 / 0.07);
+  --vm-border-subtle: #f0ece6;
+  --vm-border: #ece8e2;
+  --vm-border-strong: #ded8cf;
+  --vm-border-neutral: #ece8e2;
 
   /* ---------------------------------------------------------------------
    * Texto
-   * Blanco cálido, nunca #fff puro: sobre negro el blanco puro vibra.
    * ------------------------------------------------------------------ */
-  --vm-text: #f4f1ea;
-  --vm-text-muted: #9d978c;
-  --vm-text-dim: #6b665e;
-  --vm-text-on-gold: #100c06;
+  --vm-text: #1a1a1a;
+  --vm-text-muted: #6b6b6b;
+  --vm-text-dim: #9a9a9a;
+  --vm-text-on-gold: #ffffff;
 
   /* ---------------------------------------------------------------------
    * Semánticos
-   * Desaturados para convivir con el dorado sin pelearse con él.
    * ------------------------------------------------------------------ */
-  --vm-success: #5aa17a;
-  --vm-success-bg: rgb(90 161 122 / 0.14);
-  --vm-warning: #c9a227;
-  --vm-warning-bg: rgb(201 162 39 / 0.14);
-  --vm-danger: #c9563d;
-  --vm-danger-bg: rgb(201 86 61 / 0.14);
-  --vm-info: #5b8ea6;
-  --vm-info-bg: rgb(91 142 166 / 0.14);
+  --vm-success: #2f9e5b;
+  --vm-success-bg: #e6f4ec;
+  --vm-warning: #d98a3d;
+  --vm-warning-bg: #fbeadb;
+  --vm-danger: #d64545;
+  --vm-danger-bg: #fbe9e9;
+  --vm-info: #3d7ea6;
+  --vm-info-bg: #e6f0f6;
 
   /* ---------------------------------------------------------------------
    * Estados de la orden de servicio
-   * Un color por estado, usado igual en el tablero, el badge y el ticket.
+   * Un color por estado, usado igual en el tablero, el badge y la lista.
    * ------------------------------------------------------------------ */
-  --vm-status-received: #5b8ea6;
-  --vm-status-progress: #c9a227;
-  --vm-status-ready: #5aa17a;
-  --vm-status-delivered: #6b665e;
-  --vm-status-cancelled: #c9563d;
+  --vm-status-received: #2f9e5b;
+  --vm-status-progress: #d98a3d;
+  --vm-status-ready: #2f9e5b;
+  --vm-status-delivered: #9a9a9a;
+  --vm-status-cancelled: #d64545;
+
+  --vm-status-received-bg: #e6f4ec;
+  --vm-status-progress-bg: #fbeadb;
+  --vm-status-ready-bg: #e6f4ec;
+  --vm-status-delivered-bg: #f0eeea;
+  --vm-status-cancelled-bg: #fbe9e9;
 
   /* ---------------------------------------------------------------------
    * Tipografía
@@ -85,8 +133,10 @@
    * mono    = cifras: precios, folios, totales. Tabular, para que las columnas
    *           de números cuadren verticalmente.
    * ------------------------------------------------------------------ */
-  --vm-font-display: 'Cormorant Garamond', 'Georgia', 'Times New Roman', serif;
-  --vm-font-sans: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
+  --vm-font-display: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  /* 'Inter Variable' es el nombre que registra @fontsource-variable; 'Inter' a
+   * secas queda como respaldo por si la tablet ya la tiene instalada. */
+  --vm-font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --vm-font-mono: 'Roboto Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
 
   /* Escala tipográfica — razón 1.2, anclada en 16px. */
@@ -124,22 +174,34 @@
   --vm-space-16: 4rem;
 
   /* ---------------------------------------------------------------------
-   * Radios — contenidos a propósito. El radio grande abarata; lo premium es filo.
+   * Radios
+   *
+   * Los valores anteriores eran deliberadamente pequeños (3-14px), con el
+   * argumento de que "el radio grande abarata; lo premium es filo". La
+   * referencia aprobada pide lo contrario: cards muy redondeadas (16px) y
+   * pills. Se adopta la referencia, que además es coherente con el paso a
+   * fondo claro — sobre blanco, la esquina marcada endurece; sobre negro
+   * afilaba.
    * ------------------------------------------------------------------ */
-  --vm-radius-sm: 3px;
-  --vm-radius: 6px;
-  --vm-radius-md: 10px;
-  --vm-radius-lg: 14px;
+  --vm-radius-sm: 6px;
+  --vm-radius: 10px;
+  --vm-radius-md: 12px;
+  --vm-radius-lg: 16px;
+  --vm-radius-xl: 20px;
   --vm-radius-pill: 999px;
 
   /* ---------------------------------------------------------------------
-   * Elevación — sombra para profundidad + halo dorado para el foco.
+   * Elevación
+   *
+   * Sombras suaves y muy difusas, nunca duras: sobre fondo claro una sombra
+   * marcada se lee como suciedad. La profundidad la da el desenfoque amplio a
+   * baja opacidad, no el contraste.
    * ------------------------------------------------------------------ */
-  --vm-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
-  --vm-shadow: 0 4px 12px rgb(0 0 0 / 0.55);
-  --vm-shadow-lg: 0 12px 32px rgb(0 0 0 / 0.65);
-  --vm-shadow-xl: 0 24px 64px rgb(0 0 0 / 0.75);
-  --vm-glow-gold: 0 0 0 3px rgb(160 122 70 / 0.28);
+  --vm-shadow-sm: 0 1px 2px rgb(26 26 26 / 0.04), 0 1px 3px rgb(26 26 26 / 0.04);
+  --vm-shadow: 0 2px 4px rgb(26 26 26 / 0.04), 0 4px 12px rgb(26 26 26 / 0.06);
+  --vm-shadow-lg: 0 4px 8px rgb(26 26 26 / 0.04), 0 12px 28px rgb(26 26 26 / 0.08);
+  --vm-shadow-xl: 0 8px 16px rgb(26 26 26 / 0.06), 0 24px 56px rgb(26 26 26 / 0.1);
+  --vm-glow-gold: 0 0 0 3px rgb(217 138 61 / 0.25);
 
   /* ---------------------------------------------------------------------
    * Superficie táctil
@@ -149,6 +211,9 @@
   --vm-touch-min: 48px;
   --vm-touch: 56px;
   --vm-touch-lg: 64px;
+
+  /* Ancho del sidebar. Lo leen el shell y el contenido. */
+  --vm-sidebar-width: 240px;
 
   /* ---------------------------------------------------------------------
    * Movimiento — corto y seco. Un POS no se luce, responde.
@@ -166,6 +231,41 @@
   --vm-z-overlay: 40;
   --vm-z-modal: 50;
   --vm-z-toast: 60;
+}
+
+/* ---------------------------------------------------------------------------
+ * Zonas oscuras sobre el tema claro.
+ *
+ * El sidebar, la card de "Órdenes recientes" y el banner promocional siguen
+ * siendo negros. En vez de escribir estilos aparte para cada componente que
+ * caiga ahí dentro, esta clase remapea los mismos tokens a su equivalente sobre
+ * negro: cualquier Card, Badge o Button colocado dentro se adapta solo.
+ * ------------------------------------------------------------------------ */
+.vm-on-dark {
+  --vm-bg: var(--vm-ink);
+  --vm-card: #141414;
+
+  --vm-surface-1: #141414;
+  --vm-surface-2: #1c1c1c;
+  --vm-surface-3: #242424;
+  --vm-surface-4: #2e2e2e;
+  --vm-surface-pressed: #383838;
+
+  --vm-border-subtle: rgb(255 255 255 / 0.06);
+  --vm-border: rgb(255 255 255 / 0.1);
+  --vm-border-strong: rgb(255 255 255 / 0.18);
+  --vm-border-neutral: rgb(255 255 255 / 0.1);
+
+  --vm-text: #f7f5f2;
+  --vm-text-muted: #a8a49e;
+  --vm-text-dim: #75726d;
+
+  /* Sobre negro las sombras no se ven; se anulan para no ensuciar. */
+  --vm-shadow-sm: none;
+  --vm-shadow: none;
+  --vm-shadow-lg: none;
+
+  color: var(--vm-text);
 }
 
 /* El operador puede pedir menos animación desde Android; se respeta. */

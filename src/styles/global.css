@@ -1,3 +1,19 @@
+/* Tipografías auto-hospedadas, NO desde Google Fonts.
+ *
+ * Esto es una PWA que tiene que verse igual en una tablet sin señal. Un <link>
+ * al CDN de Google haría que, sin red, la app cayera a la serif del sistema y
+ * el wordmark de marca se viera distinto justo cuando el operador ya no puede
+ * hacer nada al respecto. Al venir de node_modules, Vite las versiona y el
+ * service worker las precachea (ver `globPatterns` en vite.config.ts).
+ *
+ * Solo latin y solo los pesos que se usan: cada peso extra es un archivo más
+ * que descargar en el primer arranque.
+ */
+@import '@fontsource-variable/inter/standard.css';
+@import '@fontsource/playfair-display/500.css';
+@import '@fontsource/playfair-display/600.css';
+@import '@fontsource/playfair-display/700.css';
+
 @import './tokens.css';
 @import './reset.css';
 

@@ -1,0 +1,21 @@
+{
+  "name": "velmont-print-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Agente local: escucha print_jobs por Realtime y manda ESC/POS a la impresora térmica por TCP 9100.",
+  "main": "print-agent.js",
+  "scripts": {
+    "start": "node print-agent.js",
+    "make-logo": "node scripts/make-logo.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "dotenv": "^16.4.7",
+    "sharp": "^0.33.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

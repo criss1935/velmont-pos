@@ -19,6 +19,9 @@ const TYPE_LABEL: Record<SupplyMovementType, string> = {
 /** Compra y ajuste cambian el valor del inventario: la base solo deja a admin. */
 const ADMIN_TYPES: SupplyMovementType[] = ['compra', 'ajuste']
 
+/** Referencia estable para "aún sin datos" (ver el useMemo de `visible`). */
+const NO_SUPPLIES: Supply[] = []
+
 type Filter = 'todos' | 'activos' | 'bajo' | 'sinStock'
 
 const FILTER_LABEL: Record<Filter, string> = {
@@ -52,7 +55,9 @@ export function InventoryPage() {
   const [filter, setFilter] = useState<Filter>('todos')
 
   const query = useQuery({ queryKey: ['supplies'], queryFn: suppliesRepo.listSupplies })
-  const list = query.data ?? []
+  // NO_SUPPLIES y no `?? []`: un array nuevo en cada render cambiaría las
+  // dependencias del useMemo de abajo y lo dejaría sin efecto.
+  const list = query.data ?? NO_SUPPLIES
   const low = list.filter((supply) => supply.active && supply.low)
 
   const visible = useMemo(() => {

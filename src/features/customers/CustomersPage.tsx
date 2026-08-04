@@ -152,7 +152,7 @@ function CustomerDetailModal({
                 className={styles.historyRow}
                 onClick={() => {
                   onClose()
-                  navigate(`/ordenes/${order.id}`)
+                  void navigate(`/ordenes/${order.id}`)
                 }}
               >
                 <span className={styles.historyFolio} data-numeric>

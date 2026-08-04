@@ -10,6 +10,17 @@ import styles from './CatalogPage.module.css'
 
 const SIN_CATEGORIA = '__sin_categoria__'
 
+/**
+ * Referencias estables para el caso "todavía no hay datos".
+ *
+ * Un `?? []` escrito en el cuerpo del componente crea un array NUEVO en cada
+ * render, así que las dependencias del useMemo de abajo cambian siempre y el
+ * memo no memoiza nada: reagrupa el catálogo completo en cada pintada. Con una
+ * constante de módulo la referencia es la misma y el memo vuelve a servir.
+ */
+const NO_CATEGORIES: ServiceCategory[] = []
+const NO_SERVICES: Service[] = []
+
 export function CatalogPage() {
   const queryClient = useQueryClient()
   const [creatingCategory, setCreatingCategory] = useState(false)
@@ -20,8 +31,8 @@ export function CatalogPage() {
   const categoriesQuery = useQuery({ queryKey: ['categories'], queryFn: catalogRepo.listCategories })
   const servicesQuery = useQuery({ queryKey: ['services-all'], queryFn: catalogRepo.listAllServices })
 
-  const categories = categoriesQuery.data ?? []
-  const services = servicesQuery.data ?? []
+  const categories = categoriesQuery.data ?? NO_CATEGORIES
+  const services = servicesQuery.data ?? NO_SERVICES
 
   const groups = useMemo(() => {
     const byCategory = new Map<string, Service[]>()

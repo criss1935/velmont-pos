@@ -26,3 +26,13 @@ supabase/.temp/
 
 # Locks temporales de sesión de Claude Code
 .Claude/*.lock
+
+# Agente de impresion (secretos y binarios locales)
+print-agent/node_modules/
+print-agent/.env
+
+# Log del dev server, se regenera solo
+scratch_dev.log
+
+# Referencias de diseno, no son parte del proyecto
+WhatsApp Image*

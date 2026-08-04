@@ -84,7 +84,7 @@ export function unwrap<T>(response: PostgrestSingleResponse<T>): NonNullable<T> 
   if (response.data === null || response.data === undefined) {
     throw new DataError('La consulta no devolvió datos.')
   }
-  return response.data as NonNullable<T>
+  return response.data
 }
 
 /**

@@ -151,7 +151,7 @@ export async function nextBatch(): Promise<QueuedMutation[]> {
   const depIds = [...new Set(all.flatMap((mutation) => mutation.dependsOn))]
   const doneIds = new Set(
     depIds.length > 0
-      ? (await offlineDb.sync_log.bulkGet(depIds)).filter((entry) => entry !== undefined).map((entry) => entry!.id)
+      ? (await offlineDb.sync_log.bulkGet(depIds)).filter((entry) => entry !== undefined).map((entry) => entry.id)
       : [],
   )
 

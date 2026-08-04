@@ -167,7 +167,7 @@ export async function recordSupplyMovement(input: {
     await enqueue({
       type: 'supplies.recordMovement',
       entityId: payload.id,
-      payload: payload as unknown as Record<string, unknown>,
+      payload: payload,
     })
   }
 }

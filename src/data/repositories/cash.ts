@@ -169,7 +169,7 @@ export async function openSession(opening: Cents): Promise<string> {
   } catch (cause) {
     if (!isOfflineEnabled() || !isNetworkError(cause)) throw cause
 
-    await enqueue({ type: 'cash.open', entityId: id, payload: payload as unknown as Record<string, unknown> })
+    await enqueue({ type: 'cash.open', entityId: id, payload: payload })
     return id
   }
 }
@@ -258,7 +258,7 @@ export async function addMovement(input: {
     await enqueue({
       type: 'cash.addMovement',
       entityId: payload.id,
-      payload: payload as unknown as Record<string, unknown>,
+      payload: payload,
     })
   }
 }

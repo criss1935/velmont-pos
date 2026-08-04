@@ -154,7 +154,10 @@ export function ReceivePage() {
 
       if (payment?.method === 'efectivo') await refreshCash()
       store.reset()
-      navigate(`/ordenes/${orderId}`)
+      // `void`: en react-router 7 navigate() devuelve una promesa, pero no hay
+      // nada que esperar — la navegación ocurre igual. Marcarla distingue este
+      // caso de una promesa olvidada de verdad, que en un POS sí sería grave.
+      void navigate(`/ordenes/${orderId}`)
     } catch (cause) {
       setError(cause instanceof DataError ? cause.message : 'No se pudo finalizar la recepción.')
       setSaving(false)

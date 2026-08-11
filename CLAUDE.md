@@ -153,3 +153,13 @@ npm run db:verify-seed   # confirma que el catálogo base está completo
 
 Usuario admin sembrado: `admin@velmont.mx` / `Velmont2026`.
 **Cambiar la contraseña antes de producción.**
+
+## Dominio y capa de Basic Auth
+
+Vive en `admin.velmontsneakers.com` (no en el dominio principal, que es el sitio
+de marketing). La URL es semi-pública aunque no esté enlazada, así que
+`middleware.ts` (raíz del repo) exige HTTP Basic Auth delante de toda la app,
+incluida `/login` — ver el comentario en ese archivo para por qué no puede
+depender de la sesión de Supabase (vive en localStorage, invisible en el edge).
+Credenciales en `BASIC_AUTH_USER`/`BASIC_AUTH_PASS`, env vars de Vercel (sin
+prefijo `VITE_`: no deben llegar al bundle). Ver `.env.example`.

@@ -1,5 +1,5 @@
 import { DataError, unwrap, unwrapMaybe } from '../errors'
-import { pendingDb } from '../database.pending'
+import { supabase } from '../client'
 import { isNetworkError } from '../offline/network'
 import { cents, type Cents } from '@/lib/money'
 import { currentUserId } from './auth'
@@ -8,7 +8,7 @@ import type { PettyCashMovement, PettyCashState } from '../types'
 /**
  * CAJA CHICA — el fondo de efectivo para gastos menores, separado del cajón.
  *
- * Ver `supabase/migrations/0020_petty_cash.sql` para el modelo. Aquí solo la
+ * Ver `supabase/migrations/20260120000000_petty_cash.sql` para el modelo. Aquí solo la
  * traducción a tipos de dominio.
  *
  * A diferencia de las ventas, la caja chica NO se encola offline. Es una
@@ -31,7 +31,7 @@ function offlineGuard(cause: unknown): never {
 export async function getState(): Promise<PettyCashState> {
   try {
     const row = unwrapMaybe(
-      await pendingDb.from('petty_cash_balance').select('funded_cents, spent_cents, balance_cents').retry(false).maybeSingle(),
+      await supabase.from('petty_cash_balance').select('funded_cents, spent_cents, balance_cents').retry(false).maybeSingle(),
     )
 
     return {
@@ -47,7 +47,7 @@ export async function getState(): Promise<PettyCashState> {
 export async function listMovements(limit = 30): Promise<PettyCashMovement[]> {
   try {
     const rows = unwrap(
-      await pendingDb
+      await supabase
         .from('petty_cash_movements')
         .select('id, type, amount_cents, reason, created_at')
         .order('created_at', { ascending: false })
@@ -82,7 +82,7 @@ export async function fund(input: {
 
   try {
     unwrapMaybe(
-      await pendingDb.rpc('fund_petty_cash', {
+      await supabase.rpc('fund_petty_cash', {
         p_movement_id: crypto.randomUUID(),
         p_cash_movement_id: crypto.randomUUID(),
         p_session_id: input.sessionId,
@@ -102,7 +102,7 @@ export async function spend(input: { amount: Cents; reason: string }): Promise<v
 
   try {
     unwrap(
-      await pendingDb
+      await supabase
         .from('petty_cash_movements')
         .insert({
           id: crypto.randomUUID(),

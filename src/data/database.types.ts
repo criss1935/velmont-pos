@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -691,6 +696,58 @@ export type Database = {
           },
         ]
       }
+      petty_cash_movements: {
+        Row: {
+          amount_cents: number
+          cash_session_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          reason: string
+          type: Database["public"]["Enums"]["petty_cash_movement_type"]
+        }
+        Insert: {
+          amount_cents: number
+          cash_session_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason: string
+          type: Database["public"]["Enums"]["petty_cash_movement_type"]
+        }
+        Update: {
+          amount_cents?: number
+          cash_session_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string
+          type?: Database["public"]["Enums"]["petty_cash_movement_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "petty_cash_movements_cash_session_id_fkey"
+            columns: ["cash_session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_session_expected"
+            referencedColumns: ["cash_session_id"]
+          },
+          {
+            foreignKeyName: "petty_cash_movements_cash_session_id_fkey"
+            columns: ["cash_session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "petty_cash_movements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           active: boolean
@@ -920,6 +977,14 @@ export type Database = {
         }
         Relationships: []
       }
+      petty_cash_balance: {
+        Row: {
+          balance_cents: number | null
+          funded_cents: number | null
+          spent_cents: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       close_cash_session: {
@@ -968,6 +1033,16 @@ export type Database = {
         }
         Returns: Json
       }
+      fund_petty_cash: {
+        Args: {
+          p_amount: number
+          p_cash_movement_id: string
+          p_movement_id: string
+          p_reason: string
+          p_session_id: string
+        }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
     }
@@ -980,6 +1055,7 @@ export type Database = {
         | "entregado"
         | "cancelado"
       payment_method: "efectivo" | "tarjeta" | "transferencia"
+      petty_cash_movement_type: "fondeo" | "gasto"
       supply_movement_type: "compra" | "consumo" | "ajuste" | "merma"
     }
     CompositeTypes: {
@@ -1120,8 +1196,8 @@ export const Constants = {
         "cancelado",
       ],
       payment_method: ["efectivo", "tarjeta", "transferencia"],
+      petty_cash_movement_type: ["fondeo", "gasto"],
       supply_movement_type: ["compra", "consumo", "ajuste", "merma"],
     },
   },
 } as const
-

@@ -269,6 +269,29 @@ export interface CashMovement {
   createdAt: string
 }
 
+/**
+ * Caja chica: el fondo aparte para gastos menores. Ver la migración 0020.
+ * `fondeo` = entra al fondo (sale del cajón); `gasto` = sale del fondo.
+ */
+export type PettyCashMovementType = 'fondeo' | 'gasto'
+
+export interface PettyCashMovement {
+  id: string
+  type: PettyCashMovementType
+  amount: Cents
+  reason: string
+  createdAt: string
+}
+
+export interface PettyCashState {
+  /** Todo lo que se ha metido al fondo, histórico. */
+  funded: Cents
+  /** Todo lo que se ha gastado del fondo, histórico. */
+  spent: Cents
+  /** Lo que debería quedar en el sobre ahora mismo. */
+  balance: Cents
+}
+
 export interface Supply {
   id: string
   name: string

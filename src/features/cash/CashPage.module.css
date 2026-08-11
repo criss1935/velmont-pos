@@ -50,11 +50,11 @@
 }
 
 .expectedLabel {
-  font-size: var(--vm-text-2xs);
-  font-weight: 600;
-  letter-spacing: var(--vm-tracking-wider);
+  font-size: var(--vm-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wide);
   text-transform: uppercase;
-  color: var(--vm-text-dim);
+  color: var(--vm-text-muted);
 }
 
 .expectedValue {
@@ -62,25 +62,33 @@
   font-variant-numeric: tabular-nums;
   font-size: var(--vm-text-5xl);
   font-weight: 700;
-  color: var(--vm-gold-300);
+  /* Era `--vm-gold-300` (#dfc38c), heredado del tema oscuro. Sobre el degradado
+   * claro de `.expected` es casi el mismo tono que el fondo: la cifra más
+   * importante de la pantalla era la más difícil de leer. */
+  color: var(--vm-gold-700);
   letter-spacing: -0.03em;
 }
 
 .expectedHint {
-  font-size: var(--vm-text-xs);
-  color: var(--vm-text-dim);
+  max-width: 42ch;
+  font-size: var(--vm-text-sm);
+  line-height: var(--vm-leading-normal);
+  color: var(--vm-text-muted);
   text-align: center;
 }
 
 .estimatedTag {
-  font-family: var(--vm-font-sans);
-  font-size: var(--vm-text-lg);
-  font-weight: 500;
-  color: var(--vm-warning);
+  padding: var(--vm-space-1) var(--vm-space-3);
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  color: var(--vm-accent-700);
+  background-color: var(--vm-warning-bg);
+  border-radius: var(--vm-radius-pill);
 }
 
 .syncBlocked {
-  font-size: var(--vm-text-sm);
+  font-size: var(--vm-text-base);
+  line-height: var(--vm-leading-normal);
   color: var(--vm-warning);
   background-color: var(--vm-warning-bg);
   padding: var(--vm-space-3) var(--vm-space-4);
@@ -95,14 +103,17 @@
 
 .breakdownRow {
   display: flex;
+  gap: var(--vm-space-4);
   justify-content: space-between;
-  font-size: var(--vm-text-sm);
+  font-size: var(--vm-text-base);
   color: var(--vm-text-muted);
 }
 
 .breakdownValue {
   font-family: var(--vm-font-mono);
   font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--vm-text);
 }
 
 /* --- Movimientos -------------------------------------------------------- */
@@ -121,13 +132,13 @@
 }
 
 .movementReason {
-  font-size: var(--vm-text-sm);
-  font-weight: 500;
+  font-size: var(--vm-text-base);
+  font-weight: 600;
 }
 
 .movementDate {
-  font-size: var(--vm-text-xs);
-  color: var(--vm-text-dim);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
 }
 
 .movementAmount {
@@ -146,8 +157,9 @@
 }
 
 .emptyMovements {
-  font-size: var(--vm-text-sm);
-  color: var(--vm-text-dim);
+  font-size: var(--vm-text-base);
+  line-height: var(--vm-leading-normal);
+  color: var(--vm-text-muted);
 }
 
 /* --- Formularios en modal ----------------------------------------------- */
@@ -158,38 +170,16 @@
   gap: var(--vm-space-5);
 }
 
-.types {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--vm-space-2);
-}
-
-.type {
-  min-height: var(--vm-touch);
-  font-size: var(--vm-text-xs);
-  font-weight: 600;
-  letter-spacing: var(--vm-tracking-wide);
-  text-transform: uppercase;
-  color: var(--vm-text-muted);
-  background-color: var(--vm-surface-2);
-  border: 1px solid var(--vm-border-neutral);
-  border-radius: var(--vm-radius);
-}
-
-.typeActive {
-  color: var(--vm-text-on-gold);
-  background-color: var(--vm-gold-500);
-  border-color: var(--vm-gold-400);
-}
-
 /* La diferencia del corte: el número que dice si falta o sobra dinero. */
 .difference {
   display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
   align-items: center;
-  justify-content: space-between;
-  padding: var(--vm-space-4) var(--vm-space-5);
+  padding: var(--vm-space-5);
+  text-align: center;
   border-radius: var(--vm-radius-md);
-  border: 1px solid;
+  border: 2px solid;
 }
 
 .diffZero {
@@ -211,16 +201,22 @@
 }
 
 .diffLabel {
-  font-size: var(--vm-text-2xs);
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-2xl);
   font-weight: 700;
-  letter-spacing: var(--vm-tracking-wider);
-  text-transform: uppercase;
+}
+
+.diffHint {
+  max-width: 40ch;
+  font-size: var(--vm-text-sm);
+  line-height: var(--vm-leading-normal);
+  color: var(--vm-text-muted);
 }
 
 .diffValue {
   font-family: var(--vm-font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: var(--vm-text-2xl);
+  font-size: var(--vm-text-3xl);
   font-weight: 700;
 }
 
@@ -233,9 +229,10 @@
 }
 
 .adminOnly {
-  padding: var(--vm-space-3);
-  font-size: var(--vm-text-xs);
-  color: var(--vm-text-dim);
+  padding: var(--vm-space-4) var(--vm-space-3) 0;
+  font-size: var(--vm-text-sm);
+  line-height: var(--vm-leading-normal);
+  color: var(--vm-text-muted);
   text-align: center;
 }
 
@@ -246,5 +243,217 @@
 
   .expectedValue {
     font-size: var(--vm-text-4xl);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Bloques nuevos del rediseño
+ * ------------------------------------------------------------------------ */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+}
+
+.closedTitle {
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-2xl);
+  color: var(--vm-text);
+}
+
+/*
+ * Las dos acciones del turno.
+ *
+ * Antes vivían detrás de un solo botón, "Entrada / salida", que abría un modal
+ * donde primero había que elegir la dirección. Eran dos decisiones para una
+ * intención que el operador ya tiene clarísima cuando toca la pantalla ("voy a
+ * sacar dinero para comprar shampoo"). Ahora la dirección ES el botón.
+ */
+.bigActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vm-space-4);
+}
+
+.bigAction {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+  align-items: center;
+  min-height: 8rem;
+  padding: var(--vm-space-5) var(--vm-space-4);
+  text-align: center;
+  background-color: var(--vm-card);
+  border: 2px solid var(--vm-border-strong);
+  border-radius: var(--vm-radius-lg);
+  box-shadow: var(--vm-shadow-sm);
+}
+
+.bigAction:active {
+  background-color: var(--vm-surface-pressed);
+}
+
+.bigActionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: var(--vm-text-2xl);
+  font-weight: 700;
+  border-radius: var(--vm-radius-pill);
+}
+
+.iconIn {
+  color: var(--vm-success);
+  background-color: var(--vm-success-bg);
+}
+
+.iconOut {
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+}
+
+.bigActionTitle {
+  font-size: var(--vm-text-lg);
+  font-weight: 700;
+  color: var(--vm-text);
+}
+
+.bigActionHint {
+  max-width: 26ch;
+  font-size: var(--vm-text-sm);
+  line-height: var(--vm-leading-snug);
+  color: var(--vm-text-muted);
+}
+
+.closeHint {
+  padding: var(--vm-space-4) 0;
+  font-size: var(--vm-text-sm);
+  line-height: var(--vm-leading-normal);
+  color: var(--vm-text-muted);
+}
+
+/* --- Caja chica --------------------------------------------------------- */
+
+.pettyBalance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-1);
+  align-items: center;
+  padding: var(--vm-space-5);
+  text-align: center;
+  background-color: var(--vm-surface-2);
+  border-radius: var(--vm-radius-md);
+}
+
+.pettyLabel {
+  font-size: var(--vm-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vm-text-muted);
+}
+
+.pettyValue {
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--vm-text-3xl);
+  font-weight: 700;
+  color: var(--vm-text);
+}
+
+.pettyHint {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.pettyActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vm-space-3);
+  margin-top: var(--vm-space-4);
+}
+
+.pettyEmpty {
+  margin-top: var(--vm-space-3);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.pettyList {
+  margin-top: var(--vm-space-4);
+  border-top: 1px solid var(--vm-border);
+}
+
+/* --- Motivos sugeridos --------------------------------------------------- */
+
+.reasonBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+}
+
+.reasonLabel {
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  color: var(--vm-text);
+}
+
+.reasonChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-2);
+}
+
+.reasonChip {
+  min-height: var(--vm-touch-min);
+  padding: 0 var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  font-weight: 600;
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+  border: 2px solid var(--vm-border-strong);
+  border-radius: var(--vm-radius-pill);
+}
+
+.reasonChipActive {
+  color: var(--vm-text-on-gold);
+  background: linear-gradient(to bottom, var(--vm-accent-400), var(--vm-accent-500));
+  border-color: var(--vm-accent-600);
+}
+
+/* --- Montos sugeridos al abrir ------------------------------------------ */
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-2);
+}
+
+.suggestion {
+  flex: 1;
+  min-width: 5.5rem;
+  min-height: var(--vm-touch);
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-base);
+  font-weight: 700;
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+  border: 2px solid var(--vm-border-strong);
+  border-radius: var(--vm-radius);
+}
+
+.suggestionActive {
+  color: var(--vm-text-on-gold);
+  background: linear-gradient(to bottom, var(--vm-accent-400), var(--vm-accent-500));
+  border-color: var(--vm-accent-600);
+}
+
+@media (max-width: 640px) {
+  .bigActions,
+  .pettyActions {
+    grid-template-columns: 1fr;
   }
 }

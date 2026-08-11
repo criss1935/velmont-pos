@@ -25,6 +25,7 @@ import {
   type DraftArticle,
 } from './reception/store'
 import { ArticleEditor } from './reception/ArticleEditor'
+import { ReceptionDone } from './reception/ReceptionDone'
 import { ReceptionSummary } from './reception/ReceptionSummary'
 import { SignaturePad } from './reception/SignaturePad'
 import styles from './reception/Reception.module.css'
@@ -60,6 +61,8 @@ export function ReceivePage() {
   const [editingKey, setEditingKey] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  /** Id de la orden recién creada: cambia la pantalla al paso de impresión. */
+  const [done, setDone] = useState<string | null>(null)
   // "Sin asignar (venta de paso)" es una decisión EXPLÍCITA, no el estado por
   // default: si solo se dejara pasar con `customer === null`, un cliente que se
   // borró sin querer (✕) o cuyo alta offline no llegó a tiempo también dejaría
@@ -136,7 +139,10 @@ export function ReceivePage() {
           conditionTags: a.conditionTags,
           conditionNotes: a.conditionNotes || null,
           items: a.services.map((s) => ({
-            serviceId: s.serviceId,
+            // Un servicio manual no apunta a ningún renglón del catálogo. El
+            // RPC lo convierte a null (`nullif(service_id,'')`, migración 0011)
+            // y la línea vive de su nombre y precio.
+            serviceId: s.catalogServiceId ?? '',
             serviceName: s.serviceName,
             unitPrice: s.unitPrice,
             quantity: s.quantity,
@@ -154,14 +160,37 @@ export function ReceivePage() {
 
       if (payment?.method === 'efectivo') await refreshCash()
       store.reset()
-      // `void`: en react-router 7 navigate() devuelve una promesa, pero no hay
-      // nada que esperar — la navegación ocurre igual. Marcarla distingue este
-      // caso de una promesa olvidada de verdad, que en un POS sí sería grave.
-      void navigate(`/ordenes/${orderId}`)
+
+      // Antes esto navegaba a /ordenes/:id y quien atendía tenía que buscar el
+      // botón de imprimir allá dentro. La nota se imprime SIEMPRE al recibir,
+      // así que el sitio natural del botón es el final del flujo, no otra
+      // pantalla. La orden ya está guardada: si la impresión falla no se pierde
+      // nada, se reintenta desde aquí mismo.
+      setDone(orderId)
+      setSaving(false)
     } catch (cause) {
       setError(cause instanceof DataError ? cause.message : 'No se pudo finalizar la recepción.')
       setSaving(false)
     }
+  }
+
+  function startOver() {
+    setDone(null)
+    setStep('cliente')
+    setConfirmedNoCustomer(false)
+    setError(null)
+  }
+
+  if (done) {
+    return (
+      <Page title="Listo" subtitle="La orden quedó registrada." flush>
+        <ReceptionDone
+          orderId={done}
+          onNew={startOver}
+          onOpenOrder={() => void navigate(`/ordenes/${done}`)}
+        />
+      </Page>
+    )
   }
 
   return (
@@ -402,6 +431,7 @@ function StepCobro({
   const [tenderedText, setTenderedText] = useState('')
 
   const amount = parseAmount(amountText) ?? cents(0)
+  const half = percentOfCents(total, 50)
   const tendered = parseAmount(tenderedText)
   const noCash = method === 'efectivo' && !cashOpen && amount > 0
   const overpay = amount > total
@@ -450,14 +480,37 @@ function StepCobro({
         ))}
       </div>
 
+      {/* El importe de cada opción va impreso en el propio botón: quien atiende
+          no debería tener que calcular cuánto es el 50% de $860 en la cabeza. */}
       <div className={styles.quickAmounts}>
-        <button type="button" className={styles.quick} onClick={() => { setAmountText(''); sync(method, cents(0)) }}>Sin anticipo</button>
-        <button type="button" className={styles.quick} onClick={() => { const v = percentOfCents(total, 50); setAmountText((v / 100).toString()); sync(method, v) }}>50%</button>
-        <button type="button" className={styles.quick} onClick={() => { setAmountText((total / 100).toString()); sync(method, total) }}>Pago total</button>
+        <button
+          type="button"
+          className={cn(styles.quick, amount === 0 && styles.quickActive)}
+          onClick={() => { setAmountText(''); sync(method, cents(0)) }}
+        >
+          <span className={styles.quickLabel}>No paga nada hoy</span>
+          <span className={styles.quickAmount}>{formatCents(cents(0))}</span>
+        </button>
+        <button
+          type="button"
+          className={cn(styles.quick, amount === half && half > 0 && styles.quickActive)}
+          onClick={() => { setAmountText((half / 100).toString()); sync(method, half) }}
+        >
+          <span className={styles.quickLabel}>Deja la mitad</span>
+          <span className={styles.quickAmount}>{formatCents(half)}</span>
+        </button>
+        <button
+          type="button"
+          className={cn(styles.quick, amount === total && total > 0 && styles.quickActive)}
+          onClick={() => { setAmountText((total / 100).toString()); sync(method, total) }}
+        >
+          <span className={styles.quickLabel}>Paga todo</span>
+          <span className={styles.quickAmount}>{formatCents(total)}</span>
+        </button>
       </div>
 
       <Input
-        label="Anticipo"
+        label="¿Cuánto deja hoy?"
         numeric
         prefix="$"
         inputMode="decimal"

@@ -50,7 +50,7 @@ src/
     auth/          Login.
     orders/        Recibir (ReceivePage), tablero (OrdersPage), detalle+cobro.
     customers/     CRUD + buscador reutilizable (CustomerPicker).
-    cash/          Apertura, movimientos y corte de caja.
+    cash/          Apertura, movimientos, caja chica y corte de caja.
     inventory/     Insumos y movimientos de stock.
     reports/       Reportes de venta (solo admin).
     printing/      Capa de impresión abstracta (ver abajo).
@@ -59,7 +59,8 @@ src/
   styles/          tokens, reset, global.
 supabase/
   migrations/      0001 esquema · 0002 RLS · 0003 endurecimiento ·
-                   0004 create_order · 0005 close_cash_session
+                   0004 create_order · 0005 close_cash_session ·
+                   0020 caja chica (fondo fijo + fund_petty_cash)
   seed.sql         Catálogo inicial (PRECIOS A CONFIRMAR con el cliente).
                    Idempotente — correr de más no duplica.
 scripts/
@@ -87,6 +88,34 @@ sistema Android), que ya permite operar. Cuando se defina el modelo de impresora
 se agrega el driver (RawBT, ESC/POS Bluetooth o red) en `printers.ts` y ninguna
 pantalla cambia — todas llaman a `getPrinter().print()` / `tryPrint()`.
 
+## Caja chica
+
+Fondo fijo aparte del cajón, para gastos menores del día (material, envíos,
+papelería). Migración `0020`. Vive FUERA del turno: `cash_movements` cuelga de
+una `cash_session` y muere con ella, mientras que el fondo persiste entre días —
+por eso es una tabla propia (`petty_cash_movements`) y no una categoría de
+movimiento.
+
+Dos operaciones, y solo una de ellas toca el cajón:
+
+- **Fondear** — el dinero pasa del cajón al sobre. Son dos asientos (una
+  `salida` en `cash_movements` para que el corte cuadre, y un `fondeo` en
+  `petty_cash_movements`) y tienen que ocurrir juntos: de ahí la RPC
+  `fund_petty_cash`, con ids generados en el cliente para ser idempotente ante
+  un reintento.
+- **Gastar** — el dinero sale del sobre. Ya había salido del cajón al fondear,
+  así que es un insert normal.
+
+El saldo lo calcula la vista `petty_cash_balance`, no el cliente (regla 3).
+A diferencia de las ventas, la caja chica **no se encola offline**: es una
+operación ocasional y su saldo es un número que dos tablets tienen que ver
+igual; enseñar un estimado que luego cambia confunde más de lo que ayuda. Sin
+red, el repositorio lo dice claro.
+
+⚠ La migración 0020 se escribió sin acceso al proyecto remoto, así que
+`database.types.ts` todavía no la conoce. `src/data/database.pending.ts` es el
+puente temporal — sus instrucciones de retiro están dentro del propio archivo.
+
 ## Configuración del negocio
 
 `business_settings` (fila única, editable desde `/configuracion`, solo admin):
@@ -107,6 +136,8 @@ carga con `settings.getBusinessSettings()` justo antes de armar el documento.
 - **Precios del catálogo**: los de `seed.sql` son una propuesta. Confirmar con el
   cliente antes de operar.
 - **Driver de impresora**: por definir según el modelo que compre el cliente.
+- **Tipos de la 0020**: aplicar la migración, regenerar `database.types.ts` y
+  borrar `src/data/database.pending.ts` (ver el TODO dentro del archivo).
 
 ## Comandos
 

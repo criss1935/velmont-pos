@@ -928,10 +928,10 @@
 
 .method {
   flex: 1;
-  min-height: var(--vm-touch);
-  font-size: var(--vm-text-sm);
-  font-weight: 600;
-  color: var(--vm-text-muted);
+  min-height: var(--vm-touch-lg);
+  font-size: var(--vm-text-base);
+  font-weight: 700;
+  color: var(--vm-text);
   background-color: var(--vm-surface-2);
   border: 1px solid var(--vm-border);
   border-radius: var(--vm-radius);
@@ -948,15 +948,120 @@
   gap: var(--vm-space-2);
 }
 
+/*
+ * El color era `--vm-gold-200` (#ecdab6): un dorado pastel heredado del tema
+ * oscuro, donde contrastaba contra #040606. Sobre el canvas claro cae encima de
+ * `--vm-surface-2` (#f5f2ed) y el texto queda prácticamente invisible — los
+ * botones se leían como tres cajas vacías. Se pasa a texto normal, con el
+ * seleccionado en el acento de marca, que es el mismo lenguaje que ya usan los
+ * métodos de pago de arriba.
+ */
 .quick {
   flex: 1;
-  min-height: var(--vm-touch-min);
-  font-size: var(--vm-text-sm);
-  font-weight: 600;
-  color: var(--vm-gold-200);
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-2);
+  font-size: var(--vm-text-base);
+  font-weight: 700;
+  color: var(--vm-text);
   background-color: var(--vm-surface-2);
-  border: 1px solid var(--vm-border);
+  border: 2px solid var(--vm-border-strong);
   border-radius: var(--vm-radius);
+}
+
+.quickActive {
+  color: var(--vm-text-on-gold);
+  background: linear-gradient(to bottom, var(--vm-accent-400), var(--vm-accent-500));
+  border-color: var(--vm-accent-600);
+}
+
+.quickLabel {
+  display: block;
+  font-size: var(--vm-text-base);
+  line-height: var(--vm-leading-tight);
+}
+
+.quickAmount {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-xs);
+  opacity: 0.75;
+}
+
+/* ---------------------------------------------------------------------------
+ * Servicio manual ("Otro")
+ * ------------------------------------------------------------------------ */
+
+.otroTrigger {
+  display: flex;
+  gap: var(--vm-space-2);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--vm-touch);
+  font-size: var(--vm-text-base);
+  font-weight: 600;
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+  border: 2px dashed var(--vm-border-strong);
+  border-radius: var(--vm-radius);
+}
+
+.otroTriggerPlus {
+  font-size: var(--vm-text-xl);
+  line-height: 1;
+  color: var(--vm-accent-500);
+}
+
+.otroBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-4);
+  background-color: var(--vm-surface-2);
+  border: 2px solid var(--vm-accent-300);
+  border-radius: var(--vm-radius-md);
+}
+
+.otroTitle {
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-lg);
+  color: var(--vm-text);
+}
+
+.otroHint {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.otroFields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--vm-space-3);
+}
+
+@media (max-width: 720px) {
+  .otroFields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.otroActions {
+  display: flex;
+  gap: var(--vm-space-2);
+  justify-content: flex-end;
+}
+
+.pickedCustomTag {
+  margin-left: var(--vm-space-2);
+  padding: 2px var(--vm-space-2);
+  font-size: var(--vm-text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--vm-tracking-wide);
+  color: var(--vm-accent-700);
+  background-color: var(--vm-accent-100);
+  border-radius: var(--vm-radius-pill);
 }
 
 .denominations {
@@ -966,10 +1071,11 @@
 }
 
 .denomination {
-  min-height: var(--vm-touch-min);
-  padding: 0 var(--vm-space-4);
+  min-height: var(--vm-touch);
+  padding: 0 var(--vm-space-5);
   font-family: var(--vm-font-mono);
-  font-size: var(--vm-text-sm);
+  font-size: var(--vm-text-base);
+  font-weight: 700;
   color: var(--vm-text);
   background-color: var(--vm-surface-3);
   border: 1px solid var(--vm-border);
@@ -1075,4 +1181,75 @@
   .cobroFields {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * Cierre de la recepción (ReceptionDone)
+ *
+ * Pantalla de una sola decisión. Todo grande y muy separado: es el momento en
+ * que quien atiende levanta la vista hacia el cliente y vuelve a la tablet sin
+ * acordarse de dónde estaba.
+ * ------------------------------------------------------------------------ */
+
+.done {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+  align-items: center;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: var(--vm-space-8) var(--vm-space-5);
+  text-align: center;
+}
+
+.doneMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  font-size: var(--vm-text-4xl);
+  color: var(--vm-success);
+  background-color: var(--vm-success-bg);
+  border-radius: var(--vm-radius-pill);
+}
+
+.doneTitle {
+  font-family: var(--vm-font-display);
+  font-size: var(--vm-text-3xl);
+  color: var(--vm-text);
+}
+
+.doneFolio {
+  font-family: var(--vm-font-mono);
+  font-size: var(--vm-text-lg);
+  color: var(--vm-text-muted);
+}
+
+.doneStatus {
+  width: 100%;
+  padding: var(--vm-space-4);
+  font-size: var(--vm-text-base);
+  line-height: var(--vm-leading-normal);
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+  border-radius: var(--vm-radius-md);
+}
+
+.doneStatus[data-phase='printed'] {
+  color: var(--vm-success);
+  background-color: var(--vm-success-bg);
+}
+
+.doneStatus[data-phase='failed'] {
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+}
+
+.doneActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+  width: 100%;
+  margin-top: var(--vm-space-2);
 }

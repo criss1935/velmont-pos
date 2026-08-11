@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Button, Input, Modal } from '@/components/ui'
 import { cn } from '@/lib/cn'
-import { formatCents, multiplyCents, parseAmount } from '@/lib/money'
+import { formatCents, multiplyCents, parseAmount, type Cents } from '@/lib/money'
 import type { ConditionOption, ItemType, Service } from '@/data'
 import { articleSubtotal, useReception, type DraftArticle } from './store'
 import { ConditionTags } from './ConditionTags'
@@ -31,6 +31,7 @@ export function ArticleEditor({
 }) {
   const update = useReception((s) => s.updateArticle)
   const addService = useReception((s) => s.addService)
+  const addCustomService = useReception((s) => s.addCustomService)
   const setServiceQty = useReception((s) => s.setServiceQty)
   const removeService = useReception((s) => s.removeService)
   const setDiagramMarks = useReception((s) => s.setDiagramMarks)
@@ -185,11 +186,18 @@ export function ArticleEditor({
             })}
           </div>
 
+          <CustomServiceBox onAdd={(input) => addCustomService(article.key, input)} />
+
           {article.services.length > 0 && (
             <div className={styles.pickedList}>
               {article.services.map((s) => (
                 <div key={s.serviceId} className={styles.pickedRow}>
-                  <span className={styles.pickedName}>{s.serviceName}</span>
+                  <span className={styles.pickedName}>
+                    {s.serviceName}
+                    {s.catalogServiceId === null && (
+                      <span className={styles.pickedCustomTag}>otro</span>
+                    )}
+                  </span>
                   <div className={styles.qty}>
                     <button
                       type="button"
@@ -266,5 +274,94 @@ export function ArticleEditor({
         )}
       </div>
     </Modal>
+  )
+}
+
+/**
+ * Cobro fuera de catálogo.
+ *
+ * En mostrador aparecen todo el tiempo conceptos que nadie dio de alta:
+ * "pegado de suela", "agujetas nuevas", un precio especial pactado con el
+ * cliente. Sin esta salida, la única opción era irse a Catálogo a crear un
+ * servicio para cobrarlo una vez — y quien está atendiendo no va a hacer eso
+ * con un cliente enfrente. La línea se guarda con su nombre y su precio, sin
+ * ensuciar el catálogo.
+ */
+function CustomServiceBox({
+  onAdd,
+}: {
+  onAdd: (input: { name: string; price: Cents; estimatedDays: number }) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [priceText, setPriceText] = useState('')
+  const [daysText, setDaysText] = useState('1')
+
+  const price = parseAmount(priceText)
+  const days = Number(daysText)
+  const ready = name.trim() !== '' && price !== null && price > 0 && Number.isFinite(days) && days >= 0
+
+  function confirm() {
+    if (!ready || price === null) return
+    onAdd({ name, price, estimatedDays: Math.max(0, Math.round(days)) })
+    setName('')
+    setPriceText('')
+    setDaysText('1')
+    setOpen(false)
+  }
+
+  if (!open) {
+    return (
+      <button type="button" className={styles.otroTrigger} onClick={() => setOpen(true)}>
+        <span className={styles.otroTriggerPlus}>+</span>
+        Otro servicio (escribir precio)
+      </button>
+    )
+  }
+
+  return (
+    <div className={styles.otroBox}>
+      <h4 className={styles.otroTitle}>Otro servicio</h4>
+      <p className={styles.otroHint}>
+        Para algo que no está en la lista. Escribe qué es y cuánto se va a cobrar.
+      </p>
+
+      <div className={styles.otroFields}>
+        <Input
+          label="¿Qué se le va a hacer?"
+          placeholder="Ej. pegado de suela"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Input
+          label="Precio"
+          numeric
+          prefix="$"
+          inputMode="decimal"
+          placeholder="0.00"
+          value={priceText}
+          onChange={(e) => setPriceText(e.target.value)}
+        />
+        <Input
+          label="Días para entregar"
+          numeric
+          inputMode="numeric"
+          placeholder="1"
+          value={daysText}
+          onChange={(e) => setDaysText(e.target.value.replace(/[^0-9]/g, ''))}
+          hint="0 = mismo día"
+        />
+      </div>
+
+      <div className={styles.otroActions}>
+        <Button variant="ghost" onClick={() => setOpen(false)}>
+          Cancelar
+        </Button>
+        <Button variant="primary" disabled={!ready} onClick={confirm}>
+          Agregar {price !== null && price > 0 ? formatCents(price) : ''}
+        </Button>
+      </div>
+    </div>
   )
 }

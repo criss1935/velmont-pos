@@ -5,7 +5,19 @@ import type { Customer, DiagramMark, PaymentMethod, Service } from '@/data'
 
 /** Un servicio aplicado a un artículo dentro del borrador. */
 export interface DraftService {
+  /** Llave local, única dentro del artículo. Para los del catálogo coincide
+   *  con el id del servicio; para los manuales es un `otro-N` inventado aquí. */
   serviceId: string
+  /**
+   * El id REAL del catálogo, o null si es un servicio manual ("Otro").
+   *
+   * `order_items.service_id` es una FK opcional (migración 0001): existe para
+   * los reportes, y la línea sobrevive con `service_name`/`unit_price_cents`
+   * aunque no apunte a nada. Eso es justo lo que necesita un cobro fuera de
+   * catálogo — se registra con su nombre y su precio, sin obligar a la señora
+   * del mostrador a dar de alta un servicio nuevo para cobrar una vez.
+   */
+  catalogServiceId: string | null
   serviceName: string
   unitPrice: Cents
   quantity: number
@@ -79,6 +91,10 @@ interface ReceptionState {
   updateArticle: (key: string, patch: Partial<Omit<DraftArticle, 'key'>>) => void
 
   addService: (articleKey: string, service: Service) => void
+  addCustomService: (
+    articleKey: string,
+    input: { name: string; price: Cents; estimatedDays: number },
+  ) => void
   setServiceQty: (articleKey: string, serviceId: string, quantity: number) => void
   removeService: (articleKey: string, serviceId: string) => void
 
@@ -153,6 +169,7 @@ export const useReception = create<ReceptionState>((set, get) => ({
             ...a.services,
             {
               serviceId: service.id,
+              catalogServiceId: service.id,
               serviceName: service.name,
               unitPrice: service.price,
               quantity: 1,
@@ -161,6 +178,31 @@ export const useReception = create<ReceptionState>((set, get) => ({
           ],
         }
       }),
+    })),
+
+  // Cada "Otro" es una línea independiente aunque se llamen igual: dos cobros
+  // manuales de $80 con el mismo nombre son dos conceptos distintos, y
+  // fusionarlos escondería uno de los dos.
+  addCustomService: (articleKey, input) =>
+    set((state) => ({
+      articles: state.articles.map((a) =>
+        a.key === articleKey
+          ? {
+              ...a,
+              services: [
+                ...a.services,
+                {
+                  serviceId: nextKey('otro'),
+                  catalogServiceId: null,
+                  serviceName: input.name.trim(),
+                  unitPrice: input.price,
+                  quantity: 1,
+                  estimatedDays: input.estimatedDays,
+                },
+              ],
+            }
+          : a,
+      ),
     })),
 
   setServiceQty: (articleKey, serviceId, quantity) =>

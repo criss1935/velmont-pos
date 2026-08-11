@@ -7,8 +7,8 @@ impresora térmica. Instalable como PWA.
 ## Stack
 
 - **Vite + React 19 + TypeScript** (SPA, sin SSR — un POS no necesita SEO).
-- **Supabase** (Postgres + Auth + RLS). Proyecto: `velmont-pos`, ref
-  `zagpfcaizhteizqlserj`, región `us-east-2`.
+- **Supabase** (Postgres + Auth + RLS). Proyecto: `Velmont`, ref
+  `hckteqfzjfbriolvwjcj`, región `ca-central-1`.
 - **CSS Modules + design tokens** en `src/styles/tokens.css`. Sin Tailwind ni
   Bootstrap: el look es un sistema propio.
 - **TanStack Query** para datos de servidor, **Zustand** para estado de sesión y
@@ -58,9 +58,10 @@ src/
   lib/             money, dates, cn.
   styles/          tokens, reset, global.
 supabase/
-  migrations/      0001 esquema · 0002 RLS · 0003 endurecimiento ·
-                   0004 create_order · 0005 close_cash_session ·
-                   0020 caja chica (fondo fijo + fund_petty_cash)
+  migrations/      Con prefijo de timestamp `202601DD...` donde DD es el número
+                   de secuencia original: 01 esquema · 02 RLS · 03 endurecimiento ·
+                   04 create_order · 05 close_cash_session ·
+                   20 caja chica (fondo fijo + fund_petty_cash)
   seed.sql         Catálogo inicial (PRECIOS A CONFIRMAR con el cliente).
                    Idempotente — correr de más no duplica.
 scripts/
@@ -91,7 +92,7 @@ pantalla cambia — todas llaman a `getPrinter().print()` / `tryPrint()`.
 ## Caja chica
 
 Fondo fijo aparte del cajón, para gastos menores del día (material, envíos,
-papelería). Migración `0020`. Vive FUERA del turno: `cash_movements` cuelga de
+papelería). Migración `20260120000000_petty_cash`. Vive FUERA del turno: `cash_movements` cuelga de
 una `cash_session` y muere con ella, mientras que el fondo persiste entre días —
 por eso es una tabla propia (`petty_cash_movements`) y no una categoría de
 movimiento.
@@ -111,10 +112,6 @@ A diferencia de las ventas, la caja chica **no se encola offline**: es una
 operación ocasional y su saldo es un número que dos tablets tienen que ver
 igual; enseñar un estimado que luego cambia confunde más de lo que ayuda. Sin
 red, el repositorio lo dice claro.
-
-⚠ La migración 0020 se escribió sin acceso al proyecto remoto, así que
-`database.types.ts` todavía no la conoce. `src/data/database.pending.ts` es el
-puente temporal — sus instrucciones de retiro están dentro del propio archivo.
 
 ## Configuración del negocio
 
@@ -136,8 +133,6 @@ carga con `settings.getBusinessSettings()` justo antes de armar el documento.
 - **Precios del catálogo**: los de `seed.sql` son una propuesta. Confirmar con el
   cliente antes de operar.
 - **Driver de impresora**: por definir según el modelo que compre el cliente.
-- **Tipos de la 0020**: aplicar la migración, regenerar `database.types.ts` y
-  borrar `src/data/database.pending.ts` (ver el TODO dentro del archivo).
 
 ## Comandos
 

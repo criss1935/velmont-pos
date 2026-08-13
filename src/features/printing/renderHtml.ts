@@ -64,9 +64,18 @@ function renderBlock(block: Block): string {
 /**
  * Renderiza el ticket a una página HTML lista para el diálogo de impresión.
  *
- * El ancho se fija en milímetros y `@page` se declara sin márgenes: así el
- * navegador de Android manda el papel de 80 mm al driver de la térmica con el
- * tamaño correcto, en vez de encajarlo en una hoja carta.
+ * El alto de página NO se puede declarar como `size: 80mm auto`: en la
+ * gramática de CSS Paged Media `auto` no es combinable con una longitud, así
+ * que Chrome descarta la declaración entera y cae al papel del driver
+ * (verificado con `Page.printToPDF` + `preferCSSPageSize`: salía hoja carta).
+ * De ahí las hojas kilométricas o cortadas al imprimir en rollo continuo.
+ *
+ * Por eso el documento se mide a sí mismo: el `<script>` al final del body
+ * corre tras el layout (el iframe de `printers.ts` imprime en `onload`, que
+ * dispara después) e inyecta un `@page` con el alto real del contenido en mm.
+ * El `@page` estático de arriba queda de respaldo por si el script no corre.
+ * `html`/`body` van sin alto fijo ni `min-height` para que esa medición sea
+ * la del contenido y no la de un viewport.
  */
 export function renderTicketHtml(doc: TicketDocument): string {
   const body = doc.blocks.map(renderBlock).join('\n')
@@ -78,14 +87,21 @@ export function renderTicketHtml(doc: TicketDocument): string {
 <title>${escape(doc.title)}</title>
 <style>
   @page {
-    size: ${doc.width}mm auto;
+    size: ${doc.width}mm 297mm;
     margin: 0;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
+  html, body {
     width: ${doc.width}mm;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
     padding: 4mm;
     /* Mono en todo el ticket: es lo que hace que las columnas de importes
        queden alineadas en una térmica, que imprime a paso fijo. */
@@ -156,6 +172,17 @@ export function renderTicketHtml(doc: TicketDocument): string {
 </head>
 <body>
 ${body}
+<script>
+  (function () {
+    // 1 px CSS = 1/96 in exacto; +2mm de colchón contra redondeos que
+    // empujarían la última línea a una segunda página.
+    var mm = Math.ceil(document.documentElement.scrollHeight * 25.4 / 96) + 2
+    if (mm < 30) return // medición absurda: mejor el @page de respaldo
+    var style = document.createElement('style')
+    style.textContent = '@page { size: ${doc.width}mm ' + mm + 'mm; margin: 0; }'
+    document.head.appendChild(style)
+  })()
+</script>
 </body>
 </html>`
 }

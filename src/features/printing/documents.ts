@@ -172,6 +172,93 @@ export function receiptDocument(order: Order, business: BusinessSettings): Ticke
 }
 
 /**
+ * Descripción de los artículos SIN importes: la remisión documenta qué se
+ * dejó y en qué estado, no cuánto cuesta — eso ya lo dice el comprobante que
+ * sale junto con ella. Para órdenes del flujo viejo (sin `order_articles`)
+ * cae a `itemLabel`/`itemNotes`, que era donde se anotaba el par.
+ */
+function articleDescriptions(order: Order): Block[] {
+  if (order.articles.length === 0) {
+    return order.items.flatMap((item): Block[] => {
+      const blocks: Block[] = [
+        { kind: 'text', text: item.itemLabel ?? item.serviceName, emphasis: true },
+      ]
+      if (item.itemNotes) {
+        blocks.push({ kind: 'text', text: `  Estado: ${item.itemNotes}`, small: true })
+      }
+      return blocks
+    })
+  }
+
+  return order.articles.flatMap((article): Block[] => {
+    const name = [article.itemType, article.brand, article.model, article.color]
+      .filter(Boolean)
+      .join(' ')
+
+    const blocks: Block[] = [{ kind: 'text', text: name || 'Artículo', emphasis: true }]
+
+    if (article.conditionTags.length > 0 || article.conditionNotes) {
+      const conditionText = [article.conditionTags.join(', '), article.conditionNotes]
+        .filter(Boolean)
+        .join(' — ')
+      blocks.push({ kind: 'text', text: `  Estado: ${conditionText}`, small: true })
+    }
+
+    for (const mark of article.diagramMarks) {
+      const description = mark.description ? `${mark.type}: ${mark.description}` : mark.type
+      blocks.push({ kind: 'text', text: `  Obs. ${mark.idx} — ${description}`, small: true })
+    }
+
+    return blocks
+  })
+}
+
+/**
+ * NOTA DE REMISIÓN — la responsiva en papel.
+ *
+ * Sale junto con el comprobante de recepción y lleva los términos de
+ * `business_settings.reception_terms` — el MISMO texto que el cliente vio en
+ * pantalla en el paso Responsiva del wizard. Papel y pantalla no pueden decir
+ * cosas distintas: en una disputa, esa diferencia sería del lado del negocio.
+ */
+export function remisionDocument(order: Order, business: BusinessSettings): TicketDocument {
+  const blocks: Block[] = [
+    ...header(business),
+
+    { kind: 'text', text: 'NOTA DE REMISIÓN', align: 'center', emphasis: true },
+    { kind: 'text', text: `No. ${order.folio}`, align: 'center', emphasis: true },
+    { kind: 'space' },
+
+    { kind: 'row', label: 'Fecha', value: formatDate(order.receivedAt) },
+  ]
+
+  if (order.customer) {
+    blocks.push({ kind: 'row', label: 'Cliente', value: order.customer.fullName })
+    if (order.customer.phone) {
+      blocks.push({ kind: 'row', label: 'Teléfono', value: order.customer.phone })
+    }
+  }
+
+  blocks.push({ kind: 'divider' }, ...articleDescriptions(order), { kind: 'divider' })
+
+  blocks.push(
+    { kind: 'text', text: 'TÉRMINOS Y CONDICIONES', align: 'center', emphasis: true, small: true },
+    { kind: 'text', text: business.receptionTerms, small: true },
+    // Espacio generoso: esta firma se hace a mano, con el papel sobre el
+    // mostrador — una línea pegada al texto sale ilegible.
+    { kind: 'space', lines: 4 },
+    { kind: 'signature', label: 'Firma del Cliente (Acepta términos)' },
+    { kind: 'space', lines: 2 },
+  )
+
+  return {
+    title: `Remisión ${order.folio}`,
+    width: 80,
+    blocks,
+  }
+}
+
+/**
  * TICKET DE COBRO — se imprime al recibir dinero.
  *
  * Refleja UN pago, no la orden entera: si el cliente dio anticipo y liquida

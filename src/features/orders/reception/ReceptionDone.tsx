@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui'
 import { orders as ordersRepo, settings as settingsRepo } from '@/data'
-import { receiptDocument, tryPrint } from '@/features/printing'
+import { receiptDocument, remisionDocument, tryPrint } from '@/features/printing'
 import styles from './Reception.module.css'
 
 type PrintState =
@@ -55,9 +55,18 @@ export function ReceptionDone({
 
       setFolio(order.folio)
 
+      // Dos papeles por recepción: el comprobante y la nota de remisión con la
+      // responsiva que el cliente firma a mano. En secuencia, no en paralelo:
+      // el diálogo de impresión solo atiende a uno a la vez.
       const failure = await tryPrint(receiptDocument(order, business))
       if (failure) {
         setState({ phase: 'failed', message: failure.message })
+        return
+      }
+
+      const remisionFailure = await tryPrint(remisionDocument(order, business))
+      if (remisionFailure) {
+        setState({ phase: 'failed', message: remisionFailure.message })
         return
       }
 
@@ -91,8 +100,9 @@ export function ReceptionDone({
       {folio && <p className={styles.doneFolio}>Folio {folio}</p>}
 
       <div className={styles.doneStatus} data-phase={state.phase}>
-        {state.phase === 'printing' && 'Mandando la nota a la impresora…'}
-        {state.phase === 'printed' && 'La nota se mandó a imprimir. Entrégasela al cliente.'}
+        {state.phase === 'printing' && 'Mandando el comprobante y la remisión a la impresora…'}
+        {state.phase === 'printed' &&
+          'Comprobante y nota de remisión impresos. Pide al cliente firmar la remisión.'}
         {state.phase === 'failed' && state.message}
         {state.phase === 'idle' && 'Preparando la nota…'}
       </div>
@@ -105,7 +115,7 @@ export function ReceptionDone({
           loading={state.phase === 'printing'}
           onClick={() => void print()}
         >
-          {state.phase === 'failed' ? 'Intentar imprimir otra vez' : 'Imprimir la nota otra vez'}
+          {state.phase === 'failed' ? 'Intentar imprimir otra vez' : 'Imprimir todo otra vez'}
         </Button>
 
         <Button variant="secondary" size="lg" block onClick={onNew}>

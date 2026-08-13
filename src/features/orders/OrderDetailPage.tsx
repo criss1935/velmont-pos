@@ -15,7 +15,7 @@ import {
   useSyncStatus,
   type Order,
 } from '@/data'
-import { paymentDocument, receiptDocument, tryPrint } from '@/features/printing'
+import { paymentDocument, receiptDocument, remisionDocument, tryPrint } from '@/features/printing'
 import { SyncBadge } from '@/features/sync/SyncBadge'
 import { cn } from '@/lib/cn'
 import { formatCents } from '@/lib/money'
@@ -77,6 +77,13 @@ export function OrderDetailPage() {
     if (failure) setPrintError(failure.message)
   }
 
+  async function printRemision(target: Order) {
+    setPrintError(null)
+    const business = await settingsRepo.getBusinessSettings()
+    const failure = await tryPrint(remisionDocument(target, business))
+    if (failure) setPrintError(failure.message)
+  }
+
   if (orderQuery.isLoading) {
     return (
       <Page title="Orden">
@@ -117,6 +124,7 @@ export function OrderDetailPage() {
         <>
           <Button onClick={() => navigate('/ordenes')}>Volver</Button>
           <Button onClick={() => void printReceipt(order)}>Imprimir comprobante</Button>
+          <Button onClick={() => void printRemision(order)}>Imprimir remisión</Button>
           {order.balance > 0 && order.status !== 'cancelado' && (
             <Button variant="primary" onClick={() => setPaying(true)}>
               Cobrar {formatCents(order.balance)}

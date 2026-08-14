@@ -55,18 +55,27 @@ export function ReceptionDone({
 
       setFolio(order.folio)
 
-      // Dos papeles por recepción: el comprobante y la nota de remisión con la
-      // responsiva que el cliente firma a mano. En secuencia, no en paralelo:
-      // el diálogo de impresión solo atiende a uno a la vez.
-      const failure = await tryPrint(receiptDocument(order, business))
+      // Dos papeles por recepción — comprobante y nota de remisión — pero UN
+      // solo trabajo de impresión. No pueden ser dos print() encadenados: en
+      // Android, print() regresa antes de que se cierre el diálogo, y un
+      // segundo print() disparado con el diálogo abierto se descarta en
+      // silencio — la remisión simplemente nunca salía. En un solo trabajo
+      // salen los dos en la misma tira, con espacio para cortar entre ellos.
+      const receipt = receiptDocument(order, business)
+      const remision = remisionDocument(order, business)
+      const failure = await tryPrint({
+        title: `Recepción ${order.folio}`,
+        width: receipt.width,
+        blocks: [
+          ...receipt.blocks,
+          { kind: 'space', lines: 2 },
+          { kind: 'divider' },
+          { kind: 'space', lines: 2 },
+          ...remision.blocks,
+        ],
+      })
       if (failure) {
         setState({ phase: 'failed', message: failure.message })
-        return
-      }
-
-      const remisionFailure = await tryPrint(remisionDocument(order, business))
-      if (remisionFailure) {
-        setState({ phase: 'failed', message: remisionFailure.message })
         return
       }
 

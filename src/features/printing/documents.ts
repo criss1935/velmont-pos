@@ -172,10 +172,13 @@ export function receiptDocument(order: Order, business: BusinessSettings): Ticke
 }
 
 /**
- * Descripción de los artículos SIN importes: la remisión documenta qué se
- * dejó y en qué estado, no cuánto cuesta — eso ya lo dice el comprobante que
- * sale junto con ella. Para órdenes del flujo viejo (sin `order_articles`)
- * cae a `itemLabel`/`itemNotes`, que era donde se anotaba el par.
+ * Descripción de los artículos en formato de ficha (Marca/Modelo/Color en
+ * renglones etiquetados, como la nota de remisión que diseñó el negocio) y
+ * SIN importes: la remisión documenta qué se dejó y en qué estado, no cuánto
+ * cuesta — eso ya lo dice el comprobante que sale junto con ella. Un campo
+ * sin capturar se imprime con raya, no se oculta: el hueco visible es parte
+ * del formato. Para órdenes del flujo viejo (sin `order_articles`) cae a
+ * `itemLabel`/`itemNotes`, que era donde se anotaba el par.
  */
 function articleDescriptions(order: Order): Block[] {
   if (order.articles.length === 0) {
@@ -184,29 +187,42 @@ function articleDescriptions(order: Order): Block[] {
         { kind: 'text', text: item.itemLabel ?? item.serviceName, emphasis: true },
       ]
       if (item.itemNotes) {
-        blocks.push({ kind: 'text', text: `  Estado: ${item.itemNotes}`, small: true })
+        blocks.push({ kind: 'text', text: `Detalles/Notas previas: ${item.itemNotes}`, small: true })
       }
       return blocks
     })
   }
 
-  return order.articles.flatMap((article): Block[] => {
-    const name = [article.itemType, article.brand, article.model, article.color]
-      .filter(Boolean)
-      .join(' ')
+  const several = order.articles.length > 1
 
-    const blocks: Block[] = [{ kind: 'text', text: name || 'Artículo', emphasis: true }]
+  return order.articles.flatMap((article, index): Block[] => {
+    const blocks: Block[] = []
 
-    if (article.conditionTags.length > 0 || article.conditionNotes) {
-      const conditionText = [article.conditionTags.join(', '), article.conditionNotes]
-        .filter(Boolean)
-        .join(' — ')
-      blocks.push({ kind: 'text', text: `  Estado: ${conditionText}`, small: true })
+    if (several) {
+      blocks.push({ kind: 'text', text: `Artículo ${index + 1} — ${article.itemType}`, emphasis: true })
     }
 
+    blocks.push(
+      { kind: 'row', label: 'Marca', value: article.brand ?? '—' },
+      { kind: 'row', label: 'Modelo', value: article.model ?? '—' },
+      { kind: 'row', label: 'Color', value: article.color ?? '—' },
+    )
+
+    const details = [article.conditionTags.join(', '), article.conditionNotes].filter(Boolean).join(' — ')
+    blocks.push({ kind: 'text', text: 'Detalles/Notas previas:', small: true })
+    if (details) {
+      blocks.push({ kind: 'text', text: details, small: true })
+    }
     for (const mark of article.diagramMarks) {
       const description = mark.description ? `${mark.type}: ${mark.description}` : mark.type
-      blocks.push({ kind: 'text', text: `  Obs. ${mark.idx} — ${description}`, small: true })
+      blocks.push({ kind: 'text', text: `Obs. ${mark.idx} — ${description}`, small: true })
+    }
+    if (!details && article.diagramMarks.length === 0) {
+      blocks.push({ kind: 'text', text: 'Sin observaciones registradas.', small: true })
+    }
+
+    if (several && index < order.articles.length - 1) {
+      blocks.push({ kind: 'space' })
     }
 
     return blocks
@@ -232,17 +248,22 @@ export function remisionDocument(order: Order, business: BusinessSettings): Tick
     { kind: 'row', label: 'Fecha', value: formatDate(order.receivedAt) },
   ]
 
-  if (order.customer) {
-    blocks.push({ kind: 'row', label: 'Cliente', value: order.customer.fullName })
-    if (order.customer.phone) {
-      blocks.push({ kind: 'row', label: 'Teléfono', value: order.customer.phone })
-    }
-  }
-
-  blocks.push({ kind: 'divider' }, ...articleDescriptions(order), { kind: 'divider' })
+  blocks.push(
+    { kind: 'divider' },
+    { kind: 'text', text: 'Datos del Cliente:', emphasis: true },
+    { kind: 'row', label: 'Nombre', value: order.customer?.fullName ?? '—' },
+    { kind: 'row', label: 'Teléfono', value: order.customer?.phone ?? '—' },
+  )
 
   blocks.push(
-    { kind: 'text', text: 'TÉRMINOS Y CONDICIONES', align: 'center', emphasis: true, small: true },
+    { kind: 'divider' },
+    { kind: 'text', text: 'Descripción de los Tenis:', emphasis: true },
+    ...articleDescriptions(order),
+    { kind: 'divider' },
+  )
+
+  blocks.push(
+    { kind: 'text', text: 'Términos y Condiciones:', emphasis: true },
     { kind: 'text', text: business.receptionTerms, small: true },
     // Espacio generoso: esta firma se hace a mano, con el papel sobre el
     // mostrador — una línea pegada al texto sale ilegible.

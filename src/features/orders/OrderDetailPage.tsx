@@ -21,6 +21,7 @@ import { cn } from '@/lib/cn'
 import { formatCents } from '@/lib/money'
 import { formatDate, formatDateTime, isOverdue } from '@/lib/dates'
 import { ArticleDetail } from './detail/ArticleDetail'
+import { PhotoEditor } from './detail/PhotoEditor'
 import { ResponsivaCard } from './detail/ResponsivaCard'
 import { PaymentModal } from './PaymentModal'
 import { StatusBadge } from './StatusBadge'
@@ -33,6 +34,7 @@ export function OrderDetailPage() {
 
   const [paying, setPaying] = useState(false)
   const [cancelling, setCancelling] = useState(false)
+  const [editing, setEditing] = useState(false)
   const [printError, setPrintError] = useState<string | null>(null)
 
   const orderQuery = useQuery({
@@ -123,6 +125,11 @@ export function OrderDetailPage() {
       actions={
         <>
           <Button onClick={() => navigate('/ordenes')}>Volver</Button>
+          {!closed && (
+            <Button variant={editing ? 'primary' : 'secondary'} onClick={() => setEditing((v) => !v)}>
+              {editing ? 'Listo' : 'Editar fotos'}
+            </Button>
+          )}
           <Button onClick={() => void printReceipt(order)}>Imprimir comprobante</Button>
           <Button onClick={() => void printRemision(order)}>Imprimir remisión</Button>
           {order.balance > 0 && order.status !== 'cancelado' && (
@@ -200,14 +207,48 @@ export function OrderDetailPage() {
           {/* Órdenes antiguas (creadas antes de la recepción enriquecida, o por
               la venta directa sin wizard) no tienen artículos — no hay nada
               nuevo que mostrar para ellas, y no se fuerza una sección vacía. */}
+          {editing && (
+            <>
+              <div style={{ height: 'var(--vm-space-4)' }} />
+              <div className={styles.editBanner}>
+                Modo edición: toma o sube fotos en cada artículo, o toca ✕ para eliminar una.
+              </div>
+            </>
+          )}
+
           {order.articles.length > 0 && (
             <>
               <div style={{ height: 'var(--vm-space-4)' }} />
               {order.articles.map((article, index) => (
-                <ArticleDetail key={article.id} article={article} index={index} />
+                <ArticleDetail
+                  key={article.id}
+                  article={article}
+                  index={index}
+                  editing={editing && !closed}
+                  onChanged={invalidate}
+                />
               ))}
             </>
           )}
+
+          {/* Fotos a nivel orden: el único lugar donde subir evidencia cuando la
+              orden no tiene artículos capturados (órdenes viejas / venta directa),
+              o donde se ven las que ya se subieron así. */}
+          {(order.articles.length === 0 || (order.generalPhotos ?? []).length > 0) &&
+            (editing || (order.generalPhotos ?? []).length > 0) && (
+              <>
+                <div style={{ height: 'var(--vm-space-4)' }} />
+                <Card title="Fotos de la orden">
+                  <PhotoEditor
+                    orderId={order.id}
+                    articleId={null}
+                    photos={order.generalPhotos ?? []}
+                    editable={editing && !closed}
+                    onChanged={invalidate}
+                  />
+                </Card>
+              </>
+            )}
 
           <div style={{ height: 'var(--vm-space-4)' }} />
           <ResponsivaCard order={order} />

@@ -236,6 +236,25 @@ async function fetchOrder(id: string): Promise<Order | null> {
     }
   })
 
+  // Fotos agregadas a nivel orden (sin artículo) — el caso de órdenes viejas o
+  // de venta directa, que no tienen artículos donde colgarlas.
+  const generalPhotoRows = unwrap(
+    await supabase
+      .from('order_photos')
+      .select('id, storage_path, classification, sort_order')
+      .eq('order_id', id)
+      .is('article_id', null)
+      .order('sort_order')
+      .order('created_at')
+      .retry(false),
+  )
+  const generalPhotos: ReceptionPhoto[] = generalPhotoRows.map((photo) => ({
+    id: photo.id,
+    storagePath: photo.storage_path,
+    url: publicUrl(photo.storage_path),
+    classification: photo.classification,
+  }))
+
   return {
     id: row.id,
     folio: row.folio,
@@ -260,6 +279,7 @@ async function fetchOrder(id: string): Promise<Order | null> {
     notes: row.notes,
     items,
     articles,
+    generalPhotos,
     signaturePath: row.signature_path,
     signatureUrl: row.signature_path ? publicUrl(row.signature_path) : null,
     responsivaAccepted: row.responsiva_accepted,

@@ -2,7 +2,7 @@ import { Card } from '@/components/ui'
 import type { Article } from '@/data'
 import { formatCents } from '@/lib/money'
 import { SneakerDiagram } from '../reception/SneakerDiagram'
-import { PhotoGallery } from './PhotoGallery'
+import { PhotoEditor } from './PhotoEditor'
 import styles from './ArticleDetail.module.css'
 
 /**
@@ -11,7 +11,18 @@ import styles from './ArticleDetail.module.css'
  * ir a la base a mano. El diagrama reutiliza el mismo componente de la
  * recepción (`readOnly`) — es la misma silueta, no una reconstrucción aparte.
  */
-export function ArticleDetail({ article, index }: { article: Article; index: number }) {
+export function ArticleDetail({
+  article,
+  index,
+  editing = false,
+  onChanged,
+}: {
+  article: Article
+  index: number
+  /** Modo edición: permite subir y eliminar fotos del artículo. */
+  editing?: boolean
+  onChanged: () => void
+}) {
   const title =
     [article.itemType, article.brand, article.model].filter(Boolean).join(' · ') ||
     `Artículo ${index + 1}`
@@ -49,7 +60,13 @@ export function ArticleDetail({ article, index }: { article: Article; index: num
 
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>Evidencia fotográfica</h3>
-        <PhotoGallery photos={article.photos} />
+        <PhotoEditor
+          orderId={article.orderId}
+          articleId={article.id}
+          photos={article.photos}
+          editable={editing}
+          onChanged={onChanged}
+        />
       </section>
 
       {/* Sin marcas, se omite la sección entera: mostrar la silueta vacía para

@@ -4,6 +4,7 @@ import { Page } from '@/components/Page'
 import { Badge, Button, Card, Input } from '@/components/ui'
 import { DataError, settings as settingsRepo, type ConditionOption, type ItemType } from '@/data'
 import { centsToPesos, parseAmount, type Cents } from '@/lib/money'
+import { AuditLogCard } from './AuditLogCard'
 import { ConditionOptionFormModal } from './ConditionOptionFormModal'
 import { ItemTypeFormModal } from './ItemTypeFormModal'
 import styles from './SettingsPage.module.css'
@@ -172,6 +173,7 @@ export function SettingsPage() {
 
         <ItemTypesCard />
         <ConditionOptionsCard />
+        <AuditLogCard />
       </div>
     </Page>
   )

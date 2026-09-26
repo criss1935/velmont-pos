@@ -9,6 +9,7 @@
 export * from './types'
 export { DataError } from './errors'
 
+export * as audit from './repositories/audit'
 export * as auth from './repositories/auth'
 export * as cash from './repositories/cash'
 export * as catalog from './repositories/catalog'

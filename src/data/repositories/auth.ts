@@ -2,6 +2,7 @@ import { supabase } from '../client'
 import { DataError, unwrapMaybe } from '../errors'
 import { readThrough } from '../offline/cache'
 import type { Profile } from '../types'
+import { logSessionEvent } from './audit'
 
 export async function signIn(email: string, password: string): Promise<void> {
   const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -13,9 +14,13 @@ export async function signIn(email: string, password: string): Promise<void> {
     }
     throw new DataError(error.message)
   }
+
+  void logSessionEvent('login')
 }
 
 export async function signOut(): Promise<void> {
+  // Antes de cerrar: después ya no hay sesión con la cual firmar el evento.
+  await logSessionEvent('logout')
   const { error } = await supabase.auth.signOut()
   if (error) throw new DataError(error.message)
 }

@@ -39,6 +39,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string | null
+          changed_fields: string[] | null
+          id: number
+          new_data: Json | null
+          occurred_at: string
+          old_data: Json | null
+          order_folio: string | null
+          order_id: string | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string | null
+          changed_fields?: string[] | null
+          id?: never
+          new_data?: Json | null
+          occurred_at?: string
+          old_data?: Json | null
+          order_folio?: string | null
+          order_id?: string | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string | null
+          changed_fields?: string[] | null
+          id?: never
+          new_data?: Json | null
+          occurred_at?: string
+          old_data?: Json | null
+          order_folio?: string | null
+          order_id?: string | null
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       business_settings: {
         Row: {
           address: string
@@ -987,6 +1032,7 @@ export type Database = {
       }
     }
     Functions: {
+      audit_actor_name: { Args: { p_uid: string }; Returns: string }
       close_cash_session: {
         Args: { p_counted: number; p_notes?: string; p_session_id: string }
         Returns: {
@@ -1045,6 +1091,7 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      log_audit_event: { Args: { p_action: string }; Returns: undefined }
     }
     Enums: {
       cash_movement_type: "entrada" | "salida"

@@ -1,6 +1,6 @@
 import { isStorageError } from '@supabase/storage-js'
 import { supabase } from '../client'
-import { DataError } from '../errors'
+import { DataError, unwrap } from '../errors'
 import { isOfflineEnabled } from '../offline/flag'
 import { insertIdempotent } from '../offline/idempotent'
 import { isNetworkError } from '../offline/network'
@@ -23,8 +23,8 @@ function extensionOf(mimeType: string): string {
 }
 
 /** Ruta derivable sin red — se puede pasar al RPC de recepción aunque la subida real esté pendiente. */
-export function receptionPhotoPath(orderId: string, articleId: string, mimeType: string): string {
-  return `orders/${orderId}/${articleId}/${crypto.randomUUID()}.${extensionOf(mimeType)}`
+export function receptionPhotoPath(orderId: string, articleId: string | null, mimeType: string): string {
+  return `orders/${orderId}/${articleId ?? 'general'}/${crypto.randomUUID()}.${extensionOf(mimeType)}`
 }
 
 export function newSignaturePath(): string {
@@ -55,7 +55,8 @@ async function uploadBlob(path: string, file: Blob, contentType: string): Promis
 export interface ReceptionPhotoDraft {
   id: string
   orderId: string
-  articleId: string
+  /** null = foto de la orden en general (órdenes sin artículos capturados). */
+  articleId: string | null
   path: string
   classification: string | null
   sortOrder: number
@@ -118,7 +119,7 @@ export async function applyUploadReceptionPhoto(
  */
 export async function uploadReceptionPhoto(input: {
   orderId: string
-  articleId: string
+  articleId: string | null
   file: File
   classification?: string | null
   sortOrder?: number
@@ -192,4 +193,52 @@ export async function uploadSignature(blob: Blob): Promise<{ path: string; url: 
 
     return { path, url: publicUrl(path) }
   }
+}
+
+/**
+ * Agrega una foto a una orden YA creada (edición desde el celular, después de
+ * recibir). Misma ruta que la recepción — subida + fila idempotente, con cola
+ * offline si no hay señal. La base rechaza el insert si la orden ya se entregó
+ * o se canceló (RLS de `order_photos`).
+ */
+export async function addOrderPhoto(input: {
+  orderId: string
+  articleId: string | null
+  file: File
+  classification?: string | null
+  sortOrder: number
+}): Promise<ReceptionPhoto> {
+  try {
+    return await uploadReceptionPhoto(input)
+  } catch (cause) {
+    if (isNetworkError(cause)) throw new DataError('Sin conexión: no se pudo subir la foto.')
+    if (cause instanceof DataError && cause.cause?.code !== '42501') throw cause
+    throw new DataError('No se pudo guardar la foto. Si la orden ya se entregó o canceló, ya no admite cambios.')
+  }
+}
+
+/**
+ * Elimina una foto de una orden. Online-only: borrar evidencia es una acción
+ * que tiene que confirmarse contra el servidor en el momento, no quedar en cola.
+ *
+ * Primero la fila (ahí vive la regla de RLS: solo órdenes abiertas), después el
+ * archivo. Si RLS filtra la fila, el delete "tiene éxito" sin borrar nada — por
+ * eso se pide la fila de vuelta y se valida que sí se borró.
+ */
+export async function deleteOrderPhoto(photo: { id: string; storagePath: string }): Promise<void> {
+  let deleted: { id: string }[]
+  try {
+    deleted = unwrap(await supabase.from('order_photos').delete().eq('id', photo.id).select('id'))
+  } catch (cause) {
+    if (isNetworkError(cause)) throw new DataError('Sin conexión: no se pudo eliminar la foto.')
+    throw cause
+  }
+
+  if (deleted.length === 0) {
+    throw new DataError('No se pudo eliminar: la orden ya se entregó o canceló, o la foto ya no existe.')
+  }
+
+  // El archivo es secundario: la fila ya no existe y la foto dejó de mostrarse.
+  // Un huérfano en Storage no rompe nada; un error aquí no debe revertir la UI.
+  await supabase.storage.from(BUCKET).remove([photo.storagePath]).catch(() => undefined)
 }

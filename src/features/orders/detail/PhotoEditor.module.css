@@ -1,0 +1,56 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-3);
+  border: 1px dashed var(--vm-border-subtle);
+  border-radius: var(--vm-radius);
+  background-color: var(--vm-surface-2);
+}
+
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--vm-space-3);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: var(--vm-radius);
+  background-color: var(--vm-surface-1);
+  color: var(--vm-text);
+  font-size: var(--vm-text-sm);
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vm-space-3);
+}
+
+.hint {
+  font-size: var(--vm-text-xs);
+  color: var(--vm-text-dim);
+}
+
+.error {
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+}
+
+.preview {
+  display: block;
+  max-width: 100%;
+  max-height: 40vh;
+  margin: 0 auto;
+  border-radius: var(--vm-radius);
+}
+
+@media (max-width: 480px) {
+  .buttons {
+    grid-template-columns: 1fr;
+  }
+}

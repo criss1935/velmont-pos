@@ -9,7 +9,30 @@
   gap: var(--vm-space-3);
 }
 
+.thumbWrap {
+  position: relative;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 2px solid var(--vm-surface-1);
+  background-color: var(--vm-danger);
+  color: #fff;
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
+}
+
 .thumb {
+  width: 100%;
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;

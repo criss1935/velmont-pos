@@ -200,6 +200,8 @@ export interface Order {
   items: OrderItem[]
   /** Artículos recibidos, cada uno con sus servicios, fotos y diagrama. */
   articles: Article[]
+  /** Fotos de la orden no ligadas a un artículo (órdenes sin artículos capturados). */
+  generalPhotos: ReceptionPhoto[]
   /** Ruta de la firma del cliente en Storage, si se capturó. */
   signaturePath: string | null
   /** URL pública de la firma, lista para <img>. */
@@ -331,4 +333,29 @@ export interface CartLine {
   itemLabel: string
   itemNotes: string
   estimatedDays: number
+}
+
+/* -------------------------------------------------------------------------- */
+/* Auditoría                                                                  */
+/* -------------------------------------------------------------------------- */
+
+export type AuditAction = 'insert' | 'update' | 'delete' | 'login' | 'logout'
+
+/** Un movimiento registrado por la bitácora (`audit_log`). Solo lectura. */
+export interface AuditEntry {
+  id: number
+  occurredAt: string
+  actorId: string | null
+  actorName: string | null
+  action: AuditAction
+  /** Tabla afectada, o `session` para inicio/cierre de sesión. */
+  tableName: string
+  recordId: string | null
+  orderId: string | null
+  orderFolio: string | null
+  /** update: valores anteriores de las columnas que cambiaron. delete: la fila borrada. */
+  oldData: Record<string, unknown> | null
+  /** update: valores nuevos de las columnas que cambiaron. insert: la fila creada. */
+  newData: Record<string, unknown> | null
+  changedFields: string[]
 }

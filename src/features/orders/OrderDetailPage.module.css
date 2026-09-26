@@ -270,6 +270,15 @@
 }
 
 /* Móvil: la barra lateral de acciones/datos/pagos baja debajo del contenido. */
+.editBanner {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  border: 1px solid var(--vm-gold-300);
+  border-radius: var(--vm-radius);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+}
+
 @media (max-width: 768px) {
   .layout {
     grid-template-columns: 1fr;

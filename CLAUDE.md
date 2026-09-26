@@ -113,6 +113,26 @@ operación ocasional y su saldo es un número que dos tablets tienen que ver
 igual; enseñar un estimado que luego cambia confunde más de lo que ayuda. Sin
 red, el repositorio lo dice claro.
 
+## Auditoría
+
+Migración `20260122000000_audit_log`. Un trigger genérico (`audit_row_change`,
+SECURITY DEFINER) cuelga de TODAS las tablas de negocio y escribe en
+`audit_log` cada insert/update/delete: actor (`auth.uid()` + nombre snapshot),
+tabla, fila, folio de la orden si aplica, y en updates solo las columnas que
+cambiaron (un update sin cambios reales no se registra). Login/logout entran por
+la RPC `log_audit_event` (lista cerrada de acciones), llamada desde
+`repositories/auth.ts`. La tabla es solo lectura desde la API (RLS: solo admin;
+sin grants de escritura). Se consulta al final de `/configuracion`
+(`AuditLogCard`). **Toda tabla nueva debe agregarse al arreglo del trigger.**
+
+## Edición de fotos en órdenes
+
+En el detalle de la orden, "Editar fotos" permite subir (cámara/galería del
+celular) y eliminar fotos por artículo, o a nivel orden (`article_id` null)
+cuando la orden no tiene artículos. RLS de `order_photos` ya limita altas y
+bajas a órdenes no entregadas/canceladas. Borrar es online-only: primero la fila
+(se valida que RLS sí la borró), luego el archivo en Storage.
+
 ## Configuración del negocio
 
 `business_settings` (fila única, editable desde `/configuracion`, solo admin):

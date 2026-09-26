@@ -11,19 +11,40 @@ import styles from './PhotoGallery.module.css'
  * atributo nativo evita — el navegador solo pide el archivo cuando la
  * miniatura entra en viewport, sin librería adicional.
  */
-export function PhotoGallery({ photos }: { photos: ReceptionPhoto[] }) {
+export function PhotoGallery({
+  photos,
+  onDelete,
+  emptyText = 'Sin fotografías registradas.',
+}: {
+  photos: ReceptionPhoto[]
+  /** Si viene, cada miniatura muestra un botón para eliminarla (modo edición). */
+  onDelete?: (photo: ReceptionPhoto) => void
+  emptyText?: string
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const current = openIndex === null ? null : photos[openIndex]
 
   if (photos.length === 0) {
-    return <p className={styles.empty}>Sin fotografías registradas.</p>
+    return <p className={styles.empty}>{emptyText}</p>
   }
 
   return (
     <>
       <div className={styles.grid}>
         {photos.map((photo, index) => (
-          <Thumbnail key={photo.id} photo={photo} onOpen={() => setOpenIndex(index)} />
+          <div key={photo.id} className={styles.thumbWrap}>
+            <Thumbnail photo={photo} onOpen={() => setOpenIndex(index)} />
+            {onDelete && (
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={() => onDelete(photo)}
+                aria-label="Eliminar foto"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         ))}
       </div>
 

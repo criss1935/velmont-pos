@@ -37,7 +37,14 @@ class PreviewPrinter implements Printer {
         window.setTimeout(() => frame.remove(), 1000)
       }
 
+      // `load` puede dispararse más de una vez (Chrome lo emite también para el
+      // about:blank inicial al insertar el iframe). Sin este candado salían dos
+      // diálogos de impresión seguidos, y el primero era una hoja en blanco.
+      let printed = false
+
       frame.onload = () => {
+        if (printed) return
+        printed = true
         try {
           const view = frame.contentWindow
           if (!view) throw new Error('No se pudo preparar el ticket para impresión.')
@@ -52,18 +59,11 @@ class PreviewPrinter implements Printer {
         }
       }
 
+      // El ticket entra por `srcdoc` ANTES de insertar el iframe: así el único
+      // `load` que llega es el del ticket ya maquetado (y con su @page medido),
+      // en vez de uno por el about:blank y otro por el document.write.
+      frame.srcdoc = renderTicketHtml(document_)
       document.body.appendChild(frame)
-
-      const doc = frame.contentDocument
-      if (!doc) {
-        frame.remove()
-        reject(new Error('No se pudo preparar el ticket para impresión.'))
-        return
-      }
-
-      doc.open()
-      doc.write(renderTicketHtml(document_))
-      doc.close()
     })
   }
 }

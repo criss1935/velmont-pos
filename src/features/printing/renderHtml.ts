@@ -105,9 +105,14 @@ export function renderTicketHtml(doc: TicketDocument): string {
     padding: 4mm;
     /* Mono en todo el ticket: es lo que hace que las columnas de importes
        queden alineadas en una térmica, que imprime a paso fijo. */
-    font-family: 'Roboto Mono', ui-monospace, 'Courier New', monospace;
-    font-size: 11px;
-    line-height: 1.45;
+    font-family: Consolas, 'Lucida Console', 'Roboto Mono', ui-monospace, 'Courier New', monospace;
+    /* Todo el ticket va en negrita y a 12px como mínimo: una térmica de 203 dpi
+       es de 1 bit, así que el trazo fino de una fuente regular se queda en gris
+       de antialias, el driver lo tramea y la letra sale rota. Courier New (el
+       respaldo que tomaba Windows) es justo la peor para esto. */
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
     color: #000;
     background: #fff;
   }
@@ -121,8 +126,8 @@ export function renderTicketHtml(doc: TicketDocument): string {
   }
 
   .t-text { white-space: pre-wrap; word-break: break-word; }
-  .t-text.sm { font-size: 9.5px; }
-  .t-text.em { font-weight: 700; }
+  .t-text.sm { font-size: 11px; }
+  .t-text.em { font-size: 13px; }
   .align-center { text-align: center; }
   .align-right  { text-align: right; }
 
@@ -131,7 +136,7 @@ export function renderTicketHtml(doc: TicketDocument): string {
     justify-content: space-between;
     gap: 8px;
   }
-  .t-row.em { font-weight: 700; font-size: 13px; }
+  .t-row.em { font-size: 15px; }
   .t-value { text-align: right; white-space: nowrap; }
 
   .t-line {
@@ -141,7 +146,7 @@ export function renderTicketHtml(doc: TicketDocument): string {
   }
   .t-qty    { flex: none; width: 26px; }
   .t-desc   { flex: 1; word-break: break-word; }
-  .t-desc em { display: block; font-style: normal; font-size: 9.5px; }
+  .t-desc em { display: block; font-style: normal; font-size: 11px; }
   .t-amount { flex: none; text-align: right; white-space: nowrap; }
 
   .t-divider {
@@ -165,7 +170,7 @@ export function renderTicketHtml(doc: TicketDocument): string {
   .t-sign-line { border-top: 1px solid #000; margin: 0 8mm; }
   .t-sign-label {
     margin-top: 3px;
-    font-size: 9.5px;
+    font-size: 11px;
     text-align: center;
   }
 </style>

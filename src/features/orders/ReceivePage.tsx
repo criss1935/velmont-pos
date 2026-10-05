@@ -18,6 +18,7 @@ import { cn } from '@/lib/cn'
 import { cents, formatCents, MXN_DENOMINATIONS, parseAmount, percentOfCents, subtractCents } from '@/lib/money'
 import { formatDate } from '@/lib/dates'
 import {
+  articleSubtotal,
   effectivePromisedDate,
   hasHighValue,
   totalOf,
@@ -329,11 +330,15 @@ function StepArticulos({ threshold, onEdit }: { threshold: number; onEdit: (key:
   const articles = useReception((s) => s.articles)
   const addArticle = useReception((s) => s.addArticle)
   const removeArticle = useReception((s) => s.removeArticle)
+  const duplicateArticle = useReception((s) => s.duplicateArticle)
 
   return (
     <div className={styles.step}>
       <h2 className={styles.stepTitle}>Artículos recibidos</h2>
-      <p className={styles.stepHint}>Cada artículo lleva sus servicios, estado, fotos y diagrama. Toca para editarlo.</p>
+      <p className={styles.stepHint}>
+        Si el cliente trae varios pares, agrégalos aquí: todos van en una sola orden y salen en un
+        solo ticket. Cada artículo lleva sus servicios, estado, fotos y diagrama. Toca para editarlo.
+      </p>
 
       <div className={styles.articleCards}>
         {articles.map((a, i) => {
@@ -353,6 +358,7 @@ function StepArticulos({ threshold, onEdit }: { threshold: number; onEdit: (key:
                   <span>{a.conditionTags.length} condición</span>
                   <span>{a.diagramMarks.length} obs.</span>
                   <span>{a.photos.length} fotos</span>
+                  {a.services.length > 0 && <span data-numeric>{formatCents(articleSubtotal(a))}</span>}
                 </div>
                 {!complete && (
                   <span className={styles.articleWarn}>
@@ -366,6 +372,11 @@ function StepArticulos({ threshold, onEdit }: { threshold: number; onEdit: (key:
               </div>
               <div className={styles.articleCardActions}>
                 <Button size="sm" onClick={() => onEdit(a.key)}>Editar</Button>
+                {complete && (
+                  <Button size="sm" variant="secondary" onClick={() => duplicateArticle(a.key)}>
+                    Otro par igual
+                  </Button>
+                )}
                 {articles.length > 1 && (
                   <Button size="sm" variant="danger" onClick={() => removeArticle(a.key)}>Quitar</Button>
                 )}
@@ -376,7 +387,7 @@ function StepArticulos({ threshold, onEdit }: { threshold: number; onEdit: (key:
       </div>
 
       <Button variant="secondary" block onClick={() => onEdit(addArticle())}>
-        + Agregar otro artículo
+        + Agregar otro par o artículo
       </Button>
     </div>
   )

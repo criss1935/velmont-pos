@@ -1,0 +1,108 @@
+.fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-6);
+}
+
+.fieldset:disabled {
+  opacity: 0.7;
+}
+
+.error {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius-md);
+}
+
+.articleBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-4);
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius-md);
+}
+
+.articleHead {
+  font-size: var(--vm-text-base);
+  font-weight: 700;
+  color: var(--vm-text);
+}
+
+.addRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--vm-space-3);
+}
+
+.addRow > * {
+  flex: 1 1 160px;
+}
+
+.select {
+  width: 100%;
+  min-height: var(--vm-touch-min);
+  padding: 0 var(--vm-space-3);
+  font-family: var(--vm-font-sans);
+  font-size: var(--vm-text-base);
+  color: var(--vm-text);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.customRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--vm-space-3);
+  padding: var(--vm-space-3);
+  background-color: var(--vm-surface-2);
+  border-radius: var(--vm-radius-md);
+}
+
+.customRow > * {
+  flex: 1 1 140px;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-2);
+  padding: var(--vm-space-4);
+  background-color: var(--vm-surface-2);
+  border-radius: var(--vm-radius-md);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.totalRow [data-numeric] {
+  font-family: var(--vm-font-mono);
+}
+
+.totalGrand {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--vm-space-2);
+  border-top: 1px solid var(--vm-border);
+  font-size: var(--vm-text-lg);
+  font-weight: 700;
+  color: var(--vm-text);
+}
+
+.totalGrand [data-numeric] {
+  font-family: var(--vm-font-mono);
+}

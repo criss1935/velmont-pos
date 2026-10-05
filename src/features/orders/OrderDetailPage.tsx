@@ -21,6 +21,7 @@ import { cn } from '@/lib/cn'
 import { formatCents } from '@/lib/money'
 import { formatDate, formatDateTime, isOverdue } from '@/lib/dates'
 import { ArticleDetail } from './detail/ArticleDetail'
+import { EditOrderModal } from './detail/EditOrderModal'
 import { PhotoEditor } from './detail/PhotoEditor'
 import { ResponsivaCard } from './detail/ResponsivaCard'
 import { PaymentModal } from './PaymentModal'
@@ -35,6 +36,7 @@ export function OrderDetailPage() {
   const [paying, setPaying] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [editingOrder, setEditingOrder] = useState(false)
   const [printError, setPrintError] = useState<string | null>(null)
 
   const orderQuery = useQuery({
@@ -56,6 +58,16 @@ export function OrderDetailPage() {
     void queryClient.invalidateQueries({ queryKey: ['order', id] })
     void queryClient.invalidateQueries({ queryKey: ['payments', id] })
     void queryClient.invalidateQueries({ queryKey: ['orders'] })
+  }
+
+  // Versión que espera a que la orden se vuelva a leer: la edición encadena
+  // cambios y cada validación de dinero necesita los totales ya actualizados.
+  async function refresh() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['order', id] }),
+      queryClient.invalidateQueries({ queryKey: ['payments', id] }),
+      queryClient.invalidateQueries({ queryKey: ['orders'] }),
+    ])
   }
 
   const advance = useMutation({
@@ -125,6 +137,11 @@ export function OrderDetailPage() {
       actions={
         <>
           <Button onClick={() => navigate('/ordenes')}>Volver</Button>
+          {!closed && (
+            <Button variant="secondary" onClick={() => setEditingOrder(true)}>
+              Editar orden
+            </Button>
+          )}
           {!closed && (
             <Button variant={editing ? 'primary' : 'secondary'} onClick={() => setEditing((v) => !v)}>
               {editing ? 'Listo' : 'Editar fotos'}
@@ -354,6 +371,15 @@ export function OrderDetailPage() {
           </Card>
         </aside>
       </div>
+
+      {!closed && (
+        <EditOrderModal
+          order={order}
+          open={editingOrder}
+          onClose={() => setEditingOrder(false)}
+          onChanged={refresh}
+        />
+      )}
 
       <PaymentModal
         order={order}

@@ -88,6 +88,13 @@ interface ReceptionState {
 
   addArticle: () => string
   removeArticle: (key: string) => void
+  /**
+   * Agrega otro par igual al de `key`: mismo tipo y mismos servicios (con sus
+   * precios y cantidades), sin marca, fotos ni observaciones. Sirve para el
+   * cliente que trae 2 o 3 pares y se le hace lo mismo a todos — por ejemplo la
+   * promo. Devuelve la llave del artículo nuevo.
+   */
+  duplicateArticle: (key: string) => string | null
   updateArticle: (key: string, patch: Partial<Omit<DraftArticle, 'key'>>) => void
 
   addService: (articleKey: string, service: Service) => void
@@ -146,6 +153,24 @@ export const useReception = create<ReceptionState>((set, get) => ({
         discount: state.discount > subtotal ? subtotal : state.discount,
       }
     }),
+
+  duplicateArticle: (key) => {
+    const source = get().articles.find((a) => a.key === key)
+    if (!source) return null
+    const copy: DraftArticle = {
+      ...blankArticle(),
+      itemType: source.itemType,
+      // Copias de las líneas: cambiar el precio de un par no debe tocar el otro.
+      services: source.services.map((s) => ({ ...s })),
+    }
+    set((state) => {
+      const at = state.articles.findIndex((a) => a.key === key)
+      const articles = [...state.articles]
+      articles.splice(at + 1, 0, copy)
+      return { articles }
+    })
+    return copy.key
+  },
 
   updateArticle: (key, patch) =>
     set((state) => ({

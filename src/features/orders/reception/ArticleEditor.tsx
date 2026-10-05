@@ -51,6 +51,14 @@ export function ArticleEditor({
     return [...names]
   }, [services])
 
+  // Quien atiende casi siempre recibe tenis: si elige un servicio sin haber
+  // tocado el tipo, se toma el primero de la lista en vez de bloquear el
+  // "Continuar" con un aviso que obliga a regresar a Editar.
+  function ensureType() {
+    const first = itemTypes[0]
+    if (!article.itemType && first) update(article.key, { itemType: first.name })
+  }
+
   const visible = category ? services.filter((s) => s.categoryName === category) : services
   const typeMeta = itemTypes.find((t) => t.name === article.itemType)
   const showsDiagram = typeMeta?.hasDiagram ?? false
@@ -171,7 +179,10 @@ export function ArticleEditor({
                   key={service.id}
                   type="button"
                   className={cn(styles.service, picked && styles.servicePicked)}
-                  onClick={() => addService(article.key, service)}
+                  onClick={() => {
+                    ensureType()
+                    addService(article.key, service)
+                  }}
                 >
                   <span className={styles.serviceName}>{service.name}</span>
                   <span className={styles.servicePrice} data-numeric>
@@ -187,7 +198,12 @@ export function ArticleEditor({
             })}
           </div>
 
-          <CustomServiceBox onAdd={(input) => addCustomService(article.key, input)} />
+          <CustomServiceBox
+            onAdd={(input) => {
+              ensureType()
+              addCustomService(article.key, input)
+            }}
+          />
 
           {article.services.length > 0 && (
             <div className={styles.pickedList}>
@@ -290,7 +306,7 @@ export function ArticleEditor({
  * precios intermedios ($1, $14) que muevan el total. Un valor vacío o inválido
  * se descarta y vuelve al precio vigente.
  */
-function PriceField({ value, onCommit }: { value: Cents; onCommit: (price: Cents) => void }) {
+export function PriceField({ value, onCommit }: { value: Cents; onCommit: (price: Cents) => void }) {
   const [text, setText] = useState((value / 100).toString())
 
   function commit() {

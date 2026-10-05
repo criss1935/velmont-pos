@@ -24,6 +24,8 @@ from (values
   ('Tenis',  'Restauración premium',   'Profunda + retoque de color y recuperación.',     45000, 5, 3),
   ('Tenis',  'Limpieza express',       'Limpieza básica el mismo día.',                   22000, 0, 4),
   ('Tenis',  'Blanqueado de suela',    'Recupera la suela amarillenta.',                  12000, 2, 5),
+  -- Promo de octubre: precio POR PAR ($145), así que 2 pares en una orden = $290.
+  ('Tenis',  'Promo octubre 2x$290',   'Promoción de octubre: 2 pares por $290 ($145 cada par).', 14500, 2, 6),
 
   -- Bolsas y gorras — la expansión que ya está contemplada.
   ('Bolsas', 'Limpieza de bolsa',      'Limpieza exterior e interior.',                   30000, 3, 1),

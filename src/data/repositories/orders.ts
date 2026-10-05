@@ -334,3 +334,115 @@ export async function setOrderDiscount(id: string, discount: Cents): Promise<voi
       .single(),
   )
 }
+
+// -----------------------------------------------------------------------------
+// Edición de una orden ya guardada
+//
+// Todo va directo contra las tablas: la RLS (0002 y 0007) solo deja tocar líneas
+// y artículos mientras la orden no esté entregada ni cancelada, y el trigger
+// `recalc_order_totals` recalcula subtotal y total. El cliente no suma nada por
+// su cuenta (regla 3 de CLAUDE.md). Son operaciones solo en línea, como borrar
+// fotos: un cambio de dinero que dos tablets ven distinto es peor que esperar.
+// -----------------------------------------------------------------------------
+
+/** Cliente, notas y fecha prometida de la orden. Solo se escribe lo que venga. */
+export async function updateOrderDetails(
+  id: string,
+  patch: { customerId?: string | null; notes?: string | null; promisedAt?: Date | null },
+): Promise<void> {
+  const update: { customer_id?: string | null; notes?: string | null; promised_at?: string | null } = {}
+  if (patch.customerId !== undefined) update.customer_id = patch.customerId
+  if (patch.notes !== undefined) update.notes = patch.notes
+  if (patch.promisedAt !== undefined) update.promised_at = patch.promisedAt ? patch.promisedAt.toISOString() : null
+
+  if (Object.keys(update).length === 0) return
+  unwrap(await supabase.from('orders').update(update).eq('id', id).select('id').single())
+}
+
+/** Cambia precio, cantidad o nombre de una línea de servicio. */
+export async function updateOrderItem(
+  itemId: string,
+  patch: { unitPrice?: Cents; quantity?: number; serviceName?: string },
+): Promise<void> {
+  const update: { unit_price_cents?: number; quantity?: number; service_name?: string } = {}
+  if (patch.unitPrice !== undefined) update.unit_price_cents = patch.unitPrice
+  if (patch.quantity !== undefined) update.quantity = Math.max(1, Math.round(patch.quantity))
+  if (patch.serviceName !== undefined) update.service_name = patch.serviceName
+
+  if (Object.keys(update).length === 0) return
+  unwrap(await supabase.from('order_items').update(update).eq('id', itemId).select('id').single())
+}
+
+/** Quita una línea. La RLS responde con 0 filas (no con error) si la orden ya se cerró. */
+export async function removeOrderItem(itemId: string): Promise<void> {
+  const rows = unwrap(await supabase.from('order_items').delete().eq('id', itemId).select('id'))
+  if (rows.length === 0) {
+    throw new DataError('No se pudo quitar el servicio: la orden ya no se puede modificar.')
+  }
+}
+
+/** Agrega una línea de servicio a un artículo (del catálogo o manual con serviceId null). */
+export async function addOrderItem(input: {
+  orderId: string
+  articleId: string | null
+  serviceId: string | null
+  serviceName: string
+  unitPrice: Cents
+  quantity?: number
+}): Promise<void> {
+  unwrap(
+    await supabase
+      .from('order_items')
+      .insert({
+        order_id: input.orderId,
+        article_id: input.articleId,
+        service_id: input.serviceId,
+        service_name: input.serviceName,
+        unit_price_cents: input.unitPrice,
+        quantity: input.quantity ?? 1,
+      })
+      .select('id')
+      .single(),
+  )
+}
+
+/** Corrige los datos de un artículo (tipo, marca, modelo, color). */
+export async function updateOrderArticle(
+  articleId: string,
+  patch: { itemType?: string; brand?: string | null; model?: string | null; color?: string | null },
+): Promise<void> {
+  const update: { item_type?: string; brand?: string | null; model?: string | null; color?: string | null } = {}
+  if (patch.itemType !== undefined) update.item_type = patch.itemType
+  if (patch.brand !== undefined) update.brand = patch.brand
+  if (patch.model !== undefined) update.model = patch.model
+  if (patch.color !== undefined) update.color = patch.color
+
+  if (Object.keys(update).length === 0) return
+  unwrap(await supabase.from('order_articles').update(update).eq('id', articleId).select('id').single())
+}
+
+/** Suma otro par/artículo a una orden existente; queda al final de la lista. */
+export async function addOrderArticle(input: {
+  orderId: string
+  itemType: string
+  sortOrder: number
+  brand?: string | null
+  model?: string | null
+  color?: string | null
+}): Promise<string> {
+  const row = unwrap(
+    await supabase
+      .from('order_articles')
+      .insert({
+        order_id: input.orderId,
+        item_type: input.itemType,
+        sort_order: input.sortOrder,
+        brand: input.brand ?? null,
+        model: input.model ?? null,
+        color: input.color ?? null,
+      })
+      .select('id')
+      .single(),
+  )
+  return row.id
+}

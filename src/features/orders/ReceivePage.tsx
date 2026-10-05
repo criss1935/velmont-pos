@@ -355,7 +355,13 @@ function StepArticulos({ threshold, onEdit }: { threshold: number; onEdit: (key:
                   <span>{a.photos.length} fotos</span>
                 </div>
                 {!complete && (
-                  <span className={styles.articleWarn}>Falta tipo de artículo o al menos un servicio</span>
+                  <span className={styles.articleWarn}>
+                    {a.itemType === '' && a.services.length === 0
+                      ? 'Falta elegir el tipo de artículo (Tenis…) y al menos un servicio'
+                      : a.itemType === ''
+                        ? 'Falta elegir el tipo de artículo (Tenis…): toca Editar'
+                        : 'Falta agregar al menos un servicio'}
+                  </span>
                 )}
               </div>
               <div className={styles.articleCardActions}>

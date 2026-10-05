@@ -1,0 +1,32 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vm-space-4);
+}
+
+.to {
+  margin: 0;
+  font-size: var(--vm-text-base);
+  color: var(--vm-text);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+.success {
+  margin: 0;
+  font-size: var(--vm-text-base);
+  color: var(--vm-text);
+}
+
+.error {
+  margin: 0;
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-danger);
+  background-color: var(--vm-danger-bg);
+  border-radius: var(--vm-radius-md);
+}

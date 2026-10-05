@@ -24,6 +24,7 @@ import { ArticleDetail } from './detail/ArticleDetail'
 import { EditOrderModal } from './detail/EditOrderModal'
 import { PhotoEditor } from './detail/PhotoEditor'
 import { ResponsivaCard } from './detail/ResponsivaCard'
+import { SendEmailModal } from './detail/SendEmailModal'
 import { PaymentModal } from './PaymentModal'
 import { StatusBadge } from './StatusBadge'
 import styles from './OrderDetailPage.module.css'
@@ -37,6 +38,7 @@ export function OrderDetailPage() {
   const [cancelling, setCancelling] = useState(false)
   const [editing, setEditing] = useState(false)
   const [editingOrder, setEditingOrder] = useState(false)
+  const [emailing, setEmailing] = useState(false)
   const [printError, setPrintError] = useState<string | null>(null)
 
   const orderQuery = useQuery({
@@ -149,6 +151,9 @@ export function OrderDetailPage() {
           )}
           <Button onClick={() => void printReceipt(order)}>Imprimir comprobante</Button>
           <Button onClick={() => void printRemision(order)}>Imprimir remisión</Button>
+          {order.status !== 'cancelado' && (
+            <Button onClick={() => setEmailing(true)}>Enviar correo</Button>
+          )}
           {order.balance > 0 && order.status !== 'cancelado' && (
             <Button variant="primary" onClick={() => setPaying(true)}>
               Cobrar {formatCents(order.balance)}
@@ -380,6 +385,8 @@ export function OrderDetailPage() {
           onChanged={refresh}
         />
       )}
+
+      <SendEmailModal order={order} open={emailing} onClose={() => setEmailing(false)} />
 
       <PaymentModal
         order={order}

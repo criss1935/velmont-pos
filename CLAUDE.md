@@ -133,6 +133,25 @@ cuando la orden no tiene artículos. RLS de `order_photos` ya limita altas y
 bajas a órdenes no entregadas/canceladas. Borrar es online-only: primero la fila
 (se valida que RLS sí la borró), luego el archivo en Storage.
 
+## Correo al cliente (fotos + notas)
+
+Botón "Enviar correo" en el detalle de la orden (`SendEmailModal`). Manda al
+correo del cliente las notas de la orden, el estado de cada artículo
+(`condition_tags` / `condition_notes`) y las fotos de recepción. El envío vive
+en `api/send-order-email.ts` (función serverless de Vercel, proveedor Resend);
+la UI llega a ella solo por `repositories/emails.ts`.
+
+- El contenido sale de la base, leída CON la sesión del empleado (RLS aplica);
+  el cliente solo manda `orderId` y un mensaje opcional. El destinatario es el
+  `customers.email` de la orden, nunca uno enviado en la petición.
+- La sesión viaja en `x-supabase-token`, no en `Authorization`: ese header ya lo
+  ocupa el Basic Auth de `middleware.ts`.
+- Online-only, no se encola offline. Con `npm run dev` no existe `/api`; probar
+  en Vercel o con `vercel dev`.
+- Env vars en Vercel: `RESEND_API_KEY`, `EMAIL_FROM` (dominio verificado en
+  Resend) y opcional `EMAIL_REPLY_TO`. Ver `.env.example`.
+- Las fotos van como `<img>` con la URL pública del bucket `order-media`.
+
 ## Configuración del negocio
 
 `business_settings` (fila única, editable desde `/configuracion`, solo admin):

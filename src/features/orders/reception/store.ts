@@ -96,6 +96,8 @@ interface ReceptionState {
     input: { name: string; price: Cents; estimatedDays: number },
   ) => void
   setServiceQty: (articleKey: string, serviceId: string, quantity: number) => void
+  /** Cambia el precio unitario de una línea (promos, precios pactados). */
+  setServicePrice: (articleKey: string, serviceId: string, price: Cents) => void
   removeService: (articleKey: string, serviceId: string) => void
 
   setDiagramMarks: (articleKey: string, marks: DiagramMark[]) => void
@@ -218,6 +220,27 @@ export const useReception = create<ReceptionState>((set, get) => ({
           : a,
       ),
     })),
+
+  // El descuento nunca puede quedar por encima del subtotal: si el precio baja,
+  // se recorta igual que en removeArticle.
+  setServicePrice: (articleKey, serviceId, price) =>
+    set((state) => {
+      const articles = state.articles.map((a) =>
+        a.key === articleKey
+          ? {
+              ...a,
+              services: a.services.map((s) =>
+                s.serviceId === serviceId ? { ...s, unitPrice: price } : s,
+              ),
+            }
+          : a,
+      )
+      const subtotal = subtotalOf(articles)
+      return {
+        articles,
+        discount: state.discount > subtotal ? subtotal : state.discount,
+      }
+    }),
 
   removeService: (articleKey, serviceId) =>
     set((state) => ({

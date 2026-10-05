@@ -33,6 +33,7 @@ export function ArticleEditor({
   const addService = useReception((s) => s.addService)
   const addCustomService = useReception((s) => s.addCustomService)
   const setServiceQty = useReception((s) => s.setServiceQty)
+  const setServicePrice = useReception((s) => s.setServicePrice)
   const removeService = useReception((s) => s.removeService)
   const setDiagramMarks = useReception((s) => s.setDiagramMarks)
   const addPhotos = useReception((s) => s.addPhotos)
@@ -219,6 +220,10 @@ export function ArticleEditor({
                       +
                     </button>
                   </div>
+                  <PriceField
+                    value={s.unitPrice}
+                    onCommit={(price) => setServicePrice(article.key, s.serviceId, price)}
+                  />
                   <span className={styles.pickedAmount} data-numeric>
                     {formatCents(multiplyCents(s.unitPrice, s.quantity))}
                   </span>
@@ -274,6 +279,45 @@ export function ArticleEditor({
         )}
       </div>
     </Modal>
+  )
+}
+
+/**
+ * Precio unitario editable de una línea ya elegida.
+ *
+ * Mantiene su propio texto mientras se escribe y solo confirma al salir del
+ * campo (o con Enter), para que borrar "180" y teclear "145" no pase por
+ * precios intermedios ($1, $14) que muevan el total. Un valor vacío o inválido
+ * se descarta y vuelve al precio vigente.
+ */
+function PriceField({ value, onCommit }: { value: Cents; onCommit: (price: Cents) => void }) {
+  const [text, setText] = useState((value / 100).toString())
+
+  function commit() {
+    const parsed = parseAmount(text)
+    if (parsed === null || parsed <= 0) {
+      setText((value / 100).toString())
+      return
+    }
+    setText((parsed / 100).toString())
+    if (parsed !== value) onCommit(parsed)
+  }
+
+  return (
+    <div className={styles.pickedPrice}>
+      <Input
+        aria-label="Precio unitario"
+        numeric
+        prefix="$"
+        inputMode="decimal"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur()
+        }}
+      />
+    </div>
   )
 }
 

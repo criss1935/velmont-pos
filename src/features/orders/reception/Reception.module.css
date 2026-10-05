@@ -492,6 +492,11 @@
   gap: var(--vm-space-3);
 }
 
+.pickedPrice {
+  width: 112px;
+  flex: none;
+}
+
 .pickedName {
   flex: 1;
   font-size: var(--vm-text-sm);

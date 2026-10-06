@@ -66,8 +66,15 @@
     font-size: var(--vm-text-2xl);
   }
 
+  /* `flex: none` en escritorio hace que el contenedor mida lo que midan todos
+   * sus botones juntos; en el celular eso lo ensancha más que la pantalla y los
+   * botones se cortan sin poder deslizarse (flex-wrap no sirve si el contenedor
+   * nunca se encoge). Aquí ocupa la fila completa y los botones se acomodan en
+   * varias líneas. */
   .actions {
+    flex: 1 1 100%;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
   .body {

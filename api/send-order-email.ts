@@ -2,8 +2,9 @@
  * POST /api/send-order-email
  *
  * Manda al cliente un correo de su orden. Dos tipos (`kind`):
- *  - `reception` (default): las notas de la orden, el estado en que se recibió
- *    cada artículo y las fotos de evidencia. Sale al cerrar la recepción.
+ *  - `reception` (default): el comprobante de recepción completo — datos de la
+ *    orden, cada artículo con su estado, servicios e importes, totales, anticipo,
+ *    términos — más las fotos de evidencia. Sale al cerrar la recepción.
  *  - `receipt`: el ticket de un cobro — artículos, total, pagos y saldo.
  *
  * Seguridad (esta función corre en el servidor, pero NO usa la service_role):
@@ -35,11 +36,14 @@ const MAX_MESSAGE = 1000
 interface CustomerRow {
   full_name: string
   email: string | null
+  phone: string | null
 }
 
 interface OrderItemRow {
+  article_id: string | null
   service_name: string
   item_label: string | null
+  item_notes: string | null
   quantity: number
   line_total_cents: number | null
 }
@@ -47,6 +51,7 @@ interface OrderItemRow {
 interface OrderRow {
   folio: string
   notes: string | null
+  received_at: string
   promised_at: string | null
   reception_closed_at: string | null
   subtotal_cents: number
@@ -86,10 +91,18 @@ interface PhotoRow {
   classification: string | null
 }
 
+interface MarkRow {
+  article_id: string
+  idx: number
+  mark_type: string
+  description: string | null
+}
+
 interface BusinessRow {
   name: string
   phone: string
   address: string
+  reception_terms: string
 }
 
 class HttpError extends Error {
@@ -173,6 +186,8 @@ interface EmailInput {
   customerName: string
   articles: ArticleRow[]
   photos: PhotoRow[]
+  marks: MarkRow[]
+  payments: PaymentRow[]
   message: string
   mediaBase: string
 }
@@ -240,26 +255,85 @@ function layout(business: BusinessRow, folio: string, inner: string): string {
 </body></html>`
 }
 
-function renderReceptionHtml(input: EmailInput): string {
-  const { business, order, customerName, articles, photos, message, mediaBase } = input
+/** Renglones de servicio de un artículo (o los sueltos de órdenes del flujo viejo). */
+function renderServiceRows(items: OrderItemRow[]): string {
+  return items
+    .map((item) => {
+      const label = item.item_label
+        ? `<div style="font-size:12px;color:#6b6b6b">${escapeHtml(item.item_label)}</div>`
+        : ''
+      const notes = item.item_notes
+        ? `<div style="font-size:12px;color:#6b6b6b">Notas previas: ${multiline(item.item_notes)}</div>`
+        : ''
+      return `<tr>
+        <td style="padding:6px 0;border-bottom:1px solid #eee;font-size:14px">${item.quantity} × ${escapeHtml(item.service_name)}${label}${notes}</td>
+        <td align="right" style="padding:6px 0;border-bottom:1px solid #eee;font-size:14px;white-space:nowrap;vertical-align:top">${money(item.line_total_cents ?? 0)}</td>
+      </tr>`
+    })
+    .join('')
+}
 
+function infoRow(label: string, value: string): string {
+  return `<tr><td style="padding:2px 0;font-size:14px;color:#6b6b6b;width:38%">${label}</td><td style="padding:2px 0;font-size:14px">${value}</td></tr>`
+}
+
+function totalsRow(label: string, value: string, bold = false): string {
+  const weight = bold ? 'font-weight:bold' : ''
+  return `<tr><td style="padding:4px 0;font-size:14px;${weight}">${label}</td><td align="right" style="padding:4px 0;font-size:14px;${weight}">${value}</td></tr>`
+}
+
+/**
+ * Correo de recepción = lo mismo que el papel que se imprime (comprobante +
+ * nota de remisión): datos de la orden, cada artículo con su estado, servicios
+ * e importes, totales, anticipo, términos — más las fotos de evidencia.
+ */
+function renderReceptionHtml(input: EmailInput): string {
+  const { business, order, customerName, articles, photos, marks, payments, message, mediaBase } = input
+
+  const items = order.order_items ?? []
   const generalPhotos = photos.filter((photo) => photo.article_id === null)
+  const knownIds = new Set(articles.map((article) => article.id))
+  const looseItems = items.filter((item) => !item.article_id || !knownIds.has(item.article_id))
 
   const articleBlocks = articles
-    .map((article) => {
+    .map((article, index) => {
       const own = photos.filter((photo) => photo.article_id === article.id)
+      const ownItems = items.filter((item) => item.article_id === article.id)
+      const ownMarks = marks.filter((mark) => mark.article_id === article.id)
+
       const tags = (article.condition_tags ?? []).length
         ? `<p style="margin:6px 0;font-size:14px"><strong>Condición:</strong> ${(article.condition_tags ?? []).map(escapeHtml).join(', ')}</p>`
         : ''
       const notes = article.condition_notes
         ? `<p style="margin:6px 0;font-size:14px"><strong>Notas:</strong> ${multiline(article.condition_notes)}</p>`
         : ''
+      const markList = ownMarks.length
+        ? `<p style="margin:6px 0;font-size:14px"><strong>Observaciones:</strong></p><ul style="margin:0 0 6px;padding-left:20px;font-size:14px">${ownMarks
+            .map((mark) => `<li>${escapeHtml(mark.mark_type)}${mark.description ? `: ${escapeHtml(mark.description)}` : ''}</li>`)
+            .join('')}</ul>`
+        : ''
+      const services = ownItems.length
+        ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px">${renderServiceRows(ownItems)}</table>`
+        : ''
+
+      const heading = articles.length > 1 ? `Artículo ${index + 1} — ${escapeHtml(articleTitle(article))}` : escapeHtml(articleTitle(article))
+
       return `<div style="margin:20px 0;padding-top:16px;border-top:1px solid #e4e4e4">
-        <h3 style="margin:0 0 4px;font-size:16px">${escapeHtml(articleTitle(article))}</h3>
-        ${tags}${notes}${renderPhotos(own, mediaBase)}
+        <h3 style="margin:0 0 6px;font-size:16px">${heading}</h3>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${infoRow('Marca', escapeHtml(article.brand ?? '—'))}${infoRow('Modelo', escapeHtml(article.model ?? '—'))}${infoRow('Color', escapeHtml(article.color ?? '—'))}
+        </table>
+        ${tags}${notes}${markList}${services}${renderPhotos(own, mediaBase)}
       </div>`
     })
     .join('')
+
+  const looseBlock = looseItems.length
+    ? `<div style="margin:20px 0;padding-top:16px;border-top:1px solid #e4e4e4">
+        <h3 style="margin:0 0 4px;font-size:16px">Servicios</h3>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${renderServiceRows(looseItems)}</table>
+      </div>`
+    : ''
 
   const generalBlock = generalPhotos.length
     ? `<div style="margin:20px 0;padding-top:16px;border-top:1px solid #e4e4e4">
@@ -273,33 +347,82 @@ function renderReceptionHtml(input: EmailInput): string {
 
   const extra = message ? `<p style="margin:12px 0;font-size:15px">${multiline(message)}</p>` : ''
 
-  const promised = order.promised_at
-    ? `<p style="margin:12px 0;font-size:14px"><strong>Fecha de entrega estimada:</strong> ${escapeHtml(formatPromised(order.promised_at))}</p>`
+  const paid = payments.reduce((total, payment) => total + payment.amount_cents, 0)
+  const balance = Math.max(order.total_cents - paid, 0)
+
+  const data = [
+    infoRow('Folio', `<strong>${escapeHtml(order.folio)}</strong>`),
+    infoRow('Recibido', escapeHtml(formatDateTime(order.received_at))),
+    order.promised_at ? infoRow('Entrega estimada', escapeHtml(formatPromised(order.promised_at))) : '',
+    infoRow('Cliente', escapeHtml(customerName)),
+    order.customers?.phone ? infoRow('Teléfono', escapeHtml(order.customers.phone)) : '',
+  ].join('')
+
+  const totals = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;border-top:1px solid #e4e4e4">
+      ${totalsRow('Subtotal', money(order.subtotal_cents))}
+      ${order.discount_cents > 0 ? totalsRow('Descuento', `− ${money(order.discount_cents)}`) : ''}
+      ${totalsRow('Total', money(order.total_cents), true)}
+      ${paid > 0 ? totalsRow('Anticipo / pagado', money(paid)) : ''}
+      ${paid > 0 ? totalsRow('Por pagar', money(balance), true) : ''}
+    </table>`
+
+  const terms = business.reception_terms
+    ? `<div style="margin-top:20px;padding-top:12px;border-top:1px solid #e4e4e4">
+        <p style="margin:0 0 4px;font-size:13px;font-weight:bold">Términos y condiciones</p>
+        <p style="margin:0;font-size:12px;color:#4a4a4a">${multiline(business.reception_terms)}</p>
+      </div>`
     : ''
 
   return layout(
     business,
     order.folio,
-    `<p style="margin:0 0 12px;font-size:15px">Hola ${escapeHtml(customerName)}, recibimos tu calzado. Estas son las fotos y notas de cómo llegó a nuestras manos.</p>
-        ${extra}${promised}${orderNotes}${articleBlocks}${generalBlock}`,
+    `<p style="margin:0 0 12px;font-size:15px">Hola ${escapeHtml(customerName)}, recibimos tu calzado. Este es tu comprobante de recepción, con las fotos y notas de cómo llegó a nuestras manos.</p>
+        ${extra}
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${data}</table>
+        ${orderNotes}${articleBlocks}${looseBlock}${generalBlock}${totals}${terms}
+        <p style="margin:16px 0 0;font-size:13px;color:#6b6b6b">Conserva este correo o tu comprobante impreso: es indispensable para recoger tu calzado. ¡Gracias por confiar en ${escapeHtml(business.name)}!</p>`,
   )
 }
 
 function renderReceptionText(input: EmailInput): string {
-  const { business, order, customerName, articles, message } = input
+  const { business, order, customerName, articles, marks, payments, message } = input
+  const items = order.order_items ?? []
   const lines = [
-    `${business.name} — Orden ${order.folio}`,
+    `${business.name} — Comprobante de recepción`,
     '',
     `Hola ${customerName}, recibimos tu calzado.`,
   ]
   if (message) lines.push('', message)
-  if (order.promised_at) lines.push('', `Entrega estimada: ${formatPromised(order.promised_at)}`)
+  lines.push('', `Folio: ${order.folio}`, `Recibido: ${formatDateTime(order.received_at)}`)
+  if (order.promised_at) lines.push(`Entrega estimada: ${formatPromised(order.promised_at)}`)
+  lines.push(`Cliente: ${customerName}`)
+  if (order.customers?.phone) lines.push(`Teléfono: ${order.customers.phone}`)
   if (order.notes) lines.push('', `Notas de la orden: ${order.notes}`)
+
+  const knownIds = new Set(articles.map((article) => article.id))
+  const money1 = (item: OrderItemRow) => `${item.quantity} × ${item.service_name}  ${money(item.line_total_cents ?? 0)}`
+
   for (const article of articles) {
     lines.push('', articleTitle(article))
     if ((article.condition_tags ?? []).length) lines.push(`Condición: ${(article.condition_tags ?? []).join(', ')}`)
     if (article.condition_notes) lines.push(`Notas: ${article.condition_notes}`)
+    for (const mark of marks.filter((m) => m.article_id === article.id)) {
+      lines.push(`Obs. ${mark.idx}: ${mark.mark_type}${mark.description ? ` — ${mark.description}` : ''}`)
+    }
+    for (const item of items.filter((i) => i.article_id === article.id)) lines.push(money1(item))
   }
+  const loose = items.filter((item) => !item.article_id || !knownIds.has(item.article_id))
+  if (loose.length) {
+    lines.push('')
+    for (const item of loose) lines.push(money1(item))
+  }
+
+  const paid = payments.reduce((total, payment) => total + payment.amount_cents, 0)
+  lines.push('', `Subtotal: ${money(order.subtotal_cents)}`)
+  if (order.discount_cents > 0) lines.push(`Descuento: -${money(order.discount_cents)}`)
+  lines.push(`Total: ${money(order.total_cents)}`)
+  if (paid > 0) lines.push(`Anticipo / pagado: ${money(paid)}`, `Por pagar: ${money(Math.max(order.total_cents - paid, 0))}`)
+  if (business.reception_terms) lines.push('', 'Términos y condiciones:', business.reception_terms)
   lines.push('', 'Las fotos van en la versión HTML de este correo.', '', [business.phone, business.address].filter(Boolean).join(' · '))
   return lines.join('\n')
 }
@@ -452,11 +575,11 @@ async function handle(request: Request): Promise<Response> {
     (kind === 'receipt' && paymentId ? `&payment_id=eq.${paymentId}` : '') +
     '&select=id,to_email&limit=1'
 
-  const [orders, articles, photos, businesses, payments, alreadySent] = await Promise.all([
+  const [orders, articles, photos, marks, businesses, payments, alreadySent] = await Promise.all([
     query<OrderRow>(
       env,
       token,
-      `orders?id=eq.${orderId}&select=folio,notes,promised_at,reception_closed_at,subtotal_cents,discount_cents,total_cents,customers(full_name,email),order_items(service_name,item_label,quantity,line_total_cents)`,
+      `orders?id=eq.${orderId}&select=folio,notes,received_at,promised_at,reception_closed_at,subtotal_cents,discount_cents,total_cents,customers(full_name,email,phone),order_items(article_id,service_name,item_label,item_notes,quantity,line_total_cents)`,
     ),
     kind === 'reception'
       ? query<ArticleRow>(
@@ -472,10 +595,11 @@ async function handle(request: Request): Promise<Response> {
           `order_photos?order_id=eq.${orderId}&select=article_id,storage_path,classification&order=sort_order`,
         )
       : Promise.resolve<PhotoRow[]>([]),
-    query<BusinessRow>(env, token, 'business_settings?id=eq.1&select=name,phone,address'),
-    kind === 'receipt'
-      ? query<PaymentRow>(env, token, `payments?order_id=eq.${orderId}&select=id,method,amount_cents,created_at&order=created_at`)
-      : Promise.resolve<PaymentRow[]>([]),
+    kind === 'reception'
+      ? query<MarkRow>(env, token, `order_diagram_marks?order_id=eq.${orderId}&select=article_id,idx,mark_type,description&order=idx`)
+      : Promise.resolve<MarkRow[]>([]),
+    query<BusinessRow>(env, token, 'business_settings?id=eq.1&select=name,phone,address,reception_terms'),
+    query<PaymentRow>(env, token, `payments?order_id=eq.${orderId}&select=id,method,amount_cents,created_at&order=created_at`),
     force ? Promise.resolve<SentRow[]>([]) : query<SentRow>(env, token, sentFilter),
   ])
 
@@ -502,7 +626,7 @@ async function handle(request: Request): Promise<Response> {
     throw new HttpError(422, 'La orden todavía no tiene cobros que enviar.')
   }
 
-  const business: BusinessRow = businesses[0] ?? { name: 'Velmont', phone: '', address: '' }
+  const business: BusinessRow = businesses[0] ?? { name: 'Velmont', phone: '', address: '', reception_terms: '' }
 
   // Un cobro que todavía no sincroniza (cola offline) no existe en la base: se
   // manda el ticket sin resaltarlo y sin ligarlo, para no romper la bitácora.
@@ -519,6 +643,8 @@ async function handle(request: Request): Promise<Response> {
       customerName: order.customers.full_name,
       articles,
       photos,
+      marks,
+      payments,
       message,
       mediaBase: `${env.supabaseUrl}/storage/v1/object/public/${BUCKET}`,
     }

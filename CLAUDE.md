@@ -139,8 +139,10 @@ Migración `20260123000000_order_emails`. Dos correos, ambos desde
 `api/send-order-email.ts` (función serverless de Vercel, proveedor Resend); la UI
 llega a ella solo por `repositories/emails.ts`.
 
-- **Recepción** (`kind: 'reception'`): notas de la orden, estado de cada artículo
-  y fotos. **No sale al crear la orden**: la orden se levanta en la computadora
+- **Recepción** (`kind: 'reception'`): el mismo contenido que el papel impreso
+  (comprobante + nota de remisión): folio, fechas, cliente, cada artículo con su
+  estado y observaciones, servicios con importes, totales, anticipo, saldo y
+  términos (`business_settings.reception_terms`), más las fotos. **No sale al crear la orden**: la orden se levanta en la computadora
   (sin cámara) y las fotos se suben después desde el celular. Sale al presionar
   **«Terminar y enviar»** en el detalle (`FinishReceptionModal`), que marca
   `orders.reception_closed_at` y manda el correo. El servidor se niega a mandarlo

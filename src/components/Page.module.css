@@ -73,8 +73,28 @@
    * varias líneas. */
   .actions {
     flex: 1 1 100%;
-    flex-wrap: wrap;
     min-width: 0;
+
+    /* Dos columnas y botones compactos: con una fila por botón (56 px cada uno)
+     * seis o siete acciones se comían la pantalla entera y el contenido de la
+     * orden quedaba fuera de vista. Un botón suelto sigue ocupando la fila. */
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--vm-space-2);
+  }
+
+  .actions > button {
+    min-height: var(--vm-touch-min);
+    padding: 0 var(--vm-space-2);
+    font-size: var(--vm-text-xs);
+    letter-spacing: 0.02em;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .actions > button:only-child {
+    grid-column: 1 / -1;
   }
 
   .body {

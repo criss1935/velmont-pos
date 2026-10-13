@@ -124,6 +124,7 @@ export function OrderDetailPage() {
   // así. El botón de entregar se bloquea hasta que la orden esté saldada; para
   // regalarla, hay que dejarla explícitamente en $0 con un descuento.
   const blockedByBalance = next === 'entregado' && order.balance > 0
+  const canCharge = order.balance > 0 && order.status !== 'cancelado'
   const syncStatus = statusForOrder(order.id, pendingSync)
 
   return (
@@ -153,11 +154,6 @@ export function OrderDetailPage() {
           <Button onClick={() => void printRemision(order)}>Imprimir remisión</Button>
           {order.status !== 'cancelado' && (
             <Button onClick={() => setEmailing(true)}>Enviar correo</Button>
-          )}
-          {order.balance > 0 && order.status !== 'cancelado' && (
-            <Button variant="primary" onClick={() => setPaying(true)}>
-              Cobrar {formatCents(order.balance)}
-            </Button>
           )}
         </>
       }
@@ -282,9 +278,18 @@ export function OrderDetailPage() {
             <div className={styles.actions}>
               {printError && <div className={styles.printError}>{printError}</div>}
 
+              {/* Cobrar va PRIMERO y grande: es el paso que la operadora
+                  busca antes de poder entregar. Registrar el pago es lo único
+                  que mueve el cajón; cambiar de estado no toca dinero. */}
+              {canCharge && (
+                <Button variant="primary" size="lg" block onClick={() => setPaying(true)}>
+                  Cobrar {formatCents(order.balance)}
+                </Button>
+              )}
+
               {next && (
                 <Button
-                  variant="primary"
+                  variant={canCharge ? 'secondary' : 'primary'}
                   size="lg"
                   block
                   disabled={blockedByBalance}
@@ -299,8 +304,8 @@ export function OrderDetailPage() {
 
               {blockedByBalance && (
                 <p className={styles.printError}>
-                  No se puede entregar con {formatCents(order.balance)} pendientes. Cobra el saldo
-                  primero.
+                  No se puede entregar con {formatCents(order.balance)} pendientes. Toca «Cobrar»
+                  para registrar el pago primero.
                 </p>
               )}
 

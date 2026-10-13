@@ -284,3 +284,10 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* La acción principal de la cabecera ocupa la fila completa en la cuadrícula
+ * de acciones del celular (ver Page.module.css). En escritorio no pasa nada:
+ * ahí el contenedor es flex y `grid-column` no aplica. */
+.wideAction {
+  grid-column: 1 / -1;
+}

@@ -187,7 +187,7 @@ export function OrderDetailPage() {
           {/* La recepción se cierra aquí, cuando las fotos ya están completas: es
               lo que dispara el correo al cliente. */}
           {!closed && !order.receptionClosedAt && (
-            <Button variant="primary" onClick={() => setFinishing(true)}>
+            <Button variant="primary" className={styles.wideAction} onClick={() => setFinishing(true)}>
               Terminar y enviar
             </Button>
           )}

@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button, Modal } from '@/components/ui'
-import { DataError, emails, type Order } from '@/data'
+import { DataError, emails, type Order, type OrderEmailKind } from '@/data'
 import reception from '../reception/Reception.module.css'
 import styles from './SendEmailModal.module.css'
 
 /**
- * "Enviar correo al cliente": le manda las fotos y las notas con las que se
- * recibió su calzado. El contenido lo arma el servidor desde la orden guardada,
- * así que lo que se ve en Detalle es lo que le llega.
+ * "Enviar correo al cliente": envío MANUAL (reenvío o primer envío sin pasar por
+ * "Terminar y enviar"). Puede mandar la recepción (fotos y notas con las que se
+ * recibió su calzado) o el ticket con lo cobrado hasta ahora. El contenido lo
+ * arma el servidor desde la orden guardada, así que lo que se ve en Detalle es
+ * lo que le llega. Siempre va con `force`: aquí quien manda es una persona y sabe
+ * que es un reenvío.
  */
 export function SendEmailModal({
   order,
@@ -19,20 +22,26 @@ export function SendEmailModal({
   open: boolean
   onClose: () => void
 }) {
+  const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
+  const [kind, setKind] = useState<OrderEmailKind>('reception')
 
   const email = order.customer?.email?.trim() ?? ''
   const photoCount =
     order.generalPhotos.length + order.articles.reduce((total, article) => total + article.photos.length, 0)
 
   const send = useMutation({
-    mutationFn: () => emails.sendOrderEmail({ orderId: order.id, message }),
+    mutationFn: () => emails.sendOrderEmail({ orderId: order.id, kind, message, force: true }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['order-emails', order.id] }),
   })
+
+  const noPayments = kind === 'receipt' && order.paid <= 0
 
   function close() {
     if (send.isPending) return
     send.reset()
     setMessage('')
+    setKind('reception')
     onClose()
   }
 
@@ -56,7 +65,7 @@ export function SendEmailModal({
             <Button onClick={close} disabled={send.isPending}>
               Cancelar
             </Button>
-            <Button variant="primary" loading={send.isPending} disabled={!email} onClick={() => send.mutate()}>
+            <Button variant="primary" loading={send.isPending} disabled={!email || noPayments} onClick={() => send.mutate()}>
               Enviar correo
             </Button>
           </>
@@ -79,9 +88,35 @@ export function SendEmailModal({
             </p>
           )}
 
+          <div className={styles.kinds} role="radiogroup" aria-label="Qué correo enviar">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={kind === 'reception'}
+              className={kind === 'reception' ? styles.kindActive : styles.kind}
+              disabled={send.isPending}
+              onClick={() => setKind('reception')}
+            >
+              Recepción
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={kind === 'receipt'}
+              className={kind === 'receipt' ? styles.kindActive : styles.kind}
+              disabled={send.isPending}
+              onClick={() => setKind('receipt')}
+            >
+              Ticket
+            </button>
+          </div>
+
           <p className={styles.hint}>
-            Incluye las notas de la orden, el estado de cada artículo y {photoCount}{' '}
-            {photoCount === 1 ? 'foto' : 'fotos'}.
+            {kind === 'reception'
+              ? `Incluye las notas de la orden, el estado de cada artículo y ${photoCount} ${photoCount === 1 ? 'foto' : 'fotos'}.`
+              : noPayments
+                ? 'Esta orden todavía no tiene cobros: no hay ticket que enviar.'
+                : 'Incluye los artículos, el total, los pagos registrados y el saldo.'}
           </p>
 
           <label className={reception.conditionNotesLabel}>

@@ -30,3 +30,29 @@
   background-color: var(--vm-danger-bg);
   border-radius: var(--vm-radius-md);
 }
+
+.kinds {
+  display: flex;
+  gap: var(--vm-space-2);
+}
+
+.kind,
+.kindActive {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 var(--vm-space-4);
+  font: inherit;
+  font-size: var(--vm-text-sm);
+  font-weight: 700;
+  color: var(--vm-text);
+  background-color: var(--vm-surface-1);
+  border: 1px solid var(--vm-border-strong);
+  border-radius: var(--vm-radius-md);
+  cursor: pointer;
+}
+
+.kindActive {
+  color: var(--vm-text);
+  border-color: var(--vm-text);
+  box-shadow: inset 0 0 0 1px var(--vm-text);
+}

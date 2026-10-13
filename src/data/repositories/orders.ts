@@ -145,7 +145,7 @@ async function fetchOrder(id: string): Promise<Order | null> {
     await supabase
       .from('orders')
       .select(
-        `id, folio, customer_id, status, received_at, promised_at, delivered_at,
+        `id, folio, customer_id, status, received_at, promised_at, delivered_at, reception_closed_at,
          subtotal_cents, discount_cents, total_cents, notes,
          signature_path, responsiva_accepted, responsiva_accepted_at,
          customers ( id, full_name, phone, email, notes, created_at ),
@@ -273,6 +273,7 @@ async function fetchOrder(id: string): Promise<Order | null> {
     receivedAt: row.received_at,
     promisedAt: row.promised_at,
     deliveredAt: row.delivered_at,
+    receptionClosedAt: row.reception_closed_at,
     subtotal: cents(row.subtotal_cents),
     discount: cents(row.discount_cents),
     total,
@@ -445,4 +446,20 @@ export async function addOrderArticle(input: {
       .single(),
   )
   return row.id
+}
+
+/**
+ * Cierra la recepción: marca que las fotos y notas ya están completas. Es la
+ * señal que habilita el correo de recepción. Idempotente: si ya estaba cerrada
+ * conserva la fecha original.
+ */
+export async function closeReception(id: string): Promise<void> {
+  unwrap(
+    await supabase
+      .from('orders')
+      .update({ reception_closed_at: new Date().toISOString() })
+      .eq('id', id)
+      .is('reception_closed_at', null)
+      .select('id'),
+  )
 }

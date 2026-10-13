@@ -5,6 +5,7 @@ import { Page } from '@/components/Page'
 import { Button, Card, Modal } from '@/components/ui'
 import {
   DataError,
+  emails as emailsRepo,
   nextStatus,
   ORDER_STATUS_LABEL,
   orders as ordersRepo,
@@ -14,6 +15,7 @@ import {
   statusForOrder,
   useSyncStatus,
   type Order,
+  type Payment,
 } from '@/data'
 import { paymentDocument, receiptDocument, remisionDocument, tryPrint } from '@/features/printing'
 import { SyncBadge } from '@/features/sync/SyncBadge'
@@ -22,6 +24,8 @@ import { formatCents } from '@/lib/money'
 import { formatDate, formatDateTime, isOverdue } from '@/lib/dates'
 import { ArticleDetail } from './detail/ArticleDetail'
 import { EditOrderModal } from './detail/EditOrderModal'
+import { FinishReceptionModal } from './detail/FinishReceptionModal'
+import { OrderEmailsCard } from './detail/OrderEmailsCard'
 import { PhotoEditor } from './detail/PhotoEditor'
 import { ResponsivaCard } from './detail/ResponsivaCard'
 import { SendEmailModal } from './detail/SendEmailModal'
@@ -39,6 +43,8 @@ export function OrderDetailPage() {
   const [editing, setEditing] = useState(false)
   const [editingOrder, setEditingOrder] = useState(false)
   const [emailing, setEmailing] = useState(false)
+  const [finishing, setFinishing] = useState(false)
+  const [emailNotice, setEmailNotice] = useState<string | null>(null)
   const [printError, setPrintError] = useState<string | null>(null)
 
   const orderQuery = useQuery({
@@ -85,6 +91,31 @@ export function OrderDetailPage() {
       invalidate()
     },
   })
+
+  /**
+   * Manda el ticket del cobro por correo, sin estorbar la caja: corre después de
+   * imprimir y, si falla, solo deja un aviso (el cobro ya está registrado).
+   * No sale si el cliente no tiene correo, ni si el cobro todavía está en la cola
+   * offline (el servidor no lo vería y el ticket saldría con el saldo viejo).
+   */
+  async function sendReceiptEmail(target: Order, payment: Payment) {
+    if (!target.customer?.email?.trim()) return
+
+    if (statusForOrder(target.id, useSyncStatus.getState().pending) !== null) {
+      setEmailNotice(
+        'El ticket no se mandó por correo porque el cobro aún no sincroniza. Envíalo después con «Enviar correo».',
+      )
+      return
+    }
+
+    try {
+      await emailsRepo.sendOrderEmail({ orderId: target.id, kind: 'receipt', paymentId: payment.id })
+      void queryClient.invalidateQueries({ queryKey: ['order-emails', target.id] })
+    } catch (cause) {
+      const reason = cause instanceof DataError ? cause.message : 'No se pudo enviar.'
+      setEmailNotice(`No se mandó el ticket por correo: ${reason} Envíalo después con «Enviar correo».`)
+    }
+  }
 
   async function printReceipt(target: Order) {
     setPrintError(null)
@@ -146,8 +177,18 @@ export function OrderDetailPage() {
             </Button>
           )}
           {!closed && (
-            <Button variant={editing ? 'primary' : 'secondary'} onClick={() => setEditing((v) => !v)}>
-              {editing ? 'Listo' : 'Editar fotos'}
+            <Button
+              variant={editing && order.receptionClosedAt ? 'primary' : 'secondary'}
+              onClick={() => setEditing((v) => !v)}
+            >
+              {editing ? (order.receptionClosedAt ? 'Listo' : 'Salir sin terminar') : 'Editar fotos'}
+            </Button>
+          )}
+          {/* La recepción se cierra aquí, cuando las fotos ya están completas: es
+              lo que dispara el correo al cliente. */}
+          {!closed && !order.receptionClosedAt && (
+            <Button variant="primary" onClick={() => setFinishing(true)}>
+              Terminar y enviar
             </Button>
           )}
           <Button onClick={() => void printReceipt(order)}>Imprimir comprobante</Button>
@@ -270,6 +311,9 @@ export function OrderDetailPage() {
 
           <div style={{ height: 'var(--vm-space-4)' }} />
           <ResponsivaCard order={order} />
+
+          <div style={{ height: 'var(--vm-space-4)' }} />
+          <OrderEmailsCard order={order} />
         </div>
 
         {/* --- Barra lateral --- */}
@@ -277,6 +321,7 @@ export function OrderDetailPage() {
           <Card title="Acciones">
             <div className={styles.actions}>
               {printError && <div className={styles.printError}>{printError}</div>}
+              {emailNotice && <div className={styles.printError}>{emailNotice}</div>}
 
               {/* Cobrar va PRIMERO y grande: es el paso que la operadora
                   busca antes de poder entregar. Registrar el pago es lo único
@@ -393,12 +438,25 @@ export function OrderDetailPage() {
 
       <SendEmailModal order={order} open={emailing} onClose={() => setEmailing(false)} />
 
+      <FinishReceptionModal
+        order={order}
+        open={finishing}
+        syncPending={syncStatus !== null}
+        onClose={() => setFinishing(false)}
+        onFinished={() => {
+          setEditing(false)
+          invalidate()
+          void queryClient.invalidateQueries({ queryKey: ['order-emails', order.id] })
+        }}
+      />
+
       <PaymentModal
         order={order}
         open={paying}
         onClose={() => setPaying(false)}
         onPaid={(payment) => {
           setPaying(false)
+          setEmailNotice(null)
           invalidate()
 
           // El ticket se imprime con la orden YA actualizada, para que el saldo
@@ -408,6 +466,7 @@ export function OrderDetailPage() {
             const business = await settingsRepo.getBusinessSettings()
             const failure = await tryPrint(paymentDocument(fresh, payment, business))
             if (failure) setPrintError(failure.message)
+            await sendReceiptEmail(fresh, payment)
           })
         }}
       />

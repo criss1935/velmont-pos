@@ -133,23 +133,43 @@ cuando la orden no tiene artículos. RLS de `order_photos` ya limita altas y
 bajas a órdenes no entregadas/canceladas. Borrar es online-only: primero la fila
 (se valida que RLS sí la borró), luego el archivo en Storage.
 
-## Correo al cliente (fotos + notas)
+## Correos al cliente (recepción + ticket)
 
-Botón "Enviar correo" en el detalle de la orden (`SendEmailModal`). Manda al
-correo del cliente las notas de la orden, el estado de cada artículo
-(`condition_tags` / `condition_notes`) y las fotos de recepción. El envío vive
-en `api/send-order-email.ts` (función serverless de Vercel, proveedor Resend);
-la UI llega a ella solo por `repositories/emails.ts`.
+Migración `20260123000000_order_emails`. Dos correos, ambos desde
+`api/send-order-email.ts` (función serverless de Vercel, proveedor Resend); la UI
+llega a ella solo por `repositories/emails.ts`.
 
-- El contenido sale de la base, leída CON la sesión del empleado (RLS aplica);
-  el cliente solo manda `orderId` y un mensaje opcional. El destinatario es el
-  `customers.email` de la orden, nunca uno enviado en la petición.
+- **Recepción** (`kind: 'reception'`): notas de la orden, estado de cada artículo
+  y fotos. **No sale al crear la orden**: la orden se levanta en la computadora
+  (sin cámara) y las fotos se suben después desde el celular. Sale al presionar
+  **«Terminar y enviar»** en el detalle (`FinishReceptionModal`), que marca
+  `orders.reception_closed_at` y manda el correo. El servidor se niega a mandarlo
+  automático si la recepción sigue abierta o no hay fotos. El botón se bloquea si
+  hay fotos de esa orden en la cola offline (`statusForOrder`).
+- **Ticket** (`kind: 'receipt'`): artículos, total, pagos y saldo. Sale solo al
+  **cobrar** (`OrderDetailPage.onPaid`), después de imprimir, sin estorbar la caja:
+  si falla solo deja un aviso. No sale si el cliente no tiene correo ni si el cobro
+  aún está en la cola offline.
+- **Manual**: «Enviar correo» (`SendEmailModal`) reenvía cualquiera de los dos con
+  `force`. Sin `force`, el servidor no duplica: consulta `order_emails` y responde
+  409 `alreadySent`; además manda `Idempotency-Key` a Resend (cambia cada minuto).
+- **Bitácora** `order_emails` (orden, tipo, destinatario, enviado/falló, id de
+  Resend). La escribe la función con la sesión del empleado (RLS). Se ve en la
+  tarjeta «Correos al cliente» del detalle. Colgada del trigger de auditoría.
+- **Correo del cliente**: `customers.email`. Se captura opcional en el alta rápida
+  (`CustomerPicker`) y, si falta, en «Terminar y enviar» (se guarda en su ficha).
+  Sin correo se puede terminar sin enviar.
+- El contenido sale de la base, leída CON la sesión del empleado (RLS aplica); el
+  cliente solo manda `orderId`, `kind`, `paymentId`, mensaje y `force`. El
+  destinatario es siempre el `customers.email` de la orden.
 - La sesión viaja en `x-supabase-token`, no en `Authorization`: ese header ya lo
   ocupa el Basic Auth de `middleware.ts`.
 - Online-only, no se encola offline. Con `npm run dev` no existe `/api`; probar
   en Vercel o con `vercel dev`.
-- Env vars en Vercel: `RESEND_API_KEY`, `EMAIL_FROM` (dominio verificado en
-  Resend) y opcional `EMAIL_REPLY_TO`. Ver `.env.example`.
+- Env vars en Vercel (proyecto **velmont-v3**): `RESEND_API_KEY`, `EMAIL_FROM`
+  (dominio verificado en Resend), `EMAIL_REPLY_TO` opcional, y
+  `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (la función las lee del entorno
+  del servidor, no solo del build). Ver `.env.example`.
 - Las fotos van como `<img>` con la URL pública del bucket `order-media`.
 
 ## Configuración del negocio

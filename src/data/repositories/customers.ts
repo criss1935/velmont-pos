@@ -205,3 +205,17 @@ export async function updateCustomer(id: string, input: NewCustomer): Promise<Cu
 
   return toCustomer(row)
 }
+
+/** Solo el correo: lo captura el mostrador al cerrar la recepción de una orden. */
+export async function updateCustomerEmail(id: string, email: string): Promise<Customer> {
+  const row = unwrap(
+    await supabase
+      .from('customers')
+      .update({ email: email.trim() || null })
+      .eq('id', id)
+      .select(COLUMNS)
+      .single(),
+  )
+
+  return toCustomer(row)
+}

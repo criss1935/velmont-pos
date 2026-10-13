@@ -28,6 +28,7 @@ const TABLE_LABEL: Record<string, string> = {
   cash_sessions: 'Caja',
   cash_movements: 'Movimiento de caja',
   petty_cash_movements: 'Caja chica',
+  order_emails: 'Correo al cliente',
   supplies: 'Insumo',
   supply_movements: 'Movimiento de inventario',
   services: 'Servicio (catálogo)',

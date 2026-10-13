@@ -192,6 +192,8 @@ export interface Order {
   receivedAt: string
   promisedAt: string | null
   deliveredAt: string | null
+  /** Cuándo el personal cerró la recepción (fotos completas). Null = abierta. */
+  receptionClosedAt: string | null
   subtotal: Cents
   discount: Cents
   total: Cents
@@ -358,4 +360,17 @@ export interface AuditEntry {
   /** update: valores nuevos de las columnas que cambiaron. insert: la fila creada. */
   newData: Record<string, unknown> | null
   changedFields: string[]
+}
+
+export type OrderEmailKind = 'reception' | 'receipt'
+
+/** Un correo mandado (o intentado) al cliente de una orden. */
+export interface OrderEmail {
+  id: string
+  orderId: string
+  kind: OrderEmailKind
+  to: string
+  status: 'sent' | 'failed'
+  error: string | null
+  createdAt: string
 }

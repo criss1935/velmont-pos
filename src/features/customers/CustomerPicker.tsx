@@ -162,6 +162,7 @@ function NewCustomerModal({
 }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -173,6 +174,7 @@ function NewCustomerModal({
     const looksLikePhone = /^[\d\s+()-]+$/.test(initialQuery)
     setName(looksLikePhone ? '' : initialQuery)
     setPhone(looksLikePhone ? initialQuery : '')
+    setEmail('')
     setError(null)
   }, [open, initialQuery])
 
@@ -186,7 +188,7 @@ function NewCustomerModal({
     setError(null)
 
     try {
-      onCreated(await customers.createCustomer({ fullName: name, phone }))
+      onCreated(await customers.createCustomer({ fullName: name, phone, email }))
     } catch (cause) {
       setError(cause instanceof DataError ? cause.message : 'No se pudo crear el cliente.')
     } finally {
@@ -226,6 +228,15 @@ function NewCustomerModal({
           onChange={(event) => setPhone(event.target.value)}
           hint="Para avisarle cuando su calzado esté listo."
           {...(error && name.trim() !== '' ? { error } : {})}
+        />
+        <Input
+          label="Correo (opcional)"
+          type="email"
+          inputMode="email"
+          autoComplete="off"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          hint="Para mandarle sus fotos y su ticket por correo."
         />
       </div>
     </Modal>

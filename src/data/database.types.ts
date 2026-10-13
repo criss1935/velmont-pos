@@ -487,6 +487,74 @@ export type Database = {
           },
         ]
       }
+      order_emails: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          order_id: string
+          payment_id: string | null
+          provider_id: string | null
+          sent_by: string | null
+          status: string
+          to_email: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          order_id: string
+          payment_id?: string | null
+          provider_id?: string | null
+          sent_by?: string | null
+          status: string
+          to_email: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          order_id?: string
+          payment_id?: string | null
+          provider_id?: string | null
+          sent_by?: string | null
+          status?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_emails_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "order_balances"
+            referencedColumns: ["order_id"]
+          },
+          {
+            foreignKeyName: "order_emails_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_emails_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_emails_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_photos: {
         Row: {
           article_id: string | null
@@ -603,6 +671,7 @@ export type Database = {
           notes: string | null
           promised_at: string | null
           received_at: string
+          reception_closed_at: string | null
           responsiva_accepted: boolean
           responsiva_accepted_at: string | null
           signature_path: string | null
@@ -622,6 +691,7 @@ export type Database = {
           notes?: string | null
           promised_at?: string | null
           received_at?: string
+          reception_closed_at?: string | null
           responsiva_accepted?: boolean
           responsiva_accepted_at?: string | null
           signature_path?: string | null
@@ -641,6 +711,7 @@ export type Database = {
           notes?: string | null
           promised_at?: string | null
           received_at?: string
+          reception_closed_at?: string | null
           responsiva_accepted?: boolean
           responsiva_accepted_at?: string | null
           signature_path?: string | null

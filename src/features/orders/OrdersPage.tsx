@@ -7,9 +7,27 @@ import { orders as ordersRepo, ORDER_STATUS_LABEL, statusForOrder, useSyncStatus
 import { SyncBadge } from '@/features/sync/SyncBadge'
 import { cn } from '@/lib/cn'
 import { formatCents } from '@/lib/money'
-import { formatRelative, isOverdue } from '@/lib/dates'
+import { daysAgo, formatRelative, fromDateInput, isOverdue, startOfDay } from '@/lib/dates'
 import { StatusBadge } from './StatusBadge'
 import styles from './OrdersPage.module.css'
+
+/**
+ * Rango de fechas (por fecha de recepción). "Todo" es el default: el tablero de
+ * Activas no se acota por fecha, una orden vieja que sigue en el taller tiene que
+ * verse. Los rangos sirven para recorrer el histórico (Entregadas / Todas).
+ */
+const RANGES = [
+  { key: 'todo', label: 'Todo', from: null },
+  { key: 'hoy', label: 'Hoy', from: () => startOfDay() },
+  { key: '7d', label: '7 días', from: () => daysAgo(7) },
+  { key: '15d', label: '15 días', from: () => daysAgo(15) },
+  { key: '30d', label: '30 días', from: () => daysAgo(30) },
+] as const
+
+type RangeKey = (typeof RANGES)[number]['key'] | 'custom'
+
+/** Con un rango el tope de 100 se queda corto: se pide más para no recortar el histórico. */
+const RANGE_LIMIT = 500
 
 /**
  * Los filtros del tablero.
@@ -32,15 +50,29 @@ export function OrdersPage() {
   const navigate = useNavigate()
   const [tab, setTab] = useState('activas')
   const [search, setSearch] = useState('')
+  const [range, setRange] = useState<RangeKey>('todo')
+  const [fromText, setFromText] = useState('')
+  const [toText, setToText] = useState('')
 
   const active = TABS.find((item) => item.key === tab) ?? TABS[0]!
 
+  const preset = RANGES.find((item) => item.key === range)
+  const from =
+    range === 'custom' ? fromDateInput(fromText, 'start') : (preset?.from?.() ?? null)
+  const to = range === 'custom' ? fromDateInput(toText, 'end') : null
+  const dated = from !== null || to !== null
+
   const query = useQuery({
-    queryKey: ['orders', active.key, search],
+    // Las fechas entran a la llave como texto ISO: `from` es un Date nuevo en cada
+    // render y, como objeto, haría que la consulta se repitiera sin parar.
+    queryKey: ['orders', active.key, search, from?.toISOString() ?? null, to?.toISOString() ?? null],
     queryFn: () =>
       ordersRepo.listOrders({
         status: active.statuses,
         search,
+        ...(from ? { from } : {}),
+        ...(to ? { to } : {}),
+        ...(dated ? { limit: RANGE_LIMIT } : {}),
       }),
     // El tablero lo miran varias personas a la vez y las órdenes cambian de
     // estado en el taller: 15 s mantiene la pantalla viva sin castigar la red.
@@ -81,6 +113,44 @@ export function OrdersPage() {
         </div>
       </div>
 
+      <div className={styles.dates}>
+        <div className={styles.tabs}>
+          {RANGES.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={cn(styles.tab, range === item.key && styles.tabActive)}
+              onClick={() => setRange(item.key)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <Input
+          className={styles.dateField}
+          type="date"
+          label="Desde"
+          value={fromText}
+          max={toText || undefined}
+          onChange={(event) => {
+            setFromText(event.target.value)
+            setRange('custom')
+          }}
+        />
+        <Input
+          className={styles.dateField}
+          type="date"
+          label="Hasta"
+          value={toText}
+          min={fromText || undefined}
+          onChange={(event) => {
+            setToText(event.target.value)
+            setRange('custom')
+          }}
+        />
+      </div>
+
       {list.length === 0 ? (
         <div className={styles.empty}>
           <span className={styles.emptyIcon} aria-hidden>
@@ -89,7 +159,9 @@ export function OrdersPage() {
           <p>
             {search
               ? `Ninguna orden coincide con «${search}».`
-              : 'No hay órdenes en este estado.'}
+              : dated
+                ? 'No hay órdenes en este rango de fechas.'
+                : 'No hay órdenes en este estado.'}
           </p>
         </div>
       ) : (

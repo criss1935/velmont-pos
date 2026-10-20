@@ -72,11 +72,17 @@ export async function listOrders(filter?: {
   status?: OrderStatus[]
   search?: string
   limit?: number
+  /** Solo órdenes recibidas desde este instante (incluido). */
+  from?: Date
+  /** Solo órdenes recibidas hasta este instante (incluido). */
+  to?: Date
 }): Promise<OrderSummary[]> {
   const key = `orders:list:${JSON.stringify({
     status: filter?.status ?? null,
     search: filter?.search?.trim() ?? null,
     limit: filter?.limit ?? 100,
+    from: filter?.from?.toISOString() ?? null,
+    to: filter?.to?.toISOString() ?? null,
   })}`
 
   const { value } = await readThrough(key, async () => {
@@ -93,6 +99,9 @@ export async function listOrders(filter?: {
     if (filter?.status && filter.status.length > 0) {
       query = query.in('status', filter.status)
     }
+
+    if (filter?.from) query = query.gte('received_at', filter.from.toISOString())
+    if (filter?.to) query = query.lte('received_at', filter.to.toISOString())
 
     const term = filter?.search?.trim()
     if (term) {

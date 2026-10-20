@@ -1,27 +1,38 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Page } from '@/components/Page'
-import { Card } from '@/components/ui'
+import { Card, Input } from '@/components/ui'
 import { DataError, ORDER_STATUS_LABEL, PAYMENT_METHOD_LABEL, reports } from '@/data'
 import { cn } from '@/lib/cn'
 import { formatCents } from '@/lib/money'
-import { daysAgo, endOfDay, startOfDay } from '@/lib/dates'
+import { daysAgo, endOfDay, fromDateInput, startOfDay } from '@/lib/dates'
 import styles from './ReportsPage.module.css'
 
 const RANGES = [
   { key: 'hoy', label: 'Hoy', from: () => startOfDay() },
   { key: '7d', label: '7 días', from: () => daysAgo(7) },
+  { key: '15d', label: '15 días', from: () => daysAgo(15) },
   { key: '30d', label: '30 días', from: () => daysAgo(30) },
   { key: '90d', label: '90 días', from: () => daysAgo(90) },
 ] as const
 
 export function ReportsPage() {
   const [range, setRange] = useState<string>('hoy')
+  const [fromText, setFromText] = useState('')
+  const [toText, setToText] = useState('')
+
+  // Con fechas propias, "Hasta" vacío significa hasta hoy. Sin "Desde" no hay
+  // período que medir: el reporte espera a que se elija.
+  const custom = range === 'custom'
   const active = RANGES.find((item) => item.key === range) ?? RANGES[0]
+  const from = custom ? fromDateInput(fromText, 'start') : active.from()
+  const to = custom ? (fromDateInput(toText, 'end') ?? endOfDay()) : endOfDay()
 
   const query = useQuery({
-    queryKey: ['report', range],
-    queryFn: () => reports.getSalesReport(active.from(), endOfDay()),
+    // Fechas como texto ISO en la llave: un Date nuevo por render repetiría la consulta.
+    queryKey: ['report', range, from?.toISOString() ?? null, to.toISOString()],
+    queryFn: () => reports.getSalesReport(from as Date, to),
+    enabled: from !== null,
   })
 
   const report = query.data
@@ -42,9 +53,34 @@ export function ReportsPage() {
             {item.label}
           </button>
         ))}
+
+        <Input
+          className={styles.dateField}
+          type="date"
+          label="Desde"
+          value={fromText}
+          max={toText || undefined}
+          onChange={(event) => {
+            setFromText(event.target.value)
+            setRange('custom')
+          }}
+        />
+        <Input
+          className={styles.dateField}
+          type="date"
+          label="Hasta"
+          value={toText}
+          min={fromText || undefined}
+          onChange={(event) => {
+            setToText(event.target.value)
+            setRange('custom')
+          }}
+        />
       </div>
 
-      {query.isError ? (
+      {from === null ? (
+        <p className={styles.loading}>Elige la fecha «Desde» para ver el reporte.</p>
+      ) : query.isError ? (
         <p className={styles.loading}>
           {query.error instanceof DataError ? query.error.message : 'No se pudo cargar el reporte.'}
         </p>

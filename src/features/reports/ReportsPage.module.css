@@ -1,7 +1,14 @@
 .ranges {
   display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
   gap: var(--vm-space-2);
   margin-bottom: var(--vm-space-6);
+}
+
+.dateField {
+  width: 170px;
+  flex: none;
 }
 
 .range {

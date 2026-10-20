@@ -53,6 +53,20 @@
   flex: none;
 }
 
+/* Rango de fechas: chips rápidos a la izquierda, Desde/Hasta a la derecha. */
+.dates {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--vm-space-3);
+  margin-bottom: var(--vm-space-5);
+}
+
+.dateField {
+  width: 170px;
+  flex: none;
+}
+
 /* --- Rejilla de órdenes ------------------------------------------------- */
 
 .grid {

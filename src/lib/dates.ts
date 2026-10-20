@@ -81,6 +81,29 @@ export function daysAgo(days: number): Date {
   return startOfDay(result)
 }
 
+/** Fecha local como `YYYY-MM-DD`, el formato de `<input type="date">`. */
+export function toDateInput(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
+/**
+ * Lee un `<input type="date">` como fecha LOCAL. `new Date('2026-10-05')` la
+ * interpreta en UTC y en México corre el día hacia atrás: por eso se arma con
+ * partes. `edge` decide si es el primer o el último instante de ese día.
+ * Devuelve null si el campo está vacío o no es una fecha válida.
+ */
+export function fromDateInput(value: string, edge: 'start' | 'end' = 'start'): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (!match) return null
+
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+  if (Number.isNaN(date.getTime())) return null
+
+  return edge === 'start' ? startOfDay(date) : endOfDay(date)
+}
+
 /** La orden ya pasó su fecha prometida y aún no se ha entregado. */
 export function isOverdue(promisedAt: string | null): boolean {
   if (!promisedAt) return false

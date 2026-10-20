@@ -40,11 +40,15 @@ async function fetchSalesReport(from: Date, to: Date): Promise<SalesReport> {
   // caché (a propósito, ver getSalesReport arriba), así que no hay nada que
   // ganar esperando los reintentos internos de postgrest-js.
   const [payments, items, orders] = await Promise.all([
+    // Un pago de una orden cancelada no es ingreso: la orden no se hizo. Sin
+    // este filtro, cancelar una orden ya cobrada (o una venta de prueba) dejaba
+    // el dinero inflando "Cobrado" para siempre.
     supabase
       .from('payments')
-      .select('method, amount_cents')
+      .select('method, amount_cents, orders!inner(status)')
       .gte('created_at', fromIso)
       .lte('created_at', toIso)
+      .neq('orders.status', 'cancelado')
       .retry(false),
 
     // Las líneas se atribuyen al período en que se RECIBIÓ la orden: es lo que

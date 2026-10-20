@@ -43,6 +43,7 @@ const TABS: Array<{ key: string; label: string; statuses: OrderStatus[] }> = [
   { key: 'en_proceso', label: ORDER_STATUS_LABEL.en_proceso, statuses: ['en_proceso'] },
   { key: 'listo', label: ORDER_STATUS_LABEL.listo, statuses: ['listo'] },
   { key: 'entregado', label: ORDER_STATUS_LABEL.entregado, statuses: ['entregado'] },
+  { key: 'cancelado', label: ORDER_STATUS_LABEL.cancelado, statuses: ['cancelado'] },
   { key: 'todas', label: 'Todas', statuses: [] },
 ]
 
@@ -206,7 +207,13 @@ export function OrdersPage() {
                     <span className={styles.total} data-numeric>
                       {formatCents(order.total)}
                     </span>
-                    {order.balance > 0 ? (
+                    {order.status === 'cancelado' ? (
+                      // En una cancelada "Debe" / "Pagado" no aplican: lo que importa
+                      // es si quedó dinero cobrado pegado a una orden que no se hizo.
+                      <span className={order.paid > 0 ? styles.balance : styles.paid}>
+                        {order.paid > 0 ? `Cobrado ${formatCents(order.paid)}` : 'Sin cobro'}
+                      </span>
+                    ) : order.balance > 0 ? (
                       <span className={styles.balance}>Debe {formatCents(order.balance)}</span>
                     ) : (
                       <span className={styles.paid}>Pagado</span>

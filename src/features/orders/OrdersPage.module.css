@@ -67,6 +67,32 @@
   flex: none;
 }
 
+/* En el celular el buscador de 260px se comía la fila y las pestañas de estatus
+ * quedaban reducidas a una sola visible. Se apilan: pestañas a todo el ancho (con
+ * scroll horizontal), buscador y fechas debajo. Va después de .dateField para que
+ * le gane en la cascada. */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .tabs {
+    flex: none;
+    width: 100%;
+  }
+
+  .dateField {
+    flex: 1;
+    min-width: 140px;
+    width: auto;
+  }
+}
+
 /* --- Rejilla de órdenes ------------------------------------------------- */
 
 .grid {

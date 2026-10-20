@@ -285,9 +285,20 @@
   }
 }
 
-/* La acción principal de la cabecera ocupa la fila completa en la cuadrícula
- * de acciones del celular (ver Page.module.css). En escritorio no pasa nada:
- * ahí el contenedor es flex y `grid-column` no aplica. */
-.wideAction {
-  grid-column: 1 / -1;
+/* Orden de las acciones del encabezado en el CELULAR, donde van en una fila que
+ * se desliza: lo que más se usa queda a la vista (Terminar y enviar, Editar
+ * fotos) y Volver se va al final. En escritorio no aplica: se respeta el orden
+ * del JSX. */
+@media (max-width: 768px) {
+  .actionFirst {
+    order: -2;
+  }
+
+  .actionSecond {
+    order: -1;
+  }
+
+  .actionLast {
+    order: 1;
+  }
 }

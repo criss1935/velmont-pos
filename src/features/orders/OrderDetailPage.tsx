@@ -161,6 +161,7 @@ export function OrderDetailPage() {
   return (
     <Page
       title={order.folio}
+      scrollActions
       subtitle={
         <span className={styles.headerMeta}>
           <StatusBadge status={order.status} />
@@ -170,7 +171,9 @@ export function OrderDetailPage() {
       }
       actions={
         <>
-          <Button onClick={() => navigate('/ordenes')}>Volver</Button>
+          <Button className={styles.actionLast} onClick={() => navigate('/ordenes')}>
+            Volver
+          </Button>
           {!closed && (
             <Button variant="secondary" onClick={() => setEditingOrder(true)}>
               Editar orden
@@ -178,6 +181,7 @@ export function OrderDetailPage() {
           )}
           {!closed && (
             <Button
+              className={styles.actionSecond}
               variant={editing && order.receptionClosedAt ? 'primary' : 'secondary'}
               onClick={() => setEditing((v) => !v)}
             >
@@ -187,7 +191,7 @@ export function OrderDetailPage() {
           {/* La recepción se cierra aquí, cuando las fotos ya están completas: es
               lo que dispara el correo al cliente. */}
           {!closed && !order.receptionClosedAt && (
-            <Button variant="primary" className={styles.wideAction} onClick={() => setFinishing(true)}>
+            <Button variant="primary" className={styles.actionFirst} onClick={() => setFinishing(true)}>
               Terminar y enviar
             </Button>
           )}

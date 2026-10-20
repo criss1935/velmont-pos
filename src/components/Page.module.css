@@ -97,6 +97,26 @@
     grid-column: 1 / -1;
   }
 
+  /* Variante deslizable (`scrollActions`): una sola fila de botones que se
+   * desliza hacia la derecha, como las pestañas de Órdenes. Con 6 o 7 acciones la
+   * cuadrícula de arriba se come media pantalla. Va después de `.actions` para que
+   * le gane en la cascada. */
+  .actionsScroll {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .actionsScroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .actionsScroll > button {
+    flex: none;
+    padding: 0 var(--vm-space-4);
+    white-space: nowrap;
+  }
+
   .body {
     padding: var(--vm-space-4);
   }

@@ -7,6 +7,7 @@ export function Page({
   subtitle,
   actions,
   flush = false,
+  scrollActions = false,
   children,
 }: {
   title: string
@@ -14,6 +15,8 @@ export function Page({
   actions?: ReactNode
   /** Sin padding en el cuerpo: la pantalla gestiona su propio layout. */
   flush?: boolean
+  /** En celular, las acciones van en una sola fila que se desliza en vez de apilarse. */
+  scrollActions?: boolean
   children: ReactNode
 }) {
   return (
@@ -23,7 +26,9 @@ export function Page({
           <h1 className={styles.title}>{title}</h1>
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
-        {actions && <div className={styles.actions}>{actions}</div>}
+        {actions && (
+          <div className={cn(styles.actions, scrollActions && styles.actionsScroll)}>{actions}</div>
+        )}
       </header>
 
       <div className={cn(styles.body, flush ? styles.flush : 'vm-scroll')}>{children}</div>

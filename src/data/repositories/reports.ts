@@ -19,6 +19,8 @@ export interface SalesReport {
   /** Gastos del periodo: gastos históricos con fecha en el periodo + gastos de caja chica. */
   expenses: Cents
   expensesByCategory: Array<{ name: string; total: Cents }>
+  /** Cada pago del periodo (para el detalle del Excel), del más reciente al más viejo. */
+  payments: Array<{ at: string; folio: string; method: PaymentMethod; amount: Cents }>
 }
 
 const TZ = 'America/Mexico_City'
@@ -86,7 +88,7 @@ async function fetchSalesReport(from: Date, to: Date): Promise<SalesReport> {
     // el dinero inflando "Cobrado" para siempre.
     supabase
       .from('payments')
-      .select('method, amount_cents, created_at, orders!inner(status)')
+      .select('method, amount_cents, created_at, orders!inner(status, folio)')
       .gte('created_at', fromIso)
       .lte('created_at', toIso)
       .neq('orders.status', 'cancelado')
@@ -187,6 +189,9 @@ async function fetchSalesReport(from: Date, to: Date): Promise<SalesReport> {
     expenses,
     byDay: [...days.entries()].map(([day, v]) => ({ day, revenue: cents(v.revenue), expenses: cents(v.expenses) })),
     byHour: [...hours.entries()].sort(([a], [b]) => a - b).map(([hour, total]) => ({ hour, total: cents(total) })),
+    payments: paymentRows
+      .map((row) => ({ at: row.created_at, folio: row.orders.folio, method: row.method, amount: cents(row.amount_cents) }))
+      .sort((a, b) => b.at.localeCompare(a.at)),
     expensesByCategory: [...expenseCats.entries()]
       .map(([name, total]) => ({ name, total: cents(total) }))
       .sort((a, b) => b.total - a.total),

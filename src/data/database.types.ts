@@ -1177,6 +1177,10 @@ export type Database = {
     }
     Functions: {
       audit_actor_name: { Args: { p_uid: string }; Returns: string }
+      business_expense_period_summary: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: Json
+      }
       close_cash_session: {
         Args: { p_counted: number; p_notes?: string; p_session_id: string }
         Returns: {

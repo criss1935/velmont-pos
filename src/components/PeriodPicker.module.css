@@ -1,0 +1,62 @@
+.wrap {
+  margin-bottom: var(--vm-space-5);
+}
+
+.chips {
+  display: flex;
+  gap: var(--vm-space-2);
+  overflow-x: auto;
+  padding-bottom: var(--vm-space-1);
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  min-height: var(--vm-touch-min);
+  padding: 0 var(--vm-space-5);
+  font-size: var(--vm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--vm-text-muted);
+  background-color: var(--vm-surface-2);
+  border: 1px solid var(--vm-border-neutral);
+  border-radius: var(--vm-radius-pill);
+  cursor: pointer;
+}
+
+.chipActive {
+  color: var(--vm-text-on-gold);
+  background-color: var(--vm-gold-500);
+  border-color: var(--vm-gold-400);
+}
+
+.dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vm-space-3);
+  margin-top: var(--vm-space-3);
+}
+
+.dateField {
+  width: 180px;
+  flex: none;
+}
+
+.label {
+  margin: var(--vm-space-2) 0 0;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+}
+
+@media (max-width: 760px) {
+  .dateField {
+    flex: 1 1 140px;
+    width: auto;
+  }
+}

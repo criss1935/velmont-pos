@@ -196,6 +196,21 @@ cada eje va como hijo directo de la gráfica. Reportes y Gastos se cargan con
 Reportes agrupa por día/hora en hora de CDMX y suma como egresos los gastos
 históricos con fecha en el periodo + gastos de caja chica.
 
+## Filtro de periodo y exportar a Excel
+
+- `PeriodPicker` + `usePeriod` (`src/components`, lógica en `lib/period.ts`):
+  Hoy, 7 días, 15 días, Último mes, Este mes, 3 meses, 6 meses, Este año,
+  Personalizado (y «Todo» en Gastos). Fechas locales `YYYY-MM-DD`, extremos
+  incluidos. Gastos con periodo excluye registros sin fecha; los totales del
+  periodo los da la RPC `business_expense_period_summary` (migración
+  `20260125000000`).
+- «Exportar Excel» en Reportes y Gastos: se genera EN EL NAVEGADOR
+  (`src/features/export`, exceljs + jszip, importado al vuelo al presionar).
+  Hoja «Análisis» con resumen, tablas y **gráficos nativos de Excel** ligados a
+  esas celdas (`xlsxCharts.ts`, portado de Tori Hana), más hojas de detalle con
+  filtro y totales con fórmula. Las cifras salen de las mismas series que la
+  pantalla (`reports/series.ts`), así que pantalla y Excel no pueden diferir.
+
 ## Configuración del negocio
 
 `business_settings` (fila única, editable desde `/configuracion`, solo admin):

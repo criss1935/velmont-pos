@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Page } from '@/components/Page'
+import { PeriodPicker } from '@/components/PeriodPicker'
+import { usePeriod } from '@/components/usePeriod'
 import { Badge, Button, Card } from '@/components/ui'
 import { BarsCard, chartGridClass, DonutCard, COLOR_HIGHLIGHT, COLOR_VENTAS } from '@/components/charts'
 import { expenses as expensesRepo, type BusinessExpense, type BusinessExpenseCategory } from '@/data'
@@ -25,12 +27,33 @@ export function ExpensesPage() {
   const [editing, setEditing] = useState<BusinessExpense | null>(null)
   const [creating, setCreating] = useState(false)
   const [filter, setFilter] = useState<BusinessExpenseCategory | 'todos'>('todos')
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+  // Gastos es un histórico: por defecto se ve TODO (incluidos los registros sin fecha).
+  const period = usePeriod('todo')
+  const { from, to } = period.range
 
   const listQuery = useQuery({ queryKey: ['business-expenses'], queryFn: expensesRepo.list })
-  const summaryQuery = useQuery({ queryKey: ['business-expenses-summary'], queryFn: expensesRepo.summary })
+  const summaryQuery = useQuery({
+    queryKey: ['business-expenses-summary', from, to],
+    queryFn: () => expensesRepo.summary({ from, to }),
+  })
 
-  const items = listQuery.data ?? NO_EXPENSES
+  const all = listQuery.data ?? NO_EXPENSES
   const summary = summaryQuery.data
+  const bounded = from !== null || to !== null
+
+  // Mismo criterio que la base: con periodo, los registros sin fecha quedan fuera.
+  const items = useMemo(
+    () =>
+      bounded
+        ? all.filter(
+            (e) => e.expenseDate !== null && (!from || e.expenseDate >= from) && (!to || e.expenseDate <= to),
+          )
+        : all,
+    [all, bounded, from, to],
+  )
+  const undatedOut = bounded ? all.filter((e) => e.expenseDate === null).length : 0
 
   const usedCategories = useMemo(
     () => CATEGORIES.filter((c) => (summary?.byCategory[c.value]?.items ?? 0) > 0),
@@ -95,12 +118,38 @@ export function ExpensesPage() {
       title="Gastos"
       subtitle="Histórico de inversión y gastos del local: equipo, obra, renta, servicios, permisos y demás."
       actions={
-        <Button variant="primary" onClick={() => setCreating(true)}>
-          Nuevo gasto
-        </Button>
+        <>
+          <Button
+            disabled={!summary || exporting}
+            loading={exporting}
+            onClick={() => {
+              if (!summary) return
+              setExporting(true)
+              setExportError(null)
+              // El generador (exceljs) se descarga solo al exportar.
+              import('@/features/export/expensesExcel')
+                .then((m) => m.downloadExpensesExcel(items, summary, period.range))
+                .catch(() => setExportError('No se pudo generar el Excel. Intenta de nuevo.'))
+                .finally(() => setExporting(false))
+            }}
+          >
+            Exportar Excel
+          </Button>
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            Nuevo gasto
+          </Button>
+        </>
       }
     >
+      <PeriodPicker period={period} allowAll />
+      {undatedOut > 0 && (
+        <p className={styles.notice}>
+          {undatedOut} {undatedOut === 1 ? 'registro sin fecha no entra' : 'registros sin fecha no entran'} en este
+          periodo (como Máquinas u Obra). Elige «Todo» para verlos, o ponles fecha para que caigan en su mes.
+        </p>
+      )}
       {error && <div className={styles.error}>{error.message}</div>}
+      {exportError && <div className={styles.error}>{exportError}</div>}
 
       {summary && (
         <div className={styles.metrics}>
@@ -110,7 +159,7 @@ export function ExpensesPage() {
               {formatCents(summary.total)}
             </div>
             <small className={styles.kpiHint}>
-              {items.length} {items.length === 1 ? 'registro' : 'registros'}
+              {summary.items} {summary.items === 1 ? 'registro' : 'registros'}
             </small>
           </Card>
           <Card>
@@ -193,7 +242,9 @@ export function ExpensesPage() {
         ) : shown.length === 0 ? (
           <p className={styles.empty}>
             {filter === 'todos'
-              ? 'Todavía no hay gastos registrados.'
+              ? bounded
+                ? 'No hay gastos con fecha en este periodo.'
+                : 'Todavía no hay gastos registrados.'
               : `No hay gastos de ${categoryLabel(filter).toLowerCase()}.`}
           </p>
         ) : (

@@ -77,35 +77,38 @@ export async function list(): Promise<BusinessExpense[]> {
   }
 }
 
-export async function summary(): Promise<BusinessExpenseSummary> {
-  try {
-    const [totals, categories] = await Promise.all([
-      supabase
-        .from('business_expense_summary')
-        .select('total_cents, inversion_cents, gasto_cents, pending_count')
-        .retry(false)
-        .maybeSingle(),
-      supabase
-        .from('business_expense_category_totals')
-        .select('category, total_cents, items')
-        .retry(false),
-    ])
+interface PeriodSummaryJson {
+  total_cents: number
+  inversion_cents: number
+  gasto_cents: number
+  pending_count: number
+  items: number
+  by_category: Record<string, { total_cents: number; items: number }>
+}
 
-    const row = unwrapMaybe(totals)
+/**
+ * Totales del periodo [from, to] (YYYY-MM-DD). Sin fechas = todo el histórico,
+ * incluidos los registros sin fecha; con cualquier límite, esos quedan fuera.
+ */
+export async function summary(range: { from: string | null; to: string | null } = { from: null, to: null }): Promise<BusinessExpenseSummary> {
+  try {
+    const args: { p_from?: string; p_to?: string } = {}
+    if (range.from) args.p_from = range.from
+    if (range.to) args.p_to = range.to
+    const raw = unwrapMaybe(await supabase.rpc('business_expense_period_summary', args).retry(false))
+    const row = (raw ?? {}) as Partial<PeriodSummaryJson>
+
     const byCategory: BusinessExpenseSummary['byCategory'] = {}
-    for (const c of unwrap(categories)) {
-      if (!c.category) continue
-      byCategory[c.category as BusinessExpenseCategory] = {
-        total: cents(c.total_cents ?? 0),
-        items: c.items ?? 0,
-      }
+    for (const [category, value] of Object.entries(row.by_category ?? {})) {
+      byCategory[category as BusinessExpenseCategory] = { total: cents(value.total_cents), items: value.items }
     }
 
     return {
-      total: cents(row?.total_cents ?? 0),
-      inversion: cents(row?.inversion_cents ?? 0),
-      gasto: cents(row?.gasto_cents ?? 0),
-      pendingCount: row?.pending_count ?? 0,
+      total: cents(row.total_cents ?? 0),
+      inversion: cents(row.inversion_cents ?? 0),
+      gasto: cents(row.gasto_cents ?? 0),
+      pendingCount: row.pending_count ?? 0,
+      items: row.items ?? 0,
       byCategory,
     }
   } catch (cause) {

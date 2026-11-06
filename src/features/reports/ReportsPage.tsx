@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Page } from '@/components/Page'
-import { Card, Input } from '@/components/ui'
+import { Button, Card } from '@/components/ui'
+import { PeriodPicker } from '@/components/PeriodPicker'
+import { usePeriod } from '@/components/usePeriod'
 import {
   BarsCard,
   chartGridClass,
@@ -14,35 +16,22 @@ import {
   TrendCard,
 } from '@/components/charts'
 import type { SalesReport } from '@/data/repositories/reports'
-import { DataError, ORDER_STATUS_LABEL, PAYMENT_METHOD_LABEL, reports } from '@/data'
-import { cn } from '@/lib/cn'
+import { DataError, PAYMENT_METHOD_LABEL, reports } from '@/data'
 import { cents, formatCents, subtractCents } from '@/lib/money'
-import { daysAgo, endOfDay, fromDateInput, startOfDay } from '@/lib/dates'
+import { endOfDay, fromDateInput } from '@/lib/dates'
+import { buildReportSeries, dayLabel, FRANJAS } from './series'
 import styles from './ReportsPage.module.css'
 
-const RANGES = [
-  { key: 'hoy', label: 'Hoy', from: () => startOfDay() },
-  { key: '7d', label: '7 días', from: () => daysAgo(7) },
-  { key: '15d', label: '15 días', from: () => daysAgo(15) },
-  { key: '30d', label: '30 días', from: () => daysAgo(30) },
-  { key: '90d', label: '90 días', from: () => daysAgo(90) },
-] as const
-
 export function ReportsPage() {
-  const [range, setRange] = useState<string>('7d')
-  const [fromText, setFromText] = useState('')
-  const [toText, setToText] = useState('')
-
-  // Con fechas propias, "Hasta" vacío significa hasta hoy. Sin "Desde" no hay
-  // período que medir: el reporte espera a que se elija.
-  const custom = range === 'custom'
-  const active = RANGES.find((item) => item.key === range) ?? RANGES[0]
-  const from = custom ? fromDateInput(fromText, 'start') : active.from()
-  const to = custom ? (fromDateInput(toText, 'end') ?? endOfDay()) : endOfDay()
+  const period = usePeriod('7d')
+  const { from: fromDay, to: toDay } = period.range
+  const from = fromDay ? fromDateInput(fromDay, 'start') : null
+  const to = (toDay ? fromDateInput(toDay, 'end') : null) ?? endOfDay()
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
 
   const query = useQuery({
-    // Fechas como texto ISO en la llave: un Date nuevo por render repetiría la consulta.
-    queryKey: ['report', range, from?.toISOString() ?? null, to.toISOString()],
+    queryKey: ['report', fromDay, toDay],
     queryFn: () => reports.getSalesReport(from as Date, to),
     enabled: from !== null,
   })
@@ -53,42 +42,27 @@ export function ReportsPage() {
     <Page
       title="Ventas y rentabilidad"
       subtitle="Fechas y horas de Ciudad de México. El ingreso se mide sobre lo cobrado, no sobre lo facturado."
+      actions={
+        <Button
+          disabled={!report || exporting}
+          loading={exporting}
+          onClick={() => {
+            if (!report) return
+            setExporting(true)
+            setExportError(null)
+            // El generador (exceljs) se descarga solo al exportar.
+            import('@/features/export/reportExcel')
+              .then((m) => m.downloadReportExcel(report, period.range))
+              .catch(() => setExportError('No se pudo generar el Excel. Intenta de nuevo.'))
+              .finally(() => setExporting(false))
+          }}
+        >
+          Exportar Excel
+        </Button>
+      }
     >
-      <div className={styles.ranges}>
-        {RANGES.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            className={cn(styles.range, range === item.key && styles.rangeActive)}
-            onClick={() => setRange(item.key)}
-          >
-            {item.label}
-          </button>
-        ))}
-
-        <Input
-          className={styles.dateField}
-          type="date"
-          label="Desde"
-          value={fromText}
-          max={toText || undefined}
-          onChange={(event) => {
-            setFromText(event.target.value)
-            setRange('custom')
-          }}
-        />
-        <Input
-          className={styles.dateField}
-          type="date"
-          label="Hasta"
-          value={toText}
-          min={fromText || undefined}
-          onChange={(event) => {
-            setToText(event.target.value)
-            setRange('custom')
-          }}
-        />
-      </div>
+      <PeriodPicker period={period} />
+      {exportError && <p className={styles.error}>{exportError}</p>}
 
       {from === null ? (
         <p className={styles.loading}>Elige la fecha «Desde» para ver el reporte.</p>
@@ -109,79 +83,15 @@ export function ReportsPage() {
 // Cuerpo del reporte (gráficas al estilo del POS de Tori Hana)
 // ---------------------------------------------------------------------------
 
-const toPesos = (v: number) => Math.round(v) / 100
-
-/** Franjas del día para leer la hora pico de un vistazo. */
-const FRANJAS = [
-  { label: 'Mañana', desde: 0, hasta: 11, color: '#3b82a0' },
-  { label: 'Mediodía', desde: 12, hasta: 15, color: '#d98a3d' },
-  { label: 'Tarde', desde: 16, hasta: 23, color: '#c9a15a' },
-] as const
-const franjaDe = (h: number) => FRANJAS.find((f) => h >= f.desde && h <= f.hasta) ?? FRANJAS[2]
-
-const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'] as const
-const ORDEN_DIAS = [1, 2, 3, 4, 5, 6, 0] // getUTCDay: 0 = domingo
-const dayLabel = (d: string) => `${d.slice(8, 10)}/${d.slice(5, 7)}`
-
 function ReportBody({ report }: { report: SalesReport }) {
   const profit = subtractCents(report.revenue, report.expenses)
   const avgTicket = report.paymentCount > 0 ? cents(report.revenue / report.paymentCount) : report.revenue
 
-  const daily = useMemo(
-    () => report.byDay.map((r) => ({ name: dayLabel(r.day), Ventas: toPesos(r.revenue) })),
-    [report.byDay],
-  )
-
-  const cumulative = useMemo(() => {
-    let run = 0
-    return report.byDay.map((r) => {
-      run += r.revenue
-      return { name: dayLabel(r.day), value: toPesos(run) }
-    })
-  }, [report.byDay])
-
-  const hourRows = useMemo(() => {
-    if (!report.byHour.length) return []
-    const map = new Map(report.byHour.map((r) => [r.hour, r.total]))
-    const hours = report.byHour.map((r) => r.hour)
-    const out = []
-    for (let h = Math.min(...hours); h <= Math.max(...hours); h++) {
-      const f = franjaDe(h)
-      out.push({ name: `${String(h).padStart(2, '0')}:00`, value: toPesos(map.get(h) ?? 0), color: f.color, franja: f.label })
-    }
-    return out
-  }, [report.byHour])
-  const peakHour = hourRows.reduce<(typeof hourRows)[number] | undefined>(
-    (m, r) => (r.value > 0 && (!m || r.value > m.value) ? r : m),
-    undefined,
-  )
-
-  const weekdayRows = useMemo(() => {
-    const acc = new Map<number, { total: number; dias: number }>()
-    for (const r of report.byDay) {
-      if (r.revenue <= 0) continue
-      const wd = new Date(`${r.day}T12:00:00Z`).getUTCDay()
-      const a = acc.get(wd) ?? { total: 0, dias: 0 }
-      a.total += r.revenue
-      a.dias += 1
-      acc.set(wd, a)
-    }
-    return ORDEN_DIAS.map((wd, i) => {
-      const a = acc.get(wd)
-      return { name: DIAS[i] ?? '', value: a ? toPesos(a.total / a.dias) : 0 }
-    })
-  }, [report.byDay])
-  const peakWeekday = weekdayRows.reduce<(typeof weekdayRows)[number] | undefined>(
-    (m, r) => (r.value > 0 && (!m || r.value > m.value) ? r : m),
-    undefined,
-  )
-
-  const balance = report.byDay.map((r) => ({
-    name: dayLabel(r.day),
-    Ingresos: toPesos(r.revenue),
-    Egresos: toPesos(r.expenses),
-    Ganancia: toPesos(r.revenue - r.expenses),
-  }))
+  const series = useMemo(() => buildReportSeries(report), [report])
+  const { peakHour, peakWeekday } = series
+  const hourRows = series.hours
+  const daily = series.daily.map((r) => ({ name: r.name, Ventas: r.value }))
+  const balance = series.balance.map((r) => ({ name: r.name, Ingresos: r.ingresos, Egresos: r.egresos, Ganancia: r.ganancia }))
 
   return (
     <>
@@ -240,7 +150,7 @@ function ReportBody({ report }: { report: SalesReport }) {
         <TrendCard
           title="Ventas acumuladas"
           hint="Suma de cobros día tras día: la pendiente muestra el ritmo del periodo."
-          data={cumulative}
+          data={series.cumulative}
           series={[{ key: 'value', label: 'Ventas acumuladas', color: COLOR_VENTAS }]}
           catLabel="Día"
           valLabel="Acumulado ($)"
@@ -267,7 +177,7 @@ function ReportBody({ report }: { report: SalesReport }) {
               ? `Mejor día: ${peakWeekday.name} (promedio ${formatCents(cents(peakWeekday.value * 100))}). Solo cuenta días con venta.`
               : 'Promedio de cobro por día de la semana.'
           }
-          data={weekdayRows.map((r) => ({
+          data={series.weekdays.map((r) => ({
             ...r,
             color: r.name === peakWeekday?.name ? COLOR_HIGHLIGHT : COLOR_VENTAS,
           }))}
@@ -277,21 +187,21 @@ function ReportBody({ report }: { report: SalesReport }) {
         <DonutCard
           title="Ventas por medio de pago"
           hint="Qué parte del dinero entra por cada forma de pago."
-          data={report.byMethod.map((r) => ({ name: PAYMENT_METHOD_LABEL[r.method], value: toPesos(r.total) }))}
+          data={series.methods}
         />
         <BarsCard
           title="Top 10 servicios por importe"
           hint="Los servicios que más dinero dejaron (por fecha de recepción)."
           horizontal
           colorful
-          data={report.byService.slice(0, 10).map((r) => ({ name: r.serviceName, value: toPesos(r.total) }))}
+          data={series.servicesByAmount}
           catLabel="Servicio"
           valLabel="Importe ($)"
         />
         <DonutCard
           title="Gastos por categoría"
           hint="En qué se va el gasto del periodo."
-          data={report.expensesByCategory.map((r) => ({ name: r.name, value: toPesos(r.total) }))}
+          data={series.expensesByCategory}
         />
         <BarsCard
           title="Órdenes por estado"
@@ -299,7 +209,7 @@ function ReportBody({ report }: { report: SalesReport }) {
           colorful
           count
           format={(v) => `${Number(v)} órdenes`}
-          data={report.ordersByStatus.map((r) => ({ name: ORDER_STATUS_LABEL[r.status], value: r.count }))}
+          data={series.ordersByStatus}
           valLabel="Órdenes"
         />
         <BarsCard
@@ -309,10 +219,7 @@ function ReportBody({ report }: { report: SalesReport }) {
           colorful
           count
           format={(v) => `${Number(v)} pzas`}
-          data={[...report.byService]
-            .sort((a, b) => b.quantity - a.quantity)
-            .slice(0, 10)
-            .map((r) => ({ name: r.serviceName, value: r.quantity }))}
+          data={series.servicesByQty}
           catLabel="Servicio"
           valLabel="Cantidad"
         />

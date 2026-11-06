@@ -422,5 +422,7 @@ export interface BusinessExpenseSummary {
   inversion: Cents
   gasto: Cents
   pendingCount: number
+  /** Registros que entran en el periodo. */
+  items: number
   byCategory: Partial<Record<BusinessExpenseCategory, { total: Cents; items: number }>>
 }

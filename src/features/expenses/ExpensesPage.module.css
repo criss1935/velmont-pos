@@ -296,3 +296,12 @@
     font-size: var(--vm-text-base);
   }
 }
+
+.notice {
+  margin: 0 0 var(--vm-space-4);
+  padding: var(--vm-space-3) var(--vm-space-4);
+  font-size: var(--vm-text-sm);
+  color: var(--vm-warning);
+  background-color: var(--vm-warning-bg);
+  border-radius: var(--vm-radius);
+}

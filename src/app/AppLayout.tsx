@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Brand } from '@/components/Brand'
 import { OfflineBanner } from '@/features/sync/OfflineBanner'
 import { SyncIndicator } from '@/features/sync/SyncIndicator'
@@ -42,6 +43,15 @@ export function AppLayout() {
   const isAdmin = useIsAdmin()
 
   const items = NAV.filter((item) => !item.adminOnly || isAdmin)
+
+  // La barra inferior se desliza: al cambiar de pantalla, la pestaña activa se
+  // centra para que nunca quede escondida fuera del borde.
+  const bottomNavRef = useRef<HTMLElement>(null)
+  const { pathname } = useLocation()
+  useEffect(() => {
+    const active = bottomNavRef.current?.querySelector<HTMLElement>('[aria-current="page"]')
+    active?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+  }, [pathname])
 
   return (
     <div className={styles.shell}>
@@ -143,7 +153,7 @@ export function AppLayout() {
       </div>
 
       {/* --- Navegación inferior (solo móvil) --- */}
-      <nav className={styles.bottomNav}>
+      <nav ref={bottomNavRef} className={styles.bottomNav}>
         {items.map((item) => (
           <NavLink
             key={item.to}

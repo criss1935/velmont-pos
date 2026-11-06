@@ -13,6 +13,7 @@ import { InventoryPage } from './features/inventory/InventoryPage'
 import { CatalogPage } from './features/catalog/CatalogPage'
 import { ReportsPage } from './features/reports/ReportsPage'
 import { SettingsPage } from './features/settings/SettingsPage'
+import { ExpensesPage } from './features/expenses/ExpensesPage'
 import { Splash } from './components/Splash'
 
 export function App() {
@@ -54,6 +55,12 @@ export function App() {
             path="/reportes"
             element={
               profile.role === 'admin' ? <ReportsPage /> : <Navigate to="/recibir" replace />
+            }
+          />
+          <Route
+            path="/gastos"
+            element={
+              profile.role === 'admin' ? <ExpensesPage /> : <Navigate to="/recibir" replace />
             }
           />
           <Route

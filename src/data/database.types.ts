@@ -84,6 +84,62 @@ export type Database = {
         }
         Relationships: []
       }
+      business_expenses: {
+        Row: {
+          amount_cents: number
+          amount_pending: boolean
+          category: string
+          concept: string
+          created_at: string
+          created_by: string | null
+          expense_date: string | null
+          id: string
+          kind: Database["public"]["Enums"]["business_expense_kind"]
+          notes: string | null
+          paid_to: string | null
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          amount_cents: number
+          amount_pending?: boolean
+          category: string
+          concept: string
+          created_at?: string
+          created_by?: string | null
+          expense_date?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["business_expense_kind"]
+          notes?: string | null
+          paid_to?: string | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          amount_pending?: boolean
+          category?: string
+          concept?: string
+          created_at?: string
+          created_by?: string | null
+          expense_date?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["business_expense_kind"]
+          notes?: string | null
+          paid_to?: string | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_expenses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_settings: {
         Row: {
           address: string
@@ -1068,6 +1124,23 @@ export type Database = {
       }
     }
     Views: {
+      business_expense_category_totals: {
+        Row: {
+          category: string | null
+          items: number | null
+          total_cents: number | null
+        }
+        Relationships: []
+      }
+      business_expense_summary: {
+        Row: {
+          gasto_cents: number | null
+          inversion_cents: number | null
+          pending_count: number | null
+          total_cents: number | null
+        }
+        Relationships: []
+      }
       cash_session_expected: {
         Row: {
           cash_session_id: string | null
@@ -1165,6 +1238,7 @@ export type Database = {
       log_audit_event: { Args: { p_action: string }; Returns: undefined }
     }
     Enums: {
+      business_expense_kind: "inversion" | "gasto"
       cash_movement_type: "entrada" | "salida"
       order_status:
         | "recibido"
@@ -1305,6 +1379,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      business_expense_kind: ["inversion", "gasto"],
       cash_movement_type: ["entrada", "salida"],
       order_status: [
         "recibido",

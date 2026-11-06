@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
   { to: '/inventario', label: 'Inventario', icon: '⬢' },
   { to: '/catalogo', label: 'Catálogo', icon: '▥', adminOnly: true },
   { to: '/reportes', label: 'Reportes', icon: '◆', adminOnly: true },
+  { to: '/gastos', label: 'Gastos', icon: '◫', adminOnly: true },
   { to: '/configuracion', label: 'Configuración', icon: '⚙', adminOnly: true },
 ]
 

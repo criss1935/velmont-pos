@@ -174,6 +174,17 @@ llega a ella solo por `repositories/emails.ts`.
   del servidor, no solo del build). Ver `.env.example`.
 - Las fotos van como `<img>` con la URL pública del bucket `order-media`.
 
+## Gastos históricos
+
+Migración `20260124000000_business_expenses`. Pestaña **Gastos** (`/gastos`, solo
+admin): histórico de inversión (máquinas) y gastos del local (obra, instalaciones,
+renta, servicios, permisos, sistema…). No toca caja ni caja chica. Tabla
+`business_expenses`, editable (el dueño corrige montos conforme los confirma;
+el trigger de auditoría guarda antes/después). `amount_pending` marca montos
+provisionales; `valid_until` es la vigencia de permisos/pólizas/extintores.
+Totales en las vistas `business_expense_summary` y
+`business_expense_category_totals` (regla 3). Online-only.
+
 ## Configuración del negocio
 
 `business_settings` (fila única, editable desde `/configuracion`, solo admin):

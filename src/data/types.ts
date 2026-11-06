@@ -374,3 +374,53 @@ export interface OrderEmail {
   error: string | null
   createdAt: string
 }
+
+// --- Gastos históricos (inversión y gastos del local) ---
+
+export type BusinessExpenseKind = 'inversion' | 'gasto'
+
+export type BusinessExpenseCategory =
+  | 'equipo'
+  | 'obra'
+  | 'instalaciones'
+  | 'renta'
+  | 'servicios'
+  | 'legal'
+  | 'sistema'
+  | 'otros'
+
+export interface BusinessExpense {
+  id: string
+  kind: BusinessExpenseKind
+  category: BusinessExpenseCategory
+  concept: string
+  amount: Cents
+  /** Importe provisional: cuenta en el total pero falta confirmarlo. */
+  amountPending: boolean
+  /** YYYY-MM-DD */
+  expenseDate: string | null
+  /** Vigencia de permisos, pólizas, licencias. YYYY-MM-DD */
+  validUntil: string | null
+  paidTo: string | null
+  notes: string | null
+}
+
+export interface BusinessExpenseInput {
+  kind: BusinessExpenseKind
+  category: BusinessExpenseCategory
+  concept: string
+  amount: Cents
+  amountPending: boolean
+  expenseDate: string | null
+  validUntil: string | null
+  paidTo: string | null
+  notes: string | null
+}
+
+export interface BusinessExpenseSummary {
+  total: Cents
+  inversion: Cents
+  gasto: Cents
+  pendingCount: number
+  byCategory: Partial<Record<BusinessExpenseCategory, { total: Cents; items: number }>>
+}

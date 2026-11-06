@@ -12,6 +12,44 @@ export interface SalesReport {
   byService: Array<{ serviceName: string; total: Cents; quantity: number }>
   ordersByStatus: Array<{ status: OrderStatus; count: number }>
   ordersReceived: number
+  /** Cobrado por día (hora CDMX), con todos los días del periodo aunque sean 0. */
+  byDay: Array<{ day: string; revenue: Cents; expenses: Cents }>
+  /** Cobrado por hora del día (hora CDMX). */
+  byHour: Array<{ hour: number; total: Cents }>
+  /** Gastos del periodo: gastos históricos con fecha en el periodo + gastos de caja chica. */
+  expenses: Cents
+  expensesByCategory: Array<{ name: string; total: Cents }>
+}
+
+const TZ = 'America/Mexico_City'
+const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' })
+const hourFmt = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: '2-digit', hourCycle: 'h23' })
+
+/** Fecha de operación en CDMX: "2026-11-05". */
+const mxDay = (d: Date) => dayFmt.format(d)
+const mxHour = (d: Date) => Number(hourFmt.format(d)) % 24
+
+const EXPENSE_CATEGORY_LABEL: Record<string, string> = {
+  equipo: 'Equipo y maquinaria',
+  obra: 'Obra y acabados',
+  instalaciones: 'Instalaciones',
+  renta: 'Renta',
+  servicios: 'Servicios',
+  legal: 'Legal y permisos',
+  sistema: 'Sistema',
+  otros: 'Otros',
+}
+
+/** Todos los días entre dos fechas YYYY-MM-DD (tope 400 para no colgar la UI). */
+function daysBetween(from: string, to: string): string[] {
+  const out: string[] = []
+  const cur = new Date(`${from}T12:00:00Z`)
+  const end = new Date(`${to}T12:00:00Z`)
+  while (cur <= end && out.length < 400) {
+    out.push(cur.toISOString().slice(0, 10))
+    cur.setUTCDate(cur.getUTCDate() + 1)
+  }
+  return out
 }
 
 /**
@@ -39,13 +77,16 @@ async function fetchSalesReport(from: Date, to: Date): Promise<SalesReport> {
   // `.retry(false)`: sin red, que falle a la primera — Reportes no tiene
   // caché (a propósito, ver getSalesReport arriba), así que no hay nada que
   // ganar esperando los reintentos internos de postgrest-js.
-  const [payments, items, orders] = await Promise.all([
+  const fromDay = mxDay(from)
+  const toDay = mxDay(to)
+
+  const [payments, items, orders, businessExpenses, pettyExpenses] = await Promise.all([
     // Un pago de una orden cancelada no es ingreso: la orden no se hizo. Sin
     // este filtro, cancelar una orden ya cobrada (o una venta de prueba) dejaba
     // el dinero inflando "Cobrado" para siempre.
     supabase
       .from('payments')
-      .select('method, amount_cents, orders!inner(status)')
+      .select('method, amount_cents, created_at, orders!inner(status)')
       .gte('created_at', fromIso)
       .lte('created_at', toIso)
       .neq('orders.status', 'cancelado')
@@ -67,11 +108,30 @@ async function fetchSalesReport(from: Date, to: Date): Promise<SalesReport> {
       .gte('received_at', fromIso)
       .lte('received_at', toIso)
       .retry(false),
+
+    // Gastos históricos del local (solo admin por RLS; Reportes ya es solo admin).
+    // Los que no tienen fecha no caen en ningún periodo: viven en la pestaña Gastos.
+    supabase
+      .from('business_expenses')
+      .select('category, amount_cents, expense_date')
+      .gte('expense_date', fromDay)
+      .lte('expense_date', toDay)
+      .retry(false),
+
+    supabase
+      .from('petty_cash_movements')
+      .select('amount_cents, created_at')
+      .eq('type', 'gasto')
+      .gte('created_at', fromIso)
+      .lte('created_at', toIso)
+      .retry(false),
   ])
 
   const paymentRows = unwrap(payments)
   const itemRows = unwrap(items)
   const orderRows = unwrap(orders)
+  const businessRows = unwrap(businessExpenses)
+  const pettyRows = unwrap(pettyExpenses)
 
   const revenue = addCents(...paymentRows.map((row) => cents(row.amount_cents)))
 
@@ -98,8 +158,38 @@ async function fetchSalesReport(from: Date, to: Date): Promise<SalesReport> {
     statusMap.set(row.status, (statusMap.get(row.status) ?? 0) + 1)
   }
 
+  const days = new Map(daysBetween(fromDay, toDay).map((d) => [d, { revenue: 0, expenses: 0 }]))
+  const hours = new Map<number, number>()
+  for (const row of paymentRows) {
+    const at = new Date(row.created_at)
+    const bucket = days.get(mxDay(at))
+    if (bucket) bucket.revenue += row.amount_cents
+    const h = mxHour(at)
+    hours.set(h, (hours.get(h) ?? 0) + row.amount_cents)
+  }
+
+  const expenseCats = new Map<string, number>()
+  for (const row of businessRows) {
+    const name = EXPENSE_CATEGORY_LABEL[row.category] ?? row.category
+    expenseCats.set(name, (expenseCats.get(name) ?? 0) + row.amount_cents)
+    const bucket = row.expense_date ? days.get(row.expense_date) : undefined
+    if (bucket) bucket.expenses += row.amount_cents
+  }
+  for (const row of pettyRows) {
+    expenseCats.set('Caja chica', (expenseCats.get('Caja chica') ?? 0) + row.amount_cents)
+    const bucket = days.get(mxDay(new Date(row.created_at)))
+    if (bucket) bucket.expenses += row.amount_cents
+  }
+  const expenses = addCents(...[...expenseCats.values()].map((v) => cents(v)))
+
   return {
     revenue,
+    expenses,
+    byDay: [...days.entries()].map(([day, v]) => ({ day, revenue: cents(v.revenue), expenses: cents(v.expenses) })),
+    byHour: [...hours.entries()].sort(([a], [b]) => a - b).map(([hour, total]) => ({ hour, total: cents(total) })),
+    expensesByCategory: [...expenseCats.entries()]
+      .map(([name, total]) => ({ name, total: cents(total) }))
+      .sort((a, b) => b.total - a.total),
     paymentCount: paymentRows.length,
 
     byMethod: [...methodMap.entries()]

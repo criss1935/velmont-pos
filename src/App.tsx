@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './app/AppLayout'
 import { useSession } from './app/session'
@@ -11,10 +11,13 @@ import { CustomersPage } from './features/customers/CustomersPage'
 import { CashPage } from './features/cash/CashPage'
 import { InventoryPage } from './features/inventory/InventoryPage'
 import { CatalogPage } from './features/catalog/CatalogPage'
-import { ReportsPage } from './features/reports/ReportsPage'
 import { SettingsPage } from './features/settings/SettingsPage'
-import { ExpensesPage } from './features/expenses/ExpensesPage'
 import { Splash } from './components/Splash'
+
+// Reportes y Gastos traen las gráficas (recharts, ~400 kB): se cargan solo al
+// abrirlas, para que el mostrador no las descargue en cada arranque.
+const ReportsPage = lazy(() => import('./features/reports/ReportsPage').then((m) => ({ default: m.ReportsPage })))
+const ExpensesPage = lazy(() => import('./features/expenses/ExpensesPage').then((m) => ({ default: m.ExpensesPage })))
 
 export function App() {
   const profile = useSession((state) => state.profile)
@@ -54,13 +57,13 @@ export function App() {
           <Route
             path="/reportes"
             element={
-              profile.role === 'admin' ? <ReportsPage /> : <Navigate to="/recibir" replace />
+              profile.role === 'admin' ? <Suspense fallback={null}><ReportsPage /></Suspense> : <Navigate to="/recibir" replace />
             }
           />
           <Route
             path="/gastos"
             element={
-              profile.role === 'admin' ? <ExpensesPage /> : <Navigate to="/recibir" replace />
+              profile.role === 'admin' ? <Suspense fallback={null}><ExpensesPage /></Suspense> : <Navigate to="/recibir" replace />
             }
           />
           <Route

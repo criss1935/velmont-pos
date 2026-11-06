@@ -1,0 +1,86 @@
+.chart {
+  width: 100%;
+  font-size: 12px;
+  color: var(--vm-text-muted);
+}
+
+.chart :global(svg) {
+  overflow: visible;
+}
+
+.chart :global(.recharts-default-tooltip) {
+  background: var(--vm-card) !important;
+  border: 1px solid var(--vm-border-neutral) !important;
+  border-radius: var(--vm-radius);
+  font-family: var(--vm-font-sans);
+}
+
+.hint {
+  margin: -4px 0 var(--vm-space-3);
+  font-size: var(--vm-text-sm);
+  line-height: 1.35;
+  color: var(--vm-text-dim);
+}
+
+.empty {
+  padding: var(--vm-space-6);
+  text-align: center;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-dim);
+  border: 1px dashed var(--vm-border-neutral);
+  border-radius: var(--vm-radius);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 var(--vm-space-2);
+  padding: 0;
+  list-style: none;
+  font-size: var(--vm-text-sm);
+  color: var(--vm-text-muted);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.legend em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--vm-text);
+}
+
+@media (max-width: 760px) {
+  .legend {
+    gap: 4px 12px;
+    font-size: var(--vm-text-xs);
+  }
+  .legend li {
+    flex: 1 1 100%;
+  }
+}
+
+/* Rejilla de 2 columnas para tarjetas de gráficas (1 en celular). */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vm-space-4);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

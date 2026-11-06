@@ -34,7 +34,7 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: var(--vm-space-4);
   margin-bottom: var(--vm-space-6);
 }
@@ -51,9 +51,9 @@
   margin-top: var(--vm-space-2);
   font-family: var(--vm-font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: var(--vm-text-4xl);
+  font-size: var(--vm-text-3xl);
   font-weight: 700;
-  color: var(--vm-gold-300);
+  color: var(--vm-text);
   letter-spacing: -0.03em;
 }
 
@@ -147,4 +147,55 @@
 .loading {
   font-size: var(--vm-text-sm);
   color: var(--vm-text-dim);
+}
+
+.section {
+  margin: var(--vm-space-4) 0;
+}
+
+.scroll {
+  overflow-x: auto;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--vm-text-sm);
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  padding: var(--vm-space-3) var(--vm-space-4);
+  text-align: left;
+  font-size: var(--vm-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--vm-tracking-wider);
+  text-transform: uppercase;
+  color: var(--vm-text-dim);
+  background-color: var(--vm-surface-2);
+}
+
+.table td {
+  padding: var(--vm-space-3) var(--vm-space-4);
+  border-bottom: 1px solid var(--vm-border-subtle);
+}
+
+.num {
+  text-align: right !important;
+  font-family: var(--vm-font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--vm-space-2);
+  }
+  .statValue {
+    font-size: var(--vm-text-xl);
+  }
 }

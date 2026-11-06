@@ -185,6 +185,17 @@ provisionales; `valid_until` es la vigencia de permisos/pólizas/extintores.
 Totales en las vistas `business_expense_summary` y
 `business_expense_category_totals` (regla 3). Online-only.
 
+## Gráficas (Gastos y Reportes)
+
+`src/components/charts` — mismo set que el POS de Tori Hana (`BarsCard`,
+`MultiBarsCard`, `TrendCard`, `DonutCard`) sobre recharts 2.x, con paleta Velmont
+(`palette.ts`). Reciben PESOS ya convertidos: es solo pintura. `count` en
+`BarsCard` para cantidades (sin "$"). recharts 2 + React 19 no aplana Fragments:
+cada eje va como hijo directo de la gráfica. Reportes y Gastos se cargan con
+`React.lazy` (App.tsx) para que recharts no entre al bundle del mostrador.
+Reportes agrupa por día/hora en hora de CDMX y suma como egresos los gastos
+históricos con fecha en el periodo + gastos de caja chica.
+
 ## Configuración del negocio
 
 `business_settings` (fila única, editable desde `/configuracion`, solo admin):
